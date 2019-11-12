@@ -4,3 +4,5 @@
 *.jl.cov
 *.jl.*.cov
 *.jl.mem
+
+*.png
