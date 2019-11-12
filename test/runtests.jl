@@ -1,6 +1,10 @@
 using SciAlgs
 using Test
 
+import SciAlgs: my_f
+
+my_f(2,1)
+
 @testset "SciAlgs.jl" begin
-    # Write your own tests here.
+   @test my_f(2,1) == 5
 end
