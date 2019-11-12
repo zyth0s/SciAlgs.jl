@@ -4,10 +4,10 @@
 # with linear equation y = mx + b
 # m: slope
 # b: y-intercept
+# r: correlation factor ∈ [-1,1]
 
 function lsq_fit(x,y)
-   N = length(x) 
-
+   N   = length(x) 
    ∑x  = sum(x)
    ∑y  = sum(y)
    ∑x² = sum(x.^2)
@@ -16,7 +16,6 @@ function lsq_fit(x,y)
 
    m = ( N * ∑xy - ∑x * ∑y ) / ( N * ∑x² - (∑x)^2 )
    b = ( ∑y * ∑x² - ∑x * ∑xy ) / ( N * ∑x² - (∑x)^2 ) 
-
    r = ( ∑xy - ∑x * ∑y / N ) / sqrt( (∑x² - (∑x)^2/N) * (∑y² - (∑y)^2/N) )
    m, b, r
 end
