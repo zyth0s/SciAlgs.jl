@@ -7,7 +7,7 @@
 [![Coveralls](https://coveralls.io/repos/github/zyth0s/SciAlgs.jl/badge.svg?branch=master)](https://coveralls.io/github/zyth0s/SciAlgs.jl?branch=master)
 
 SciAlgs contains a set of common scientific algorithms written in a 21st century high-level programming language.
-Ideally it would be like a Numerical Recipes of our age. Acomplishing that task would be daunting, 
+Ideally it would be like a Numerical Recipes of our age. However, acomplishing that task would be daunting and is not necesarily the goal.
 
 Some of the aims would be:
 * To rewrite some old programs to avoid their obsolescence.
