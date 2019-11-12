@@ -17,3 +17,9 @@ Some of the aims would be:
 * Expand the ecosystem of scientific packages in Julia.
 
 
+Some of the topics that are going to be covered are:
+* Crystallography
+* Quantum Chemistry
+* Condensed Matter Physics
+* Quantum Mechanics models
+* Numerical methods
