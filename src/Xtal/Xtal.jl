@@ -1,8 +1,12 @@
 #!/usr/bin/env julia
 
+
+import ..Bar: greet2
+greet2()
+
 using LinearAlgebra
 using Formatting: printfmt
-
+using SymPy
 
 # Metric tensor (Å²)
 function metric_tensor(a,b,c,α,β,γ)
@@ -87,6 +91,17 @@ function interplanar_spacing(h,k,l,aᵣ,bᵣ,cᵣ,αᵣ,βᵣ,γᵣ)
    sqrt(1.0/d2)                                    
 end
 
+# The signature is the same, but one gets direct cell parameters and the other reciprocal
+#function interplanar_spacing(h,k,l,a,b,c,α,β,γ)
+#   unitV = unit_volume_unit_cell(a,b,c,α,β,γ)
+#   unitV / (h^2/a^2*sin(α)^2 
+#          + k^2/b^2*sin(β)^2 
+#          + l^2/c^2*sin(γ)^2 
+#          + 2*k*l/(b*c)*(cos(β)*cos(γ) - cos(α)) 
+#          + 2*h*l/(a*c)*(cos(γ)*cos(α)-cos(β)) 
+#          + 2*h*k/(a*b)*(cos(α)*cos(β)-cos(γ))    )
+#end
+
 
 
 function cart_frac(a,b,c,α,β,γ)
@@ -104,6 +119,7 @@ end
 
 function map2Seitz(mapping)
    println(" * Mapping: ", mapping...)
+   @vars x y z
    w = [float(subs(c, (x,0.), (y,0.), (z,0.))) for c in mapping]
    W = zeros(3,3)
    W[:,1] = [float(subs(c, (x,1.), (y,0.), (z,0.))) for c in mapping] - w
@@ -249,46 +265,46 @@ end
 
 # ================================================================================
 
-#function example1()
-# Example 1: 
-a = 13.90222379    # Å
-b = 8.08681840     # Å     
-c = 16.0706089     # Å
-α = 90 * π / 180  # radians
-β = 90 * π / 180  # radians
-γ = 90 * π / 180  # radians
 
-G = metric_tensor(a,b,c,α,β,γ)
-characterize_metric_tensor(G)
+function example1()
+   # Example 1: 
+   a = 13.90222379    # Å
+   b = 8.08681840     # Å     
+   c = 16.0706089     # Å
+   α = 90 * π / 180  # radians
+   β = 90 * π / 180  # radians
+   γ = 90 * π / 180  # radians
+
+   G = metric_tensor(a,b,c,α,β,γ)
+   characterize_metric_tensor(G)
 
 
-M, Minv = cart_frac(a,b,c,α,β,γ)
+   M, Minv = cart_frac(a,b,c,α,β,γ)
 
-# Cartesian to crystallographic
-x = [3.23629868,2.0217046, -6.16388206] # column vector of atom 
-M*x
+   # Cartesian to crystallographic
+   x = [3.23629868,2.0217046, -6.16388206] # column vector of atom 
+   M*x
 
-using SymPy
-@vars x y z
+   @vars x y z
 
-mapping = -x + 0.5, -y, z + 0.5
-W, w = map2Seitz(mapping)
-characterize_Seitz(W,w,G)
+   mapping = -x + 0.5, -y, z + 0.5
+   W, w = map2Seitz(mapping)
+   characterize_Seitz(W,w,G)
 
-a1, a2, a3 = lattice_vectors(a,b,c,α,β,γ)
-T = [a1 a2 a3]
-println(" * Lattice vectors (a1 a2 a3) = T:")
-printfmt("   {:7.3f} {:7.3f} {:7.3f}\n",a1[1],a2[1],a3[1])
-printfmt("   {:7.3f} {:7.3f} {:7.3f}\n",a1[2],a2[2],a3[2])
-printfmt("   {:7.3f} {:7.3f} {:7.3f}\n",a1[3],a2[3],a3[3])
-b1, b2, b3 = reciprocal_vectors(a1,a2,a3)
-Tr = [b1 b2 b3]
-println(" * Reciprocal vectors (b1 b2 b3) = T*:")
-printfmt("   {:7.3f} {:7.3f} {:7.3f}\n",Tr[1,1],Tr[1,2],Tr[1,3])
-printfmt("   {:7.3f} {:7.3f} {:7.3f}\n",Tr[2,1],Tr[2,2],Tr[2,3])
-printfmt("   {:7.3f} {:7.3f} {:7.3f}\n",Tr[3,1],Tr[3,2],Tr[3,3])
+   a1, a2, a3 = lattice_vectors(a,b,c,α,β,γ)
+   T = [a1 a2 a3]
+   println(" * Lattice vectors (a1 a2 a3) = T:")
+   printfmt("   {:7.3f} {:7.3f} {:7.3f}\n",a1[1],a2[1],a3[1])
+   printfmt("   {:7.3f} {:7.3f} {:7.3f}\n",a1[2],a2[2],a3[2])
+   printfmt("   {:7.3f} {:7.3f} {:7.3f}\n",a1[3],a2[3],a3[3])
+   b1, b2, b3 = reciprocal_vectors(a1,a2,a3)
+   Tr = [b1 b2 b3]
+   println(" * Reciprocal vectors (b1 b2 b3) = T*:")
+   printfmt("   {:7.3f} {:7.3f} {:7.3f}\n",Tr[1,1],Tr[1,2],Tr[1,3])
+   printfmt("   {:7.3f} {:7.3f} {:7.3f}\n",Tr[2,1],Tr[2,2],Tr[2,3])
+   printfmt("   {:7.3f} {:7.3f} {:7.3f}\n",Tr[3,1],Tr[3,2],Tr[3,3])
 
-#end
+end
 
 #function example2()
 #   # Example 2: FeO₂...
@@ -324,16 +340,6 @@ printfmt("   {:7.3f} {:7.3f} {:7.3f}\n",Tr[3,1],Tr[3,2],Tr[3,3])
 # short    Hermann-Maugin
 # extended Hermann-Maugin
 
-function interplanar_spacing(h,k,l,a,b,c,α,β,γ)
-   unitV = unit_volume_unit_cell(a,b,c,α,β,γ)
-   unitV / (h^2/a^2*sin(α)^2 
-          + k^2/b^2*sin(β)^2 
-          + l^2/c^2*sin(γ)^2 
-          + 2*k*l/(b*c)*(cos(β)*cos(γ) - cos(α)) 
-          + 2*h*l/(a*c)*(cos(γ)*cos(α)-cos(β)) 
-          + 2*h*k/(a*b)*(cos(α)*cos(β)-cos(γ))    )
-end
-
 function interplanar_spacing(θ,λ)
    " Uses Bragg's Law"
    λ / (2.0 * sin(θ) )
@@ -361,3 +367,4 @@ function crystallite_size(β,λ,θ,K=0.9)
    " Return nanometers"
    K * λ / (β * (2*θ) * cosd(θ) )
 end
+

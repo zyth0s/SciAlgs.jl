@@ -49,7 +49,7 @@ end
 # Therefore, U is the matrix that diagonalizes A.
 # A̲ and D̲ are said to be similar matrices.
 #
-A ≈ U*diagm( 0 => e) * U' || error("Not a similarity transformation")
+A ≈ U * Diagonal(e) * U' || error("Not a similarity transformation")
 
 # A similarity transformation is also a conformal mapping. A matrix W̲
 # encoding a crystallographic symmetry operation is an isometry if
