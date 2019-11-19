@@ -1,9 +1,6 @@
 #!/usr/bin/env julia
 
 
-import ..Bar: greet2
-greet2()
-
 using LinearAlgebra
 using Formatting: printfmt
 using SymPy

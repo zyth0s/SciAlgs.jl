@@ -9,10 +9,8 @@ macro run(filename)
    end
 end
 
-module Bar
-   greet2() = print("Hello World!")
-end
 include("./Xtal/Xtal.jl")
+include("./NumQuad/NumQuad.jl")
 
 greet() = print("Hello World!daniel")
 
