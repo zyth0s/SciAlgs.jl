@@ -14,7 +14,7 @@ Some of the aims would be:
 * Provide simple functions to perform basic operations, such that an average researcher can understand.
 * Modern development practices: tests, continuous integration, collaborative development, ...
 * Make algorithms accessible to researchers without expertise in computer programming.
-* Expand the ecosystem of scientific packages in Julia.
+* Enrich the ecosystem of scientific packages in Julia planting a seed.
 
 
 Some of the topics that are going to be covered are:
