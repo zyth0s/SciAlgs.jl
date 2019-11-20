@@ -2,10 +2,12 @@
 # Inspired by doi:10.1021/acs.jchemed.7b00003
 #
 using LinearAlgebra
+#using Arpack
+#using SparseArrays
 #import REPL
 using REPL.TerminalMenus
 using Plots
-unicodeplots()
+unicodeplots(); #gr()
 
 options = [
        "Particle in an infinite potential well",
@@ -184,9 +186,9 @@ function potential(p::KronigPenneyPotentialParams)
 end
 #---------------------------------------------
 
-function schroedinger(p; periodic=false)
+function schroedinger(p; periodic=false,method=:centraldiff)
    xvec, U, Δx = potential(p)
-   T = build_T(steps,Δx,periodic=periodic)
+   T = build_T(steps,Δx,periodic=periodic,method=method)
    E, V, nbound = diagonalize_hamiltonian(T,U)
    imprime(p,E,nbound)
    plot(xvec,U,
@@ -205,20 +207,36 @@ function schroedinger(p; periodic=false)
    #xvec, U
 end
 
-function build_T(steps,Δx; periodic=false)
-   ħ = 1.0
-   m = 1.0
-   Δ = SymTridiagonal(-2.0.*ones(steps),ones(steps-1))/Δx^2
+function build_T(steps,Δx; periodic=false,method::Symbol)
+   # atomic units (ħ = 1; m = 1) ⟹   ħ²/m = 1
+   Δ = SymTridiagonal(fill(-2.0,steps),ones(steps-1))/Δx^2
    if periodic
       Δ = convert(Matrix,Δ)
       Δ[1,end] = Δ[end,1] = -1/Δx^2
    end
-   -0.5*ħ^2/m * Δ
+   if method == :numerov # doi:10.1119/1.4748813
+      B = SymTridiagonal(fill(10.0,steps),ones(steps-1)) / 12.0
+      if periodic 
+         B = convert(Matrix,B)
+         B[1,end] = B[end,1] = 1/12
+      end
+      Δ = inv(B) * Δ
+   end
+   -0.5 * Δ
 end
 
 function diagonalize_hamiltonian(T,U)
    H = T + Diagonal(U)
-   E,V = eigen(H)
+   #E, V = eigen(H)
+   E, V = eigen(Matrix(H)) # FIXME for Numerov
+   indices = sortperm(E)
+   E = E[indices]
+   V = V[indices,:]
+   #if issparse(H)
+   #   E,V = eigs(H,nev=2)
+   #else
+   #   E,V = eigen(H)
+   #end
    nbound = 0
    while E[1+nbound] < 0
       nbound += 1
@@ -237,20 +255,22 @@ boxcar(x,center,with,A) = A*rect(x+center,width) # least ambiguous
 #boxcar(x,startleft,width,A) # a bit ambiguous, better center
 
 steps = 2000
+method = :centraldiff
+#method = :numerov
 if model == 1
    println("Enter the width of your infinite well in atomic units (a.u.) ∈ [0.5, 15]: ")
    width = parse(Float64,readline(stdin))
    println("Enter the number of wavefunctions you would like to plot ∈ ℕ: ")
    nwfn = parse(Int,readline(stdin))
    p = InfPotentialParams(width,nwfn,steps)
-   schroedinger(p)
+   schroedinger(p,method=method)
 elseif model == 2
    println("Enter the width of your finite well in atomic units (a.u.) ∈ [1.0, 15]: ")
    width = parse(Float64,readline(stdin))
    println("Enter the depth of the well ∈ [20, 500]: ")
    depth = parse(Float64,readline(stdin))
    p = FinitePotentialParams(width, depth,steps)
-   schroedinger(p)
+   schroedinger(p,method=method)
 elseif model == 3
    println("Enter the width of your first finite well in atomic units (a.u.) ∈ [0.5 and 10.0]: ")
    width1 = parse(Float64,readline(stdin))
@@ -263,21 +283,21 @@ elseif model == 3
    println("Enter the potential width ∈ [0.1, 10.0]: ")
    potwidth = parse(Float64,readline(stdin))
    p = DoubleSquarePotentialParams( width1,width2,depth1,depth2,potwidth,steps)
-   schroedinger(p)
+   schroedinger(p,method=method)
 elseif model == 4
    println("Enter the depth of the well ∈ [2, 15]: ")
    depth = parse(Float64,readline(stdin))
    println("Enter the force constant of your harmonic well ∈ [0.3, 1.4]. ")
    ω = parse(Float64,readline(stdin))
    p = HarmonicPotentialParams(depth, ω, steps)
-   schroedinger(p)
+   schroedinger(p,method=method)
 elseif model == 5
    println("Enter the depth of the well ∈ [2, 15]: ")
    depth = parse(Float64,readline(stdin))
    println("Enter the force constant of your Morse well ∈ [0.05, 1.4]. ")
    ω = parse(Float64,readline(stdin))
    p = MorsePotentialParams(depth, ω, steps)
-   schroedinger(p)
+   schroedinger(p,method=method)
 elseif model == 6
    println("Enter the width of wells in atomic units (a.u.) ∈ [1.0 and 15.0]: ")
    width = parse(Float64,readline(stdin))
@@ -288,6 +308,7 @@ elseif model == 6
    println("Enter the number of wells ∈ [3, 7]:")
    nwells = parse(Int,readline(stdin))
    p = KronigPenneyPotentialParams(depth,width,potwidth,nwells,steps)
-   schroedinger(p,periodic=true)
+   schroedinger(p,periodic=true,method=method)
 end
 
+# TODO: Generalized Matrix Numerov method
