@@ -231,7 +231,7 @@ function diagonalize_hamiltonian(T,U)
    E, V = eigen(Matrix(H)) # FIXME for Numerov
    indices = sortperm(E)
    E = E[indices]
-   V = V[indices,:]
+   V = V[:,indices]
    #if issparse(H)
    #   E,V = eigs(H,nev=2)
    #else
@@ -256,7 +256,7 @@ boxcar(x,center,with,A) = A*rect(x+center,width) # least ambiguous
 
 steps = 2000
 method = :centraldiff
-#method = :numerov
+method = :numerov
 if model == 1
    println("Enter the width of your infinite well in atomic units (a.u.) ∈ [0.5, 15]: ")
    width = parse(Float64,readline(stdin))
