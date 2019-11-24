@@ -54,7 +54,5 @@ if ! isinteractive()
     setprecision(100) do         # standard double precision is 53
       test_gauss_chebyshev2nd()
     end
-  else
-      test_gauss_chebyshev2nd()
   end
 end

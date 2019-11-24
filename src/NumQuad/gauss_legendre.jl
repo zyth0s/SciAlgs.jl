@@ -154,9 +154,6 @@ if ! isinteractive()
       #test_gauss_legendre()
       test_gauss_legendre2()
     end
-  else
-    #test_gauss_legendre()
-    test_gauss_legendre2()
   end
 end
 

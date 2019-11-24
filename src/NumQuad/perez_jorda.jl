@@ -68,7 +68,5 @@ if ! isinteractive()
     setprecision(100) do         # standard double precision is 53
       test_perez_jorda()
     end
-  else
-      test_perez_jorda()
   end
 end

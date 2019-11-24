@@ -56,7 +56,5 @@ if ! isinteractive()
     setprecision(100) do         # standard double precision is 53
       test_euler_mclaurin()
     end
-  else
-      test_euler_mclaurin()
   end
 end

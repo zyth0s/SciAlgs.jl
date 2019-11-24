@@ -119,8 +119,5 @@ if ! isinteractive()
       #test_clenshaw_curtis()
       test_clenshaw_curtis2()
     end
-  else
-      #test_clenshaw_curtis()
-      test_clenshaw_curtis2()
   end
 end

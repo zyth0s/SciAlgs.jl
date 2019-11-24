@@ -113,8 +113,5 @@ if ! isinteractive()
       test_gauss_chebyshev1st()
       test_gauss_chebyshev1st2()
     end
-  else
-      test_gauss_chebyshev1st()
-      test_gauss_chebyshev1st2()
   end
 end

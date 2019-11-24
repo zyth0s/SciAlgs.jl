@@ -74,4 +74,4 @@ function test()
   cheb_tester(g,analytic_result)
 end
 
-test()
+#test()
