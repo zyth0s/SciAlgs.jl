@@ -23,3 +23,39 @@ Some of the topics that are going to be covered are:
 * Condensed Matter Physics
 * Quantum Mechanics models
 * Numerical methods
+
+
+Algorithms
+===========
+
+- [x] Linear least squares minimization
+- [x] Theil's method to fit data to straight line.
+- [x] Finite difference solution of 1D single particle Schr\"odinger equation with 
+  + [x] Two point central difference formula
+  + [x] Matrix Numerov method
+- [x] 1D quadrature with
+  + [x] Trapezoidal quadrature
+  + [x] Euler-McLaurin quadrature
+  + [x] Clenshaw-Curtis quadrature
+  + [x] Gauss-Chebyshev 1st kind
+  + [x] Gauss-Chebyshev 2nd kind
+  + [x] Gauss-Legendre
+  + [x] P\'erez-Jord\'a
+  + [x] Multiexp quadrature
+  + [ ] Maxwell quadrature
+- [x] Kronig-Penney model
+- [x] Listing of planes that diffract X-rays in non triclinic systems
+- [x] Cartesian to polar conversion
+- [x] Brusselator
+- [x] Heron's method to find roots of function.
+- [x] Calculate metric tensor G from cell parameters
+- [x] Calculate unit cell volume from cell parameters or metric tensor
+- [x] Calculate lattice vectors from cell parameters
+- [x] Calculate reciprocal cell parameters
+- [x] Calculate reciprocal vectors
+- [x] Calculate interplanar spacing
+- [x] Convert between cartesian and fractionary coordinates
+- [x] Convert mapping to transformation matrix+vector (Seitz symbol)
+- [x] Charazterize a crystallographic symmetry operation
+- [x] Apply crystallographic symmetry operation to a point 
+- [x] Find closest atom
