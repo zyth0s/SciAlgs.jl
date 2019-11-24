@@ -35,6 +35,24 @@ function lsq_fit(x,y)
    a, b, r, SEa, SEb
 end
 
+# Theil's method: 10.1021/ed082p1472.2
+function theil_method(x,y)
+   N = length(x)
+   # remove middle point if N is odd
+   if isodd(N)
+      deleteat!(x,div(N+1,2))
+      deleteat!(y,div(N+1,2))
+   end
+   n = div(N,2)
+   b = [(y[n+i] - y[i])/(x[n+i] - x[i]) for i in 1:n]
+   sort!(b)
+   b = 0.5 * (b[div(n,2)] + b[div(n+2,2)]) # median
+   a = [ y[i] - b*x[i] for i in 1:n]
+   sort!(a)
+   a = 0.5 * (a[div(n,2)] + a[div(n+2,2)]) # median
+   a, b
+end
+
 function test_lsq_fit()
    #         xᵢ  yᵢ
    table = [ -3 -15;
@@ -52,5 +70,23 @@ function test_lsq_fit()
    @assert isapprox(b,  4)
 end
 
+function test_theil_method()
+   #         xᵢ  yᵢ
+   table = [ -3 -15;
+              1   1;
+              5  17;
+              8  29;
+             12  45]
+
+   x = table[:,1]
+   y = table[:,2]
+
+   a, b = theil_method(x,y)
+   println(" y = $a + ($b) x")
+   @assert isapprox(a, -3)
+   @assert isapprox(b,  4)
+end
+
 test_lsq_fit()
+test_theil_method()
 
