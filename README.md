@@ -51,7 +51,7 @@ Algorithms
 - [x] Brusselator
 - [x] Linear Sweep Voltammogram https://pubs.acs.org/doi/abs/10.1021/acs.jchemed.9b00542
 * Crystallography (Xtal)
-  - [x] Calculate metric tensor G from cell parameters
+  - [x] Calculate metric tensor G from cell parameters and lattice vectors
   - [x] Calculate unit cell volume from cell parameters or metric tensor
   - [x] Calculate lattice vectors from cell parameters
   - [x] Calculate reciprocal cell parameters

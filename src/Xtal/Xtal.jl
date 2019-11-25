@@ -12,6 +12,10 @@ function metric_tensor(a,b,c,α,β,γ)
          a*c*cos(β) b*c*cos(α) c*c       ]
 end
 
+function metric_tensor(a1,a2,a3)
+  G = kron([a1 a2 a3],[a1 a2 a3]')
+end
+
 function characterize_metric_tensor(G)
    V = volume_unit_cell(G) # (Å³)
    println(" * Metric tensor G:")
