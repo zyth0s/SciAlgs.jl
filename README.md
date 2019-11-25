@@ -49,6 +49,7 @@ Algorithms
   + [x] Matrix Numerov method
 - [x] Kronig-Penney model
 - [x] Brusselator
+- [x] Linear Sweep Voltammogram https://pubs.acs.org/doi/abs/10.1021/acs.jchemed.9b00542
 * Crystallography (Xtal)
   - [x] Calculate metric tensor G from cell parameters
   - [x] Calculate unit cell volume from cell parameters or metric tensor
