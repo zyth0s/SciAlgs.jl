@@ -28,10 +28,10 @@ Some of the topics that are going to be covered are:
 Algorithms
 ===========
 
-- [x] Linear least squares minimization
-- [x] Theil's method to fit data to straight line.
-- [x] Heron's method to find roots of function.
-- [x] Cartesian to polar conversion
+- [x] Linear least squares minimization http://mathworld.wolfram.com/LeastSquaresFitting.html
+- [x] Theil's method to fit data to straight line. https://pubs.acs.org/doi/pdf/10.1021/ed082p1472.2
+- [x] Heron's method to find roots of function. https://press.princeton.edu/books/hardcover/9780691146867/numerical-analysis
+- [x] Cartesian to polar conversion.
 - [x] Find closest atom
 * Numerical quadrature (NumQuad)
   - [x] 1D quadratures:
@@ -41,12 +41,12 @@ Algorithms
     + [x] Gauss-Chebyshev 1st kind
     + [x] Gauss-Chebyshev 2nd kind
     + [x] Gauss-Legendre
-    + [x] P\'erez-Jord\'a
+    + [x] Pérez-Jordá
     + [x] Multiexp quadrature
     + [x] Maxwell quadrature
-- [x] Finite difference solution of 1D single particle Schr\"odinger equation with 
+- [x] Finite difference solution of 1D single particle Schrödinger equation with 
   + [x] Two point central difference formula
-  + [x] Matrix Numerov method
+  + [x] Matrix Numerov method https://aapt.scitation.org/doi/10.1119/1.474
 - [x] Kronig-Penney model
 - [x] Brusselator
 * Crystallography (Xtal)
