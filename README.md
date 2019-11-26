@@ -28,12 +28,15 @@ Some of the topics that are going to be covered are:
 Algorithms
 ===========
 
-- [x] Linear least squares minimization http://mathworld.wolfram.com/LeastSquaresFitting.html
-- [x] Theil's method to fit data to straight line. https://pubs.acs.org/doi/pdf/10.1021/ed082p1472.2
-- [x] Heron's method to find roots of function. https://press.princeton.edu/books/hardcover/9780691146867/numerical-analysis
-- [x] Cartesian to polar conversion.
-- [x] Find closest atom
-* Numerical quadrature (NumQuad)
+* Statistics
+  - [x] Linear least squares minimization http://mathworld.wolfram.com/LeastSquaresFitting.html
+  - [x] Theil's method to fit data to straight line. https://pubs.acs.org/doi/pdf/10.1021/ed082p1472.2
+* Optimization
+  - [x] Heron's method to find roots of function. https://press.princeton.edu/books/hardcover/9780691146867/numerical-analysis
+* Geometry
+  - [x] Cartesian to polar conversion.
+  - [x] Find closest atom
+* Numerical Quadrature (NumQuad)
   - [x] 1D quadratures:
     + [x] Trapezoidal quadrature
     + [x] Euler-McLaurin quadrature
@@ -44,12 +47,16 @@ Algorithms
     + [x] Pérez-Jordá
     + [x] Multiexp quadrature
     + [x] Maxwell quadrature
-- [x] Finite difference solution of 1D single particle Schrödinger equation with 
-  + [x] Two point central difference formula
-  + [x] Matrix Numerov method https://aapt.scitation.org/doi/10.1119/1.474
-- [x] Kronig-Penney model
-- [x] Brusselator
-- [x] Linear Sweep Voltammogram https://pubs.acs.org/doi/abs/10.1021/acs.jchemed.9b00542
+* Quantum Mechanics
+  - [x] Finite difference solution of 1D single particle Schrödinger equation with 
+    + [x] Two point central difference formula
+    + [x] Matrix Numerov method https://aapt.scitation.org/doi/10.1119/1.474
+  - [x] Kronig-Penney model
+* Electrochemistry
+  - [x] Linear Sweep Voltammogram https://pubs.acs.org/doi/abs/10.1021/acs.jchemed.9b00542
+  - [ ] Linear Sweep Voltammogram "Lifelike" 
+* Chemical Kinetics
+  - [x] Brusselator
 * Crystallography (Xtal)
   - [x] Calculate metric tensor G from cell parameters and lattice vectors
   - [x] Calculate unit cell volume from cell parameters or metric tensor
