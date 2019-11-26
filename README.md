@@ -30,7 +30,7 @@ Algorithms
 
 * Statistics
   - [x] Linear least squares minimization http://mathworld.wolfram.com/LeastSquaresFitting.html
-  - [x] Theil's method to fit data to straight line. https://pubs.acs.org/doi/pdf/10.1021/ed082p1472.2
+  - [x] Theil's method to fit data to straight line. [J. Chem. Educ. 2005, 82, 10, 1472](https://pubs.acs.org/doi/10.1021/ed082p1472.2)
 * Optimization
   - [x] Heron's method to find roots of function. https://press.princeton.edu/books/hardcover/9780691146867/numerical-analysis
 * Geometry
