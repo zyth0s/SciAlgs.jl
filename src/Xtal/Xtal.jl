@@ -137,7 +137,7 @@ function characterize_Seitz(W,w,G)
    W'*G*W ≈ G || error("Not an isometry")
    detW = det(W)
    traceW = tr(W)
-   if detW ≈ 1.0
+   if detW ≈ 1.0 # Type I symmetry operation
       printfmt("   det(W) = {:+7.3f}: Rotation \n",detW)
       if traceW != 3
          v, u = eigen(W)
@@ -163,7 +163,7 @@ function characterize_Seitz(W,w,G)
          type = 2
       end
       k = type
-   elseif detW ≈ -1
+   elseif detW ≈ -1 # Type II symmetry operation
       printfmt("   det(W) = {:+7.3f}: Rotoinversion \n",detW)
       if traceW != -3
          v, u = eigen(W)
