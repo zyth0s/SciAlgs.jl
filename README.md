@@ -56,11 +56,14 @@ Algorithms
     + [x] Matrix Numerov method [American Journal of Physics 80, 1017 (2012)](https://aapt.scitation.org/doi/10.1119/1.474)
   - [x] Kronig-Penney model
 * Electrochemistry
-  - [x] Linear Sweep Voltammogram https://pubs.acs.org/doi/abs/10.1021/acs.jchemed.9b00542
-  - [ ] Linear Sweep Voltammogram "Lifelike" 
+  - [x] Linear Sweep Voltammogram 
+        [J. Chem. Educ. 2019, 96, 10, 2217-2224](https://pubs.acs.org/doi/abs/10.1021/acs.jchemed.9b00542)
+  - [ ] "Lifelike" Linear Sweep Voltammogram 
+        [J. Chem. Educ. 2000, 77, 1, 100](https://pubs.acs.org/doi/10.1021/ed077p100)
 * Chemical Kinetics
   - [x] Brusselator
-* Crystallography (Xtal)
+* Crystallography (Xtal) 
+  [Symmetry Relationships between Crystal Structures by Ulrich Müller]( https://global.oup.com/academic/product/symmetry-relationships-between-crystal-structures-9780198807209?cc=de&lang=en&)
   - [x] Calculate metric tensor G from cell parameters and lattice vectors
   - [x] Calculate unit cell volume from cell parameters or metric tensor
   - [x] Calculate lattice vectors from cell parameters
