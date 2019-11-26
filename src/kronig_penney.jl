@@ -36,8 +36,8 @@ fζ = Array{Float64,1}(fζ)
 plot(ζ,fζ,
      reuse=false,
      ylims=(minimum(fζ)-0.5,3),
-     xlabel = "ζ (=E/U_0) →",
-     ylabel = "f(ζ) (=RHS) →",
+     xlabel = "ζ (=E/U_0)",
+     ylabel = "f(ζ) (=RHS)",
      title = "RHS of f(ζ) vs. ζ; U= $(U_eV) eV; a= $(a*1e10) Å and b= $(b*1e10) Å"
     )
 plot!([ζ[1], ζ[end]], [1, 1],linecolor=:red)
@@ -47,18 +47,21 @@ savefig("fzeta_vs_zeta.png")
 
 function bandplots(ζ,fζ)
    flg = abs.(fζ) .<= 1
-   pred = plot( xlabel = "Crystal momentum, k(radian/meter) →",
-                ylabel = "Energy, E (eV) →",
-                title = "Reduced zone representation of the E-k relationship; U= $(U_eV), eV; a= $(a*1e10) Å and b= $(b*1e10) Å",
+   pred = plot( xlabel = "Crystal momentum, k(rad/m)",
+                ylabel = "Energy, E (eV)",
+                title = "Reduced zone",
+                title_location=:center,
                 xrotation = 45,
-                xticks = ([-π, -π/2, 0, π/2, π], ["-pi/(a+b)","-pi/(2(a+b))","0","pi/(2(a+b))","pi/(a+b)"])
+                legend = false,
+                grid=false,
              )
-   pext = plot( xlabel = "Crystal momentum, k(radian/meter) →",
-                ylabel = "Energy, E (eV) →",
-                title = "Extended zone representation of the E-k relationship; U= $(U_eV), eV; a= $(a*1e10) Å and b= $(b*1e10) Å",
+   pext = plot( xlabel = "Crystal momentum, k(rad/m)",
+                #ylabel = "Energy, E (eV)",
+                title = "Extended zone",
+                title_location=:center,
                 xrotation = 45,
-                xticks = ([-6*π, -5*π, -4*π, -3*π, -2*π, -π, 0, π, 2*π, 3*π, 4*π, 5*π, 6*π], 
-                        vcat(["$(i)pi/(a+b)" for i in -6:-1],"0",["$(i)pi/(a+b)" for i in 1:6]))
+                legend = false,
+                grid=(:x, 0.1,:dashdot,0.2)
              )
    plst=1; k=1
    while (!isempty(flg)) && (k<6)
@@ -88,92 +91,14 @@ function bandplots(ζ,fζ)
        end
        k += 1
    end
-   l = @layout [a{0.1428w} b]
-   plot(pred,pext,layout=l,grid=true)
+   plot!(pred, xticks = ([-π, -π/2, 0, π/2, π], ["-pi/(a+b)","-pi/(2(a+b))","0","pi/(2(a+b))","pi/(a+b)"]))
+   plot!(pext, xticks = ([i*π for i in (-div(k,2)-1):(div(k,2)+1)], 
+                         vcat(["$(i)pi/(a+b)" for i in (-div(k,2)-1):-1],"0",["$(i)pi/(a+b)" for i in 1:(div(k,2)+1)])))
+   l = @layout [a{0.25w} b]
+   plot(pred,pext,layout=l)
    savefig("kronig_penney_bands.png")
    #fig
 end
 
-
 bandplots(ζ,fζ)
 
-
-#function reduced_bandplot(ζ,fζ)
-#   flg = abs.(fζ) .<= 1
-#   fig = plot(reuse=false,
-#              xlabel = "Crystal momentum, k(radian/meter) →",
-#              ylabel = "Energy, E (eV) →",
-#              title = "Reduced zone representation of the E-k relationship for U= $(U_eV), eV; a= $(a*1e10) Å and b= $(b*1e10) Å",
-#              xticks = ([-π, -π/2, 0, π/2, π], ["-π/(a+b)","-π/(2(a+b))","0","π/(2(a+b))","π/(a+b)"])
-#             )
-#   #grid on
-#   plst=1; k=1
-#   while (!isempty(flg)) && (k<6)
-#       pos=findall(flg)
-#       if isempty(pos)
-#           break
-#       end
-#       pfst=plst+pos[1]-1
-#       flg=flg[pos[1]:end]
-#       pos=findall(map(!,flg))
-#       if isempty(pos)
-#           break
-#       end
-#       plst=pfst+pos[1]-1
-#       flg=flg[pos[1]:end]
-#       
-#       kv=acos.(fζ[pfst:plst-1]) #/(a+b)
-#       ev=ζ[pfst:plst-1]*U_eV
-#       if mod(k,2) == 0
-#           plot!([-reverse(kv), kv], [reverse(ev),ev], linecolor=:blue)
-#       else
-#           plot!( [kv, -reverse(kv)], [ev,reverse(ev)], linecolor=:blue)
-#       end
-#       k += 1
-#   end
-#   savefig("reduced_band.png")
-#   #fig
-#end
-#
-#function extended_bandplot(ζ,fζ)
-#   flg = abs.(fζ) .<= 1
-#   fig = plot(reuse=false,
-#              xlabel = "Crystal momentum, k(radian/meter) →",
-#              ylabel = "Energy, E (eV) →",
-#              title = "Extended zone representation of the E-k relationship for U= $(U_eV), eV; a= $(a*1e10) Å and b= $(b*1e10) Å",
-#              xticks = ([-6*π, -5*π, -4*π, -3*π, -2*π, -π, 0, π, 2*π, 3*π, 4*π, 5*π, 6*π], 
-#                        vcat(["$(i)π/(a+b)" for i in -6:-1],"0",["$(i)π/(a+b)" for i in 1:6]))
-#             )
-#   #xtickangle(45)
-#   #grid on
-#   plst=1; k=1
-#   while (!isempty(flg)) && (k<6)
-#       pos=findall(flg);
-#       if isempty(pos)
-#           break
-#       end
-#       pfst=plst+pos[1]-1;
-#       flg=flg[pos[1]:end];
-#       pos=findall(map(!,flg));
-#       if isempty(pos)
-#           break
-#       end
-#       plst=pfst+pos[1]-1;
-#       flg=flg[pos[1]:end];
-#       
-#       kv=acos.(fζ[pfst:plst-1]) #/(a+b);
-#       ev=ζ[pfst:plst-1]*U_eV;
-#       if mod(k,2) == 0
-#          plot!(kv.-k*π, ev, linecolor=:red);
-#          plot!(-reverse(kv).+k*π, reverse(ev), linecolor=:green);
-#       else
-#          plot!(kv.+(k-1)*π, ev, linecolor=:blue);
-#          plot!(-reverse(kv).-(k-1)*π, reverse(ev), linecolor=:black)
-#       end
-#       k += 1;
-#   end
-#   savefig("extended_band.png")
-#   #fig
-#end
-#reduced_bandplot(ζ,fζ)
-#extended_bandplot(ζ,fζ)
