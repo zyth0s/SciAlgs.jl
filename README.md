@@ -51,8 +51,9 @@ Algorithms
     + [x] Maxwell quadrature
 * Quantum Mechanics
   - [x] Finite difference solution of 1D single particle Schrödinger equation with 
-    + [x] Two point central difference formula
-    + [x] Matrix Numerov method https://aapt.scitation.org/doi/10.1119/1.474
+    + [x] Two point central difference formula 
+          [J. Chem. Educ. 2017, 94, 6, 813-815](https://pubs.acs.org/doi/10.1021/acs.jchemed.7b00003)
+    + [x] Matrix Numerov method [American Journal of Physics 80, 1017 (2012)](https://aapt.scitation.org/doi/10.1119/1.474)
   - [x] Kronig-Penney model
 * Electrochemistry
   - [x] Linear Sweep Voltammogram https://pubs.acs.org/doi/abs/10.1021/acs.jchemed.9b00542
