@@ -1,18 +1,11 @@
 
-# Inspired by doi:10.1021/acs.jchemed.9b00542
-
 using Plots
 
-####################################
-## Section 0: Clean up workspace ##
-####################################
-#clear all
-#close all
-#clc
-###################################
-## Section 1: Simulation inputs ##
-###################################
+# Inspired by doi:10.1021/acs.jchemed.9b00542
 function linear_sweep_voltammogram()
+  ###################################
+  ## Section 1: Simulation inputs ##
+  ###################################
   ### Constants ###
   F = 96485 # Faraday’s constant [C/mol]
   R = 8.314 # Gas constant [C V/(mol K)]
@@ -122,13 +115,13 @@ function linear_sweep_voltammogram()
   DataLineWidth = 2
   PlotLineWidth = 2
   # Indices of times to plot concentration profiles
-  #[index_time2,~] = find(iₜ == min(iₜ)) # Locate time index when current is largest
-  #index_time1 = floor(0.9*index_time2) # Select a time point prior to peak
-  #index_time3 = floor(1.1*index_time2) # Select a time point after peak
+  index_time2 = argmin(iₜ) # Locate time index when current is largest
+  index_time1 = trunc(Int,0.9*index_time2) # Select a time point prior to peak
+  index_time3 = trunc(Int,1.1*index_time2) # Select a time point after peak
   ## Construct the megafigure
   #figure(’units’,’normalized’,’outerposition’,[0 0 1 0.9])
   #subplot(2,4,[1,2,5,6]) # Voltammogram
-  plot(E_t,iₜ,
+  p1 = plot(E_t,iₜ,
     xlabel = "Potential (V)",
     ylabel = "Current (A)",
     title = "Voltammogram"
@@ -146,7 +139,7 @@ function linear_sweep_voltammogram()
   #legend(’i(E)’,’Point 1’,’Point 2’,’Point 3’,’location’,’best’)
   #set(gca,’FontSize’,FontSize,’LineWidth’,PlotLineWidth)
   #subplot(2,4,3) # Potential waveform
-  plot(t,E_t,
+  p2 = plot(t,E_t,
     xlabel = "Time (s)",
     ylabel = "Potential (V)",
     title = "Potential Waveform",
@@ -159,16 +152,16 @@ function linear_sweep_voltammogram()
   #set(gca,’FontSize’,FontSize,’LineWidth’,PlotLineWidth)
   #axis([-Inf Inf -Inf Inf])
   #subplot(2,4,4) # Rate constant
-  plot(t,kred_t,
+  p3 = plot(t,kred_t,
     xlabel = "Time (s)",
     ylabel = "k_{red} (cm/s)",
     title = "Rate constant"
     ) # ’linewidth’,DataLineWidth)
   #set(gca,’FontSize’,FontSize,’LineWidth’,PlotLineWidth)
   #subplot(2,4,7) # Normalized concentration profile of c_red
-  #h = plot(1000*(x(1:npts_x)),cred_x(:,index_time1)./c_ox,
-  #    1000*(x(1:npts_x)),cred_x(:,index_time2)./c_ox,
-  #    1000*(x(1:npts_x)),cred_x(:,index_time3)./c_ox,’linewidth’,2)
+  p4 = plot(1000 .* x,cred_x[:,index_time1]./c_ox)
+  plot!(p4, 1000 .* x,cred_x[:,index_time2]./c_ox)
+  plot!(p4, 1000 .* x,cred_x[:,index_time3]./c_ox, lw = 2)
   #set(h(1),’color’,[0.8500 0.3250 0.0980])
   #set(h(2),’color’,[0.9290 0.6940 0.1250])
   #set(h(3),’color’,[0.4940 0.1840 0.5560])
@@ -181,9 +174,9 @@ function linear_sweep_voltammogram()
   #legend(’Point 1’,’Point 2’,’Point 3’,’c_{ox (bulk)}’,’location’,’southeast’)
   #title(’Concentration Profile’)
   #subplot(2,4,8) # Normalized concentration profile of c_ox
-  #h = plot(1000*(x(1:npts_x)),cox_x(:,index_time1)./c_ox,
-  #    1000*(x(1:npts_x)),cox_x(:,index_time2)./c_ox,
-  #    1000*(x(1:npts_x)),cox_x(:,index_time3)./c_ox,’linewidth’,2)
+  p5 = plot(1000 .*x,cox_x[:,index_time1]./c_ox)
+  plot!(p5, 1000 .*x,cox_x[:,index_time2]./c_ox)
+  plot!(p5, 1000 .*x,cox_x[:,index_time3]./c_ox,lw=2)
   #set(h(1),’color’,[0.8500 0.3250 0.0980])
   #set(h(2),’color’,[0.9290 0.6940 0.1250])
   #set(h(3),’color’,[0.4940 0.1840 0.5560])
@@ -196,6 +189,170 @@ function linear_sweep_voltammogram()
   #axis([0 1000*0.5*max(x) 0 1.2*c_ox])
   #legend(’Point 1’,’Point 2’,’Point 3’,’c_{ox (bulk)}’,’location’,’southeast’)
   #title(’Concentration Profile’)
+  l = @layout [ a [b c; d e]]
+  display(plot(p1,p2,p3,p4,p5,layout = l))
 end
 
+# Simulation of a linear-sweep voltammetric curve with mass transport and ohmic effects
+#   Julia implementation of doi:10.1021/ed077p100
+#   by Benedetto P. Bozzini
+#   Dipartimento di Scienza dei Materiali - Universit_ di Lecce
+#   v. Arnesano, I-73100 Lecce (Italy)
+#   benedetto. bozzini@polimi.it & bozzini@axpmat.unile.it
+#   version 05/10/1998
+# Constants and algorithm of this version are an example of:
+# codeposition of Co and H₂ with mass transport limitations and ohmic drop
+# the program can be tailored to your needs by substituting the suitable electrochemical constants
+function linear_sweep_voltammogram_lifelike()
+  # input
+  # 1. define the array "etac" (mV) of voltages within which the true kinetic overvoltage is to be
+  # searched
+  # e.g. etac=[-1500:.1:-10]
+  # 2. define the value etapd (mV) the voltage imposed in the potentiodynamic scan
+  # output
+  # the program outputs the following value:
+  # 1. MARK: the true kinetic overvoltage
+  # 2. INMARK: the c.d. of Co deposition
+  # 3. IHMARK: the c.d. of H₂ deposition initialisation
+  # (clears arrays whose lenghts can be altered in successive runs)
+  # model constants
+  R = 8.31
+  # R [J/K/mol]: gas constant
+  T = 300
+  # T [K]: absolute temperature
+  F = 96500
+  # F [C/eq]: Faraday's constant
+  i₀n = 2.0e-3
+  # i₀n [mA/cm2]: exchange current density for the metal reaction
+  # or, in general, for the first electrochemical reaction of interest
+  i₀h = 6.3e-3
+  # i₀h [mA/cm2]: exchange current density for the hydrogen reaction
+  # or, in general, for the second electrochemical reaction of interest
+  iln = -85
+  # iln [mA/cm2]: limiting current density for the metal reaction
+  # or, in general, for the first electrochemical reaction of interest
+  ilh = -0.140
+  # ilh [mA/cm2]: limiting current density for the hydrogen reaction
+  # or, in general, for the second electrochemical reaction of interest
+  an = 0.65
+  # an [1]: transfer coefficient for the metal reaction
+  # or, in general, for the first electrochemical reaction of interest
+  ah = 0.43
+  # ah [1]: transfer coefficient for the hydrogen reaction
+  # or, in general, for the second electrochemical reaction of interest
+  etamix = -212.2321
+  # etamix [mV]: mixed potential value of starting potential
+  etaeqn = -250
+  # etaeqn [mV]: equilibrium potential value of the metal semicell
+  # or, in general, for the first electrochemical reaction of interest
+  etaeqh = -148.7
+  # etaeqh [mV]: equilibrium potential value of the hydrogen semicell
+  # or, in general, for the second electrochemical reaction of interest
+  res = 1.000
+  # res [ohm=mV/mA]: resistance
+  area = 4
+  # area [cm2]: electrode surface area
+  f = F/R/T/1000
+  # f: an auxialiary quantity
+  # definition of the array to be searched for the true kinetic overvoltage
+  etac = range(-910,stop=0,step=1) #[-910:1:0]
+  # definition of the array of scanned potentiodynamic voltages
+  escan = range(-910,stop=-10,step=1)
+
+  amark   = zeros(length(escan))
+  ainmark = zeros(length(escan))
+  aihmark = zeros(length(escan))
+  aitmark = zeros(length(escan))
+  # most external loop (= linear-sweep voltammetric loop) starts here
+  # scanning potentiodynamic voltage
+  for ibonji = 1:length(escan)
+    etapd = escan[ibonji]
+    # a running check of runtime: measures the percentage of run currently performed
+    runamount = ibonji/length(escan)*100
+    #
+    etan = etamix .+ etac .- etaeqn
+    etah = etamix .+ etac .- etaeqh
+    # computes actual overvoltages for each electrodic reaction
+    # 1. etac is scanned in the LSV from the instrumental 0 to the instumental final value
+    # 2. the actual electrode voltage during scanning is etamix+etac
+    # 3. the actual overvoltage of react. A is (actual electrode voltage)-etaeqA
+    #
+    _inmark = i₀n*(exp.((1-an)*2*f*etan) - exp.(-an*2*f*etan))
+    _ihmark = i₀h*(exp.((1-ah)*f*etah) - exp.(-ah*f*etah))
+    # pure Butler-Volmer current densities
+    # check if pure Butler-Volmer current densitie does not exceed limiting c.d. for
+    # each electrodic reaction
+    for i = 1:length(etac)
+      if _inmark[i] < iln
+        ɛ = 0.0000001
+        # the added small quantity "ϵ" prevent the check from stopping the loop immediately
+        _inmark[i] = iln + ɛ
+      end
+    end
+    for i = 1:length(etac)
+      if _ihmark[i] < ilh
+        ɛ = 0.0000001
+        _ihmark[i] = ilh + ɛ
+      end
+    end
+    # check if the electrodic current density at the current etac value is cathodic
+    # and if it is, evaluate the mass transport limitation overvoltage
+    y = zeros(length(etac))
+    for i = 1:length(etac)
+      if _inmark[i] < 0
+        etaln = 2/f*log(1-_inmark[i]/iln)
+      else
+        etaln = 0
+      end
+      if _ihmark[i] < 0
+        etalh = 1/f*log(1-_ihmark[i]/ilh)
+      else
+        etalh = 0
+      end
+      # overall voltage balance (must be nought for the true etac)
+      y[i] = etapd - etac[i] - etaln - etalh - res*area*(_inmark[i]+_ihmark[i])
+    end
+    # selects values corresponding to y(i)=0
+    mark   = 0.0
+    inmark = 0.0
+    ihmark = 0.0
+    for i = 1:length(y)
+      if y[i] >= 0
+        # mark: true etac
+        mark = etac[i]
+        # inmark: c.d. for metal (or first electrochemical reaction, in general) at true etac
+        inmark = _inmark[i]
+        # ihmark: c.d. for hydrogen (or second electrochemical reaction, in general) at true etac
+        ihmark = _ihmark[i]
+      end
+    end
+    amark[ibonji] = mark
+    ainmark[ibonji] = inmark
+    aihmark[ibonji] = ihmark
+    aitmark[ibonji] = inmark + ihmark
+  end
+  # most external loop (=LSV loop) stops here
+  # auxilary quantities for conventional semilog plot of potentiodynamic curve
+  nteo = log.(abs.(ainmark/1000))/log(10)
+  hteo = log.(abs.(aihmark/1000))/log(10)
+  xteo = log.(abs.(aitmark/1000))/log(10)
+  yteo = escan/1000
+  xteo, yteo, nteo, hteo
+end
+
+# First model
 linear_sweep_voltammogram()
+
+
+# Second model
+@time xteo, yteo, nteo, hteo = linear_sweep_voltammogram_lifelike()
+
+# output a plot on the screen
+plot( xteo,yteo,ls=:solid, lc=:black)
+plot!(nteo,yteo,ls=:dot,   lc=:red)
+plot!(hteo,yteo,ls=:dash,  lc=:blue,
+    xlabel = "log (current density, j / (A cm^-2))",
+    ylabel = "Overpotential, eta / V"
+    )
+
+

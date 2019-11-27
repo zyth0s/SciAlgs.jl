@@ -58,7 +58,7 @@ Algorithms
 * Electrochemistry
   - [x] Linear Sweep Voltammogram 
         [J. Chem. Educ. 2019, 96, 10, 2217-2224](https://pubs.acs.org/doi/abs/10.1021/acs.jchemed.9b00542)
-  - [ ] "Lifelike" Linear Sweep Voltammogram 
+  - [x] "Lifelike" Linear Sweep Voltammogram
         [J. Chem. Educ. 2000, 77, 1, 100](https://pubs.acs.org/doi/10.1021/ed077p100)
 * Chemical Kinetics
   - [x] Brusselator
