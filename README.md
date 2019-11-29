@@ -15,6 +15,7 @@ Some of the aims would be:
 * Modern development practices: tests, continuous integration, collaborative development, ...
 * Make algorithms accessible to researchers without expertise in computer programming.
 * Enrich the ecosystem of scientific packages in Julia planting a seed.
+* Reproduce figures/data of published papers, mainly educative ones.
 
 
 Some of the topics that are going to be covered are:
@@ -55,6 +56,8 @@ Algorithms
           [J. Chem. Educ. 2017, 94, 6, 813-815](https://pubs.acs.org/doi/10.1021/acs.jchemed.7b00003)
     + [x] Matrix Numerov method [American Journal of Physics 80, 1017 (2012)](https://aapt.scitation.org/doi/10.1119/1.474)
   - [x] Kronig-Penney model
+  - [x] Linear variational calculation 
+        [Eur. J. Phys. 31 (2010) 101–114](https://iopscience.iop.org/article/10.1088/0143-0807/31/1/010/meta)
 * Electrochemistry
   - [x] Linear Sweep Voltammogram 
         [J. Chem. Educ. 2019, 96, 10, 2217-2224](https://pubs.acs.org/doi/abs/10.1021/acs.jchemed.9b00542)
