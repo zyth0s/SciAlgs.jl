@@ -33,9 +33,10 @@ Algorithms
   - [x] Linear least squares minimization http://mathworld.wolfram.com/LeastSquaresFitting.html
   - [x] Theil's method to fit data to straight line. 
         [J. Chem. Educ. 2005, 82, 10, 1472](https://pubs.acs.org/doi/10.1021/ed082p1472.2)
-* Optimization
+* Optimization, Analysis
   - [x] Heron's method to find roots of function. 
         [Numerical Analysis by L. Ridgway Scott](https://press.princeton.edu/books/hardcover/9780691146867/numerical-analysis)
+  - [x] Illustrated Fourier Transform [J. Appl. Cryst. (2007). 40, 1153–1165](https://doi.org/10.1107/S0021889807043622)
 * Geometry
   - [x] Cartesian to polar conversion.
   - [x] Find closest atom
