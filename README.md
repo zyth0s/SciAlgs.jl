@@ -49,7 +49,9 @@ Algorithms
     + [x] Gauss-Chebyshev 2nd kind
     + [x] Gauss-Legendre
     + [x] Pérez-Jordá
+          [Comput. Phys. Commun., 77, 1, 1993, 46-56](https://www.sciencedirect.com/science/article/pii/001046559390035B?via%3Dihub)
     + [x] Multiexp quadrature
+          [J. Comput. Chem. 24 (2003) 732-740](https://www.onlinelibrary.wiley.com/doi/abs/10.1002/jcc.10211)
     + [x] Maxwell quadrature
 * Quantum Mechanics
   - [x] Finite difference solution of 1D single particle Schrödinger equation with 
