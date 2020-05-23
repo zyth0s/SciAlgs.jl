@@ -29,10 +29,11 @@ Some of the topics that are going to be covered are:
 Algorithms
 ===========
 
-* Statistics
+* Statistics [Stat]
   - [x] Linear least squares minimization http://mathworld.wolfram.com/LeastSquaresFitting.html
   - [x] Theil's method to fit data to straight line. 
         [J. Chem. Educ. 2005, 82, 10, 1472](https://pubs.acs.org/doi/10.1021/ed082p1472.2)
+  - [x] Sample size needed to have certain maximum error.
 * Optimization, Analysis
   - [x] Heron's method to find roots of function. 
         [Numerical Analysis by L. Ridgway Scott](https://press.princeton.edu/books/hardcover/9780691146867/numerical-analysis)
@@ -40,7 +41,7 @@ Algorithms
 * Geometry
   - [x] Cartesian to polar conversion.
   - [x] Find closest atom
-* Numerical Quadrature (NumQuad)
+* Numerical Quadrature [NumQuad]
   - [x] 1D quadratures:
     + [x] Trapezoidal quadrature
     + [x] Euler-McLaurin quadrature
@@ -70,7 +71,7 @@ Algorithms
         [J. Chem. Educ. 2000, 77, 1, 100](https://pubs.acs.org/doi/10.1021/ed077p100)
 * Chemical Kinetics
   - [x] Brusselator
-* Crystallography (Xtal) 
+* Crystallography [Xtal]
   [Symmetry Relationships between Crystal Structures by Ulrich Müller]( https://global.oup.com/academic/product/symmetry-relationships-between-crystal-structures-9780198807209?cc=de&lang=en&)
   - [x] Calculate metric tensor G from cell parameters and lattice vectors
   - [x] Calculate unit cell volume from cell parameters or metric tensor
@@ -83,4 +84,33 @@ Algorithms
   - [x] Charazterize a crystallographic symmetry operation
   - [x] Apply crystallographic symmetry operation to a point 
   - [x] Listing of planes that diffract X-rays in non triclinic systems
+  - [x] Probe wavelengths
+* Epidemiology [Epidemics]
+  - [x] SIS model
+  - [x] SIS Discrete Time Markov Chain model
+  - [x] SIS Continuous Time Markov Chain model
+  - [x] SIR model (final size also)
+  - [x] SIR Discrete State Discrete Time Markov Chain (Chain Binomial) model
+  - [x] SIR Discrete State Continuous Time Markov Chain model
+  - [x] SEIR model
+  - [x] SEIR model (Erlang)
+  - [x] Microparasite scaling model [Nature volume 379, 720–722(1996)](http://www.nature.com/articles/379720a0)
+  - [x] SEIRC model
+  - [x] SEIRV model [A mathematical model for the novel coronavirus epidemic in Wuhan, China](http://www.aimspress.com/article/10.3934/mbe.2020148)
+  - [x] SIR with age segregation
+  - [x] SQLIHUHURF model for COVID-19 in Spain
+* Health
+  - [x] NUTRI-SCORE see [Public health panorama, 03 (04), 712 - 725](https://apps.who.int/iris/handle/10665/325207)
+  - [x] Dog-to-human age [bioRxiv doi: https://doi.org/10.1101/829192](https://www.biorxiv.org/content/10.1101/829192v2)
+* Astro (-nomy, -physics) [Astro]
+  - [x] Gauss' Easter algorithm
+  - [x] Meesus-Jones-Butcher Easter algorithm. New Scientist, 9 (228): 828. (30 March 1961).
+  - [ ] Doomsday algorithm
+  - [x] Julian date and its inverse
+  - [x] Julian century
+  - [o] Astronomical units and conversions
+  - [x] Earth's atmosphere refraction with altitude
+  - [x] Conic sections visualization
+* Chaos
+  - [x] Bifurcation diagram of the logistic map
 
