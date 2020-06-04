@@ -1,6 +1,7 @@
 
 # Inspired by doi:10.1021/acs.jchemed.7b00003
 #
+using Parameters
 using LinearAlgebra
 #using Arpack
 #using SparseArrays
@@ -37,7 +38,7 @@ function imprime(params::InfPotentialParams,E,nbound)
 end
 
 function potential(p::InfPotentialParams)
-   width,steps = p.width,p.steps
+   @unpack width,steps = p
    xvec = range(-width/2,stop=width/2,length=steps)
    U = zeros(steps)
    Δx = xvec[2]-xvec[1]
@@ -58,7 +59,7 @@ function imprime(p::FinitePotentialParams,E,nbound)
 end
 
 function potential(p::FinitePotentialParams)
-   width, depth,steps = p.width,p.depth,p.steps
+   @unpack width, depth,steps = p
    xvec = range(-width,stop=width,length=steps)
    Δx = xvec[2]-xvec[1]
    U = @. -depth*rect(xvec,width)
@@ -85,7 +86,7 @@ function imprime(p::DoubleSquarePotentialParams,E,nbound)
 end
 
 function potential(p::DoubleSquarePotentialParams)
-   width1,width2,depth1,depth2,potwidth,steps = p.width1,p.width2,p.depth1,p.depth2,p.potwidth,p.steps
+   @unpack width1,width2,depth1,depth2,potwidth,steps = p
    A = 2(width1+width2+potwidth)
    xvec = range(-A,stop=A,length=steps)
    potwidth /= 2
@@ -109,7 +110,7 @@ function imprime(p::HarmonicPotentialParams,E,nbound)
 end
 
 function potential(p::HarmonicPotentialParams)
-   depth, ω, steps = p.depth, p.ω, p.steps
+   @unpack depth, ω, steps = p
    width = sqrt(abs(2depth)/ω^2)
    A = 2width
    xvec = range(-A,stop=A,length=steps)
@@ -133,7 +134,7 @@ function imprime(p::MorsePotentialParams,E,nbound)
 end
 
 function potential(p::MorsePotentialParams)
-   ω,depth,steps = p.ω, p.depth,p.steps
+   @unpack ω,depth,steps = p
    depth = abs(depth)
    a = √(ω*depth/2)
    start = 0.0
@@ -171,7 +172,7 @@ function imprime(p::KronigPenneyPotentialParams,E,nbound)
 end
 
 function potential(p::KronigPenneyPotentialParams)
-   depth,width,potwidth,nwells,steps = p.depth,p.width,p.potwidth,p.nwells,p.steps
+   @unpack depth,width,potwidth,nwells,steps = p
    x_size = width * (div(nwells,2) + 0.5) + potwidth * (div(nwells,2) + 0.5)
    xvec = range(-x_size,stop=x_size,length=steps)
    Δx = xvec[2]-xvec[1]
