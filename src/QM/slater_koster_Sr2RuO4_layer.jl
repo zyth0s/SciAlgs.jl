@@ -57,8 +57,8 @@ function build_H_k_RuO2layer(Ep_sph,Ed_sph,DQ,DS,DT,ppσ,ppπ,pdσ,pdπ,kx,ky)
    H_k[7,7]    = Ed_sph + 6DQ - 2DS - 6DT # Ru 4dz²    |Ru atoms lie in a distorted octahedron
    H_k[8,8]    = Ed_sph + 6DQ + 2DS -  DT # Ru 4dx²-y² |thus, d → t_2g ⊕ e_g with DQ gap
    H_k[9,9]    = Ed_sph - 4DQ + 2DS -  DT # Ru 4dxy    |There is also a tetragonal distortion
-   H_k[10,10]  = Ed_sph - 4DQ -  DS + 4DT # Ru 4dyz    |induced by uniaxial strain, gap DT
-   H_k[11,11]  = Ed_sph - 4DQ -  DS + 4DT # Ru 4dzx    |and square planar distortion with DS
+   H_k[10,10]  = Ed_sph - 4DQ -  DS + 4DT # Ru 4dyz    |induced by uniaxial strain, gaps DT and DS
+   H_k[11,11]  = Ed_sph - 4DQ -  DS + 4DT # Ru 4dzx    |Splitings maintain the baricenter.
    # See Table I. in Slater-Koster article.
    # NOTE: trick of p -> ip to have a real matrix instead of complex
    # Top view ⟂ [001]:

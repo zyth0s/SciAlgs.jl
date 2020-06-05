@@ -82,13 +82,11 @@ function tight_binding(hamiltonianConstructor::Function,params,name)
    end
 end
 
-function tight_binding_2sites()
-   # 1D chain/ring with 2 sites per unit cell
-   a = 1
+function tight_binding_1D_2sites(a,Δ₁₂,t)
+   # 1D chain/ring with 2 sites per unit cell, s orbitals
    b = 2a # unit cell with two sites
-   ε1 = 0
-   ε2 = 2
-   t = 1
+   ε1 = 0 # without loss of generality energy reference at 0
+   ε2 = Δ₁₂
 
    kpath = range(-2π/b,stop=2π/b,length=100)
    Enk = zeros(2,length(kpath))
@@ -106,6 +104,31 @@ function tight_binding_2sites()
         leg = :inside,
        )
    savefig("1d_2sites.pdf")
+end
+
+function tight_binding_1D_2sites_sp_orbs(a,Δ₁₂,t)
+   # 1D chain/ring with 2 sites per unit cell, sp orbitals
+   # Redefined ψpk = i 1/√N * ∑R₂ exp(ikR₂) ϕp(r-R₂) to have a real matrix
+   b = 2a # unit cell with two sites
+   εs = Δ₁₂
+   εp = 0 # without loss of generality energy reference at 0
+
+   kpath = range(-2π/b,stop=2π/b,length=100)
+   Enk = zeros(2,length(kpath))
+
+   for (ik,k) in enumerate(kpath)
+      H_k = [      εs        -2t*sin(k*a);
+              -2t*sin(k*a)        εp      ]
+      e, vs = eigen(H_k)
+      Enk[:,ik] = e
+   end
+
+   plot(kpath/π,[Enk[1,:], Enk[2,:]],
+        label=["p state" "s state"],
+        xlabel="k/pi", ylabel="Energy",
+        leg = :inside,
+       )
+   savefig("1d_2sites_sp_orbs.pdf")
 end
 
 # -----------------------------------------------------------------------------------
@@ -215,5 +238,8 @@ params = (t=2.5,N=9,Δ=-4,impuritysite=1)
 tight_binding(buildHchain,params,name)
 
 ## -----------------------------------------------------------------------------------
-tight_binding_2sites()
+tight_binding_1D_2sites(1,2,2) # a, Δ₁₂, t
+
+## -----------------------------------------------------------------------------------
+tight_binding_1D_2sites_sp_orbs(1,2,2) # a, Δ₁₂, t
 
