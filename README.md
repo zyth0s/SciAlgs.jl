@@ -64,7 +64,7 @@ Algorithms
         [Eur. J. Phys. 31 (2010) 101–114](https://iopscience.iop.org/article/10.1088/0143-0807/31/1/010/meta)
   - [x] Tight-binding 2/3 centers
   - [x] Tight-binding 1D homoatomic chain/ring + impurity. Surface state.
-  - [ ] Tight-binding of periodic system with motiv (2 atoms/cell)
+  - [x] Tight-binding of periodic system with motiv (2 atoms/cell)
   - [ ] Tight-binding in 2D/3D homoatomic
   - [x] Slater-Koster Tight-binding of Sr2RuO4 [PRL 116, 197003 (2016)](https://link.aps.org/doi/10.1103/PhysRevLett.116.197003)
 * Spectroscopy

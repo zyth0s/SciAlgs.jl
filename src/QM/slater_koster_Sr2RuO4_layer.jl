@@ -1,5 +1,6 @@
 
-# Sr₂RuO₄ is a superconductor like La₍₂₋ₓ₎BaₓCuO₄ (≡ structure) *but* without impurities
+# Sr₂RuO₄ is a superconductor like La₍₂₋ₓ₎BaₓCuO₄ (≡ structure)
+# *but* without impurities, no Cu and is ferro vs. antiferro @ T > Tc
 # Intro: 10.1038/d41586-019-03734-7
 # Discovery: 10.1038/372532a0
 # Band calculation: 10.1103/PhysRevB.51.1385
@@ -7,19 +8,22 @@
 # Strain & Fermi surface: 10.1103/PhysRevLett.116.197003
 # Uniaxial pressure: 10.1126/science.aaf9398
 # Slater-Koster TB: 10.1103/PhysRev.94.1498
-# Assumptions of the model:
-# 1. Monodeterminantal wavefunction
-# 2. Due to the exceptional elongation along the [001] axis
-#    the system can be modeled as layers ⟂ [001]
-# 3. only O 2p and Ru 4d orbitals contribute near the Fermi energy
-# 4. Parametrized hopping integrals (e.g. fit to ARPES)
+# Minimalist model with the following assumptions:
+# 1. Born-Oppenheimer
+# 2. Monodeterminantal wavefunction
+# 3. Due to the exceptional elongation along the [001] axis
+#    the system can be modeled as RuO₂ layers ⟂ [001]
+#    See flat bands along Γ-X ([001] direction) @ Oguchi paper
+# 4. only O 2p and Ru 4d orbitals contribute near the Fermi energy
+# 5. environment simulated with a crystal field spliting
+# 6. Parametrized hopping integrals (e.g. fit to ARPES)
 
 # Default parameters
 #Ep_sph = -4.41; Ed_sph = -0.41
 #DQ = 0.1;       DS = -0.05;     DT = 0
 #ppσ =  0.7;     ppπ = -0.3;     pdσ = -2.4; pdπ =  1
 
-nbands = 11 # 5 d + 6 p orbitals
+nbands = 11 # 5 Ru4d + 6 O2p orbitals
 # Spherical symmetry
 Ep_sph = -4.41
 Ed_sph = -0.41

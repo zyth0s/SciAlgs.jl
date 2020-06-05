@@ -6,9 +6,15 @@ using Parameters
 include("dos_broadening.jl")
 
 function buildH2(Δ,t)
+  # He⁺
   [ 0 t; t Δ]
 end
-function buildH3(Δ1,Δ2,t12,t13,t23)
+function buildHchain3(Δ1,Δ2,t12,t23)
+  [  0 t12   0;
+   t12  Δ1 t23;
+     0 t23  Δ2]
+end
+function buildHring3(Δ1,Δ2,t12,t13,t23)
   [  0 t12 t13;
    t12  Δ1 t23;
    t13 t23  Δ2]
@@ -76,6 +82,32 @@ function tight_binding(hamiltonianConstructor::Function,params,name)
    end
 end
 
+function tight_binding_2sites()
+   # 1D chain/ring with 2 sites per unit cell
+   a = 1
+   b = 2a # unit cell with two sites
+   ε1 = 0
+   ε2 = 2
+   t = 1
+
+   kpath = range(-2π/b,stop=2π/b,length=100)
+   Enk = zeros(2,length(kpath))
+
+   for (ik,k) in enumerate(kpath)
+      H_k = [     ε1        2t*cos(k*a);
+              2t*cos(k*a)       ε2      ]
+      e, vs = eigen(H_k)
+      Enk[:,ik] = e
+   end
+
+   plot(kpath/π,[Enk[1,:], Enk[2,:]],
+        label=["Ground state" "Excited state"],
+        xlabel="k/pi", ylabel="Energy",
+        leg = :inside,
+       )
+   savefig("1d_2sites.pdf")
+end
+
 # -----------------------------------------------------------------------------------
 # Two atomic orbitals at sites 1 and 2
 t = 0; Δ = 2
@@ -107,7 +139,7 @@ end
 # -----------------------------------------------------------------------------------
 # 3 centers 1 electron
 println("B.1. Δ₁ = 2, Δ₂ = 5, t₁₂ = 1, t₁₃ = 2, t₂₃ = 1")
-H = buildH3(2,5,1,2,1)
+H = buildHring3(2,5,1,2,1)
 es, vs = eigen(H)
 for i in 1:length(es)
   println("Eigenstate with E = $(es[i]) and vector $(vs[i,:])")
@@ -182,4 +214,6 @@ name = "E.2. Finite Chain"
 params = (t=2.5,N=9,Δ=-4,impuritysite=1)
 tight_binding(buildHchain,params,name)
 
+## -----------------------------------------------------------------------------------
+tight_binding_2sites()
 
