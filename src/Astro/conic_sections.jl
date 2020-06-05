@@ -1,6 +1,6 @@
 
 # Conic sections in polar coordinates
-# r = p/(1+ecosθ) with p = semi-latus rectum
+# r = p/(1+ecosθ) with p = a|1-e²| (the semi-latus rectum)
 # Circle:    e = 0     , p = a
 # Ellipse:   e ∈ (0,1) , p = a(1-e²)
 # Parabola:  e = 1     , p = 1/2a

@@ -3,6 +3,7 @@
 # The weight of some object with mass m is
 # modified as we add a mass madd to the Earth
 # increasing its gravitational pull.
+# TODO: add heigh above sea level to Rₑ: R = Rₑ + hsea
 
 #   Initial              Final
 #  

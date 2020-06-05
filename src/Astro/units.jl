@@ -38,3 +38,6 @@ end
 # 2) Proxima Centauri, p = 0.762 arcsec
 isapprox(distance_from_parallax_au(0.762), 1.31,atol=1e-2) || error("Wrong distance estimation")
 
+
+# Radiation
+Jy = 1e-26 # Jansky unit [W / m² / Hz]
