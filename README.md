@@ -54,7 +54,7 @@ Algorithms
     + [x] Multiexp quadrature
           [J. Comput. Chem. 24 (2003) 732-740](https://www.onlinelibrary.wiley.com/doi/abs/10.1002/jcc.10211)
     + [x] Maxwell quadrature
-* Quantum Mechanics
+* Quantum Mechanics [QM]
   - [x] Finite difference solution of 1D single particle Schrödinger equation with 
     + [x] Two point central difference formula 
           [J. Chem. Educ. 2017, 94, 6, 813-815](https://pubs.acs.org/doi/10.1021/acs.jchemed.7b00003)
@@ -62,6 +62,11 @@ Algorithms
   - [x] Kronig-Penney model
   - [x] Linear variational calculation 
         [Eur. J. Phys. 31 (2010) 101–114](https://iopscience.iop.org/article/10.1088/0143-0807/31/1/010/meta)
+  - [x] Tight-binding 2/3 centers
+  - [x] Tight-binding 1D homoatomic chain/ring + impurity. Surface state.
+  - [ ] Tight-binding of periodic system with motiv (2 atoms/cell)
+  - [ ] Tight-binding in 2D/3D homoatomic
+  - [x] Slater-Koster Tight-binding of Sr2RuO4 [PRL 116, 197003 (2016)](https://link.aps.org/doi/10.1103/PhysRevLett.116.197003)
 * Spectroscopy
   - [x] X-ray Photoelectron Spectrocopy (XPS) [J. Chem. Educ. 2019, 96, 7, 1502-1505](https://pubs.acs.org/doi/10.1021/acs.jchemed.9b00236)
 * Electrochemistry
@@ -108,7 +113,7 @@ Algorithms
   - [ ] Doomsday algorithm
   - [x] Julian date and its inverse
   - [x] Julian century
-  - [o] Astronomical units and conversions
+  - [x] Astronomical units and conversions
   - [x] Earth's atmosphere refraction with altitude
   - [x] Conic sections visualization
 * Chaos
