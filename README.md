@@ -107,15 +107,17 @@ Algorithms
 * Health
   - [x] NUTRI-SCORE see [Public health panorama, 03 (04), 712 - 725](https://apps.who.int/iris/handle/10665/325207)
   - [x] Dog-to-human age [bioRxiv doi: https://doi.org/10.1101/829192](https://www.biorxiv.org/content/10.1101/829192v2)
-* Astro (-nomy, -physics) [Astro]
+* Astro (-nomy, -physics) [Astro] 
   - [x] Gauss' Easter algorithm
-  - [x] Meesus-Jones-Butcher Easter algorithm. New Scientist, 9 (228): 828. (30 March 1961).
+  - [x] Meesus-Jones-Butcher Easter algorithm. [New Scientist, 9 (228): 828. (30 March 1961).](https://books.google.co.uk/books?id=zfzhCoOHurwC)
   - [ ] Doomsday algorithm
   - [x] Julian date and its inverse
   - [x] Julian century
   - [x] Astronomical units and conversions
   - [x] Earth's atmosphere refraction with altitude
   - [x] Conic sections visualization
+  - [x] Kepler's equation for the eccentric anomaly
+  - [x] Position of planets and their orbits. [Solar System Dynamics](http://ssdbook.maths.qmul.ac.uk/)
 * Chaos
   - [x] Bifurcation diagram of the logistic map
 
