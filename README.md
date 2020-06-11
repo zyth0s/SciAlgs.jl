@@ -6,8 +6,24 @@
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/zyth0s/SciAlgs.jl?svg=true)](https://ci.appveyor.com/project/zyth0s/SciAlgs-jl)
 [![Coveralls](https://coveralls.io/repos/github/zyth0s/SciAlgs.jl/badge.svg?branch=master)](https://coveralls.io/github/zyth0s/SciAlgs.jl?branch=master)
 
-SciAlgs contains a set of common scientific algorithms written in a 21st century high-level programming language.
-Ideally it would be like a Numerical Recipes of our age. However, acomplishing that task would be daunting and is not necesarily the goal.
+SciAlgs is a compilation of fundamental scientific algorithms.
+The collection is not intended to be exhaustive but to offer clear and concise implementations.
+
+Translating formulas to code is a non trivial task. This process was first addressed
+by Fortran (Formula translator) with great success. Fortran has found until nowadays
+widespread application. However, some of its characteristics (not interactive; low level string manipulation;
+lack of standard library; attached to bad programming practices)
+impose a barrier for its broader application. In particular, simple algorithms
+for a proof of concept do not benefit from the verbosity of Fortran.
+Interactive and modern languages allow the user to play more with the algorithms.
+Matlab has that functionality but it is not open source
+Octave offers similar capabilties but it is too focused on array handling like Matlab, with less
+attention to other general purpose programming tasks.
+Python has been the alternative but numerical arrays are not first class objects in the language and
+optimization usually lends to rewriting code in other language.
+Julia offers an easy and natural array language like Fortran (no need of extra libraries to handle numerical
+arrays; same 1 index convention) whereas it also includes modern programming language capabilities.
+  
 
 Some of the aims would be:
 * To rewrite some old programs to avoid their obsolescence.
@@ -41,6 +57,7 @@ Algorithms
 * Geometry
   - [x] Cartesian to polar conversion.
   - [x] Find closest atom
+  - [x] Cartesian to internal coordinates (Z-matrix)
 * Numerical Quadrature [NumQuad]
   - [x] 1D quadratures:
     + [x] Trapezoidal quadrature
@@ -56,6 +73,13 @@ Algorithms
     + [x] Maxwell quadrature
 * Quantum Mechanics [QM]
   - [x] Finite difference solution of 1D single particle Schrödinger equation with 
+    + [x] infinite potential well
+    + [x] finite potential well
+    + [x] double finite well (unequal depth)
+    + [x] harmonic well
+    + [x] Morse well
+    + [x] Kronig-Penney finite wells
+    using
     + [x] Two point central difference formula 
           [J. Chem. Educ. 2017, 94, 6, 813-815](https://pubs.acs.org/doi/10.1021/acs.jchemed.7b00003)
     + [x] Matrix Numerov method [American Journal of Physics 80, 1017 (2012)](https://aapt.scitation.org/doi/10.1119/1.474)
@@ -117,7 +141,7 @@ Algorithms
   - [x] Earth's atmosphere refraction with altitude
   - [x] Conic sections visualization
   - [x] Kepler's equation for the eccentric anomaly
-  - [x] Position of planets and their orbits. [Solar System Dynamics](http://ssdbook.maths.qmul.ac.uk/)
+  - [x] Solar system simulation from orbital elements. [Solar System Dynamics](http://ssdbook.maths.qmul.ac.uk/)
 * Chaos
   - [x] Bifurcation diagram of the logistic map
 
