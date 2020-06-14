@@ -16,8 +16,8 @@ lena  = testimage("lena_gray_512")
 save("fabio.png",fabio)
 save("lena.png",lena)
 
-fabio_array = float.(fabio)
-lena_array  = float.(lena)
+fabio_array = channelview(fabio)
+lena_array  = channelview(lena)
 
 # 1. FFT of Fabio and Lena
 fabio_array_recip     = fftshift(fft(fabio_array))
@@ -99,3 +99,5 @@ save("lenamod_fabiopha.png", lenamod_fabiopha)
 #save("lenamod_fabiopha_recip.png", lenamod_fabiopha_recip)
 #
 # fabio_array = channelview(fabio)
+#fabio_array = float.(fabio)
+#lena_array  = float.(lena)

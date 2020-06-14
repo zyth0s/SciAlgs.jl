@@ -73,15 +73,12 @@ Algorithms
     + [x] Maxwell quadrature
 * Quantum Mechanics [QM]
   - [x] Finite difference solution of 1D single particle Schrödinger equation with 
-    + [x] infinite potential well
-    + [x] finite potential well
-    + [x] double finite well (unequal depth)
-    + [x] harmonic well
-    + [x] Morse well
-    + [x] Kronig-Penney finite wells
-
-   using
-
+    , infinite potential well
+    , finite potential well
+    , double finite well (unequal depth)
+    , harmonic well
+    , Morse well
+    , and Kronig-Penney finite wells, using
     + [x] Two point central difference formula 
           [J. Chem. Educ. 2017, 94, 6, 813-815](https://pubs.acs.org/doi/10.1021/acs.jchemed.7b00003)
     + [x] Matrix Numerov method [American Journal of Physics 80, 1017 (2012)](https://aapt.scitation.org/doi/10.1119/1.474)
