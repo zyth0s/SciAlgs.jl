@@ -95,6 +95,7 @@ Algorithms
   - [x] Slater-Koster Tight-binding of Sr2RuO4 [PRL 116, 197003 (2016)](https://link.aps.org/doi/10.1103/PhysRevLett.116.197003)
 * Quantum Chemistry [QChem]
   - [x] McMurchie-Davidson molecular integrals evaluation scheme
+  - [x] Read a XYZ formatted file
 * Spectroscopy
   - [x] X-ray Photoelectron Spectrocopy (XPS) [J. Chem. Educ. 2019, 96, 7, 1502-1505](https://pubs.acs.org/doi/10.1021/acs.jchemed.9b00236)
 * Electrochemistry
