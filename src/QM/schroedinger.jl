@@ -1,4 +1,5 @@
 
+# 1D Schroedinger solver
 # Inspired by doi:10.1021/acs.jchemed.7b00003
 #
 using Parameters
@@ -195,7 +196,7 @@ function schroedinger(p; periodic=false,method=:centraldiff)
    plot(xvec,U,
         xlabel = "x",
         ylabel = "Energy [Ha]",
-        ylim = (minimum(U),maximum(U)),
+        ylim = extrema(U),
         lab = "U",
         widen = false,
         #color = :red,

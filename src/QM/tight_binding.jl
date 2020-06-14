@@ -88,7 +88,7 @@ function tight_binding_1D_2sites(a,Δ₁₂,t)
    ε1 = 0 # without loss of generality energy reference at 0
    ε2 = Δ₁₂
 
-   kpath = range(-2π/b,stop=2π/b,length=100)
+   kpath = range(-π/b,stop=π/b,length=100)
    Enk = zeros(2,length(kpath))
 
    for (ik,k) in enumerate(kpath)
@@ -113,7 +113,7 @@ function tight_binding_1D_2sites_sp_orbs(a,Δ₁₂,t)
    εs = Δ₁₂
    εp = 0 # without loss of generality energy reference at 0
 
-   kpath = range(-2π/b,stop=2π/b,length=100)
+   kpath = range(-π/b,stop=π/b,length=100)
    Enk = zeros(2,length(kpath))
 
    for (ik,k) in enumerate(kpath)
@@ -126,9 +126,68 @@ function tight_binding_1D_2sites_sp_orbs(a,Δ₁₂,t)
    plot(kpath/π,[Enk[1,:], Enk[2,:]],
         label=["p state" "s state"],
         xlabel="k/pi", ylabel="Energy",
-        leg = :inside,
+        leg = :right,
        )
    savefig("1d_2sites_sp_orbs.pdf")
+end
+
+function tight_binding_2D(a,Δ₁₂,t)
+   # 2D square lattice with 1 site per unit cell, s orbitals
+   ε1 = 0 # without loss of generality energy reference at 0
+   ε2 = Δ₁₂
+
+   Hamiltonian(kx,ky) = [               ε1           2t*(cos(kx*a) + cos(ky*a));
+                         2t*(cos(kx*a) + cos(ky*a))               ε2            ]
+
+   # ............................
+   # Band plot
+   nkpts = 100
+   kpath = zeros(2,3nkpts)
+   kpath[1,  1:nkpts]  = range(0,stop=π/a,length=nkpts)
+   kpath[2,  1:nkpts] .= 0
+   #
+   kpath[1,(nkpts+1):2nkpts] .= π/a
+   kpath[2,(nkpts+1):2nkpts]  = range(0,stop=π/a,length=nkpts)
+   #
+   kpath[1,(2nkpts+1):3nkpts]  = range(π/a,stop=0,length=nkpts)
+   kpath[2,(2nkpts+1):3nkpts]  = range(π/a,stop=0,length=nkpts)
+   Enk = zeros(2,3nkpts)
+
+   for ik in 1:3nkpts
+      kx = kpath[1,ik]
+      ky = kpath[2,ik]
+      H_k = Hamiltonian(kx,ky)
+      e, vs = eigen(H_k)
+      Enk[:,ik] = e
+   end
+
+   #plot(1:3nkpts,[Enk[1,:],Enk[2,:]],
+   plot(1:3nkpts,Enk[1,:],
+        label=["Ground state" "Excited state"],
+        xlabel="kpath/pi", ylabel="Energy",
+        leg = :inside,
+       )
+   savefig("2d_1sites.pdf")
+
+   # ..........................................................
+   # BZ integration
+   nmesh = 100
+   Enk = zeros(2,nmesh,nmesh)
+   kxrange = kyrange = range(-π/a,stop=π/a,length=nmesh)
+   for (ikx,kx) in enumerate(kxrange), 
+       (iky,ky) in enumerate(kyrange)
+      H_k = Hamiltonian(kx,ky)
+      e, vs = eigen(H_k)
+      Enk[:,ikx,iky] = e
+   end
+
+   contour(kxrange./π,kyrange./π,Enk[1,:,:],
+        label=["Ground state" "Excited state"],
+        xlabel="k_x/pi", ylabel="k_y/pi",
+        leg = :inside,
+        levels=15,fill=true,
+       )
+   savefig("2d_1sites_contour.pdf")
 end
 
 # -----------------------------------------------------------------------------------
@@ -243,3 +302,5 @@ tight_binding_1D_2sites(1,2,2) # a, Δ₁₂, t
 ## -----------------------------------------------------------------------------------
 tight_binding_1D_2sites_sp_orbs(1,2,2) # a, Δ₁₂, t
 
+## -----------------------------------------------------------------------------------
+tight_binding_2D(1,-2,-2) # a, Δ₁₂, t
