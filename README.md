@@ -79,7 +79,9 @@ Algorithms
     + [x] harmonic well
     + [x] Morse well
     + [x] Kronig-Penney finite wells
-    using
+
+   using
+
     + [x] Two point central difference formula 
           [J. Chem. Educ. 2017, 94, 6, 813-815](https://pubs.acs.org/doi/10.1021/acs.jchemed.7b00003)
     + [x] Matrix Numerov method [American Journal of Physics 80, 1017 (2012)](https://aapt.scitation.org/doi/10.1119/1.474)
@@ -91,6 +93,8 @@ Algorithms
   - [x] Tight-binding 1D heteroatomic chain/ring with s, and s&p orbitals
   - [ ] Tight-binding in 2D/3D homoatomic
   - [x] Slater-Koster Tight-binding of Sr2RuO4 [PRL 116, 197003 (2016)](https://link.aps.org/doi/10.1103/PhysRevLett.116.197003)
+* Quantum Chemistry [QChem]
+  - [x] McMurchie-Davidson molecular integrals evaluation scheme
 * Spectroscopy
   - [x] X-ray Photoelectron Spectrocopy (XPS) [J. Chem. Educ. 2019, 96, 7, 1502-1505](https://pubs.acs.org/doi/10.1021/acs.jchemed.9b00236)
 * Electrochemistry
