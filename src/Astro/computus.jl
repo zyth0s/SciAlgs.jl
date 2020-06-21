@@ -1,5 +1,6 @@
 
 function Gauss_Easter_algorithm(A)
+   # Donald Teets (2019) Gauss’s Computation of the Easter Date, Mathematics Magazine, 92:2, 91-98
    A > 1582 || error("Must be a year in the Gregorian Calendar")
    a = mod(A,19)
    b = mod(A,4)

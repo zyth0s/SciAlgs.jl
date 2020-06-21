@@ -134,7 +134,7 @@ Algorithms
   - [x] NUTRI-SCORE see [Public health panorama, 03 (04), 712 - 725](https://apps.who.int/iris/handle/10665/325207)
   - [x] Dog-to-human age [bioRxiv doi: https://doi.org/10.1101/829192](https://www.biorxiv.org/content/10.1101/829192v2)
 * Astro (-nomy, -physics) [Astro] 
-  - [x] Gauss' Easter algorithm
+  - [x] Gauss' Easter algorithm [Mathematics Magazine, 92:2, 91-98](https://doi.org/10.1080/0025570X.2019.1549889)
   - [x] Meesus-Jones-Butcher Easter algorithm. [New Scientist, 9 (228): 828. (30 March 1961).](https://books.google.co.uk/books?id=zfzhCoOHurwC)
   - [ ] Doomsday algorithm
   - [x] Julian date and its inverse
