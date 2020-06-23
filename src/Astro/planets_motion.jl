@@ -141,8 +141,10 @@ function orbit_position(planet,jdate)
    a,e,I,ϖ,Ω,λ = planet_elements(planet,jdate)
    ω = mod(ϖ - Ω, 360)
    M = mod(λ - ϖ,360)
-   eq_Kepler(E) = E - e*sin(E) - deg2rad(M) # = 0
-   E = rad2deg(Roots.find_zero(eq_Kepler, deg2rad(M)))
+   #eq_Kepler(E) = E - e*sin(E) - deg2rad(M) # = 0
+   #E = rad2deg(Roots.find_zero(eq_Kepler, deg2rad(M)))
+   eq_Kepler(E) = E - rad2deg(e)*sind(E) - M # = 0
+   E = Roots.find_zero(eq_Kepler, M)
    x = a*(cosd(E) - e)
    y = a*sqrt(1-e^2)*sind(E)
    p = euler_rot(Ω,I,ω)
