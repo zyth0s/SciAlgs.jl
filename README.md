@@ -146,4 +146,7 @@ Algorithms
   - [x] Solar system simulation from orbital elements. [Solar System Dynamics](http://ssdbook.maths.qmul.ac.uk/)
 * Chaos
   - [x] Bifurcation diagram of the logistic map
+* Plots [plots]
+  - [x] Simple PyPlot figure
+  - [x] Subplots with PyPlot
 
