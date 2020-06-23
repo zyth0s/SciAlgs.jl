@@ -7,8 +7,14 @@
 #
 using SpecialFunctions
 using LinearAlgebra
-using Plots
 using Printf
+#using Plots
+import PyPlot
+pyplt = PyPlot
+mpl = PyPlot.matplotlib
+pyplt.matplotlib.style.reload_library()
+pyplt.matplotlib.style.use("5in_color")
+mpl.use(backend="Qt5Agg")
 
 function overlap(r,s)
   # overlap integral : ⟨ϕᵣ|ϕₛ⟩
@@ -68,8 +74,25 @@ end
 # Evaluate and plot eigenvectors
 EigVect = C' * Phi;
 #grid("on"); xlabel("y = x/a"); ylabel("Phi / sqrt(a)")
-plot(y, EigVect[1,:], grid=true, xlabel = "y = x/a", ylabel = "Phi / sqrt(a)")
-plot!(y, EigVect[2,:])
-plot!(y, EigVect[3,:])
-savefig("results.png")
+#plot(y, EigVect[1,:], grid=true, xlabel = "y = x/a", ylabel = "Phi / sqrt(a)")
+#plot!(y, EigVect[2,:])
+#plot!(y, EigVect[3,:])
+#savefig("results.png")
 #print("results.ps","-color");
+
+fig = pyplt.figure()
+fig.set_dpi(260)
+ax = fig.add_subplot(111)
+# Plot data
+ax.plot(y,EigVect[1,:],label="Eigvec 1")
+ax.plot(y,EigVect[2,:],label="Eigvec 2")
+ax.plot(y,EigVect[3,:],label="Eigvec 3")
+# Set axis labels
+ax.set_xlabel("y = x/a")
+ax.set_ylabel("Phi / sqrt(a)")
+# Add legend to plot
+ax.legend(bbox_to_anchor=(0.7, 0.3), loc="upper right", ncol=1,frameon=false)
+# Save plot
+fig.tight_layout(pad=0.1)
+pyplt.savefig("../figures/nonortho_variational.pdf")
+

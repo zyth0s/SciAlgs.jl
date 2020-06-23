@@ -11,12 +11,19 @@
 # f is the true anomaly [arcdeg or rad]
 # ω is the argument of the perihelion [arcdeg]
 # Newton's dot notation was used to denote variation of parameters with time.
+# TODO: https://ssd.jpl.nasa.gov/?planet_pos
 
 include("time.jl")
 include("units.jl")
 
 import Roots
 using Plots
+import PyPlot
+pyplt = PyPlot
+mpl = PyPlot.matplotlib
+pyplt.matplotlib.style.reload_library()
+pyplt.matplotlib.style.use("5in_color")
+mpl.use(backend="Qt5Agg")
 
 function orbital_elements_planet(t, T, object="EarthMoon")
    # t is Julian date since J2000.0 epoch
@@ -176,6 +183,25 @@ function diagram_solar_system(Y::Int, m::Int, d::Int, ut)
    inner_planets = ["Mercury","Venus", "Earth","Mars"]
    outer_planets = ["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]
 
+   fig, axes = fig = pyplt.subplots(ncols=2,nrows=1)
+   fig.set_dpi(200)
+   #fig.suptitle("Solar system snapshot at $Y-$m-$d-$(trunc(Int,ut))h")
+   axes[1].set_xlabel("Distance from Sun [AU]")
+   axes[1].set_ylabel("Distance from Sun [AU]")
+   axes[2].set_xlabel("Distance from Sun [AU]")
+   #axes[2].set_ylabel("Distance from Sun [AU]")
+   axes[1].set_title("Inner planets",y=1.04)
+   axes[2].set_title("Outer planets",y=1.04)
+   axes[1].scatter(0,0,color=:yellow, label="Sun", s=5)
+   axes[2].scatter(0,0,color=:yellow, label="Sun", s=5)
+   axes[1].set_xlim(-1.7,1.7)
+   axes[1].set_ylim(-1.7,1.7)
+   axes[2].set_xlim(-46,46)
+   axes[2].set_ylim(-46,46)
+   #for spine in ["left","top","right","bottom"]
+   #   axes[1].spines[spine].set_visible(false)
+   #   axes[2].spines[spine].set_visible(false)
+   #end
    inner = scatter([0],[0],color=:yellow, label="Sun",
                markersize=5,
                xlabel="Distance from Sun [AU]",
@@ -192,6 +218,10 @@ function diagram_solar_system(Y::Int, m::Int, d::Int, ut)
       scatter!(inner,[x],[y],label=nothing,color=planet_colors[planet],
                markersize=7)
       annotate!(inner,x+0.05,y, Plots.text(planet[1],planet_colors[planet],:left,15))
+      axes[1].plot(xy[1,:],xy[2,:],color=planet_colors[planet],label=nothing,
+                   linestyle=:solid,linewidth=2)
+      axes[1].scatter(x,y,label=nothing,color=planet_colors[planet], s = 7)
+      axes[1].annotate(string(planet[1]),xy=(x+0.05,y),color=planet_colors[planet])
    end
 
    outer = scatter([0],[0],color=:yellow, label="Sun",
@@ -204,16 +234,25 @@ function diagram_solar_system(Y::Int, m::Int, d::Int, ut)
    for planet in outer_planets
       a,e,I,ϖ,Ω,λ =planet_elements(planet,jd)
       xy = orbit_xyz(planet,jd,100)[1:2,:]
+
       plot!(outer,xy[1,:],xy[2,:],color=planet_colors[planet],label=nothing,
             line = (:solid,2))
       x,y,_ = orbit_position(planet,jd)
       scatter!(outer,[x],[y],label=nothing,color=planet_colors[planet],
                markersize=7)
       annotate!(outer,x+1.5,y, Plots.text(planet[1],planet_colors[planet],:left,15))
+
+      axes[2].plot(xy[1,:],xy[2,:],color=planet_colors[planet],label=nothing,
+                   linestyle=:solid,linewidth=2)
+      axes[2].scatter(x,y,label=nothing,color=planet_colors[planet], s = 7)
+      axes[2].annotate(string(planet[1]),xy=(x+1.5,y),color=planet_colors[planet])
    end
    l = @layout [a b]
    plot(inner,outer,layout = l,size=(1200,650))
    savefig("solar_system_$Y-$m-$d-$ut.pdf")
+   fig.tight_layout(pad=0.1) # top_margin conflicts with savefig
+   pyplt.savefig("../figures/solar_system_$Y-$m-$d-$ut.pdf")
+   pyplt.close("all")
 end
 # -----------------------------------------------------------
 #1993 Sept 25 17ʰ32ᵐ  British Summer Time (GMT+1)

@@ -73,12 +73,12 @@ Algorithms
     + [x] Maxwell quadrature
 * Quantum Mechanics [QM]
   - [x] Finite difference solution of 1D single particle Schrödinger equation with 
-    , infinite potential well
-    , finite potential well
-    , double finite well (unequal depth)
-    , harmonic well
-    , Morse well
-    , and Kronig-Penney finite wells, using
+          (i) infinite potential well
+          (ii) finite potential well
+          (iii) double finite well (unequal depth)
+          (iv) harmonic well
+          (v) Morse well, and
+          (vi) Kronig-Penney finite wells, using
     + [x] Two point central difference formula 
           [J. Chem. Educ. 2017, 94, 6, 813-815](https://pubs.acs.org/doi/10.1021/acs.jchemed.7b00003)
     + [x] Matrix Numerov method [American Journal of Physics 80, 1017 (2012)](https://aapt.scitation.org/doi/10.1119/1.474)
@@ -88,7 +88,7 @@ Algorithms
   - [x] Tight-binding 2/3 centers
   - [x] Tight-binding 1D homoatomic chain/ring + impurity. Surface state.
   - [x] Tight-binding 1D heteroatomic chain/ring with s, and s&p orbitals
-  - [ ] Tight-binding in 2D/3D homoatomic
+  - [x] Tight-binding in 2D/3D homoatomic
   - [x] Slater-Koster Tight-binding of Sr2RuO4 [PRL 116, 197003 (2016)](https://link.aps.org/doi/10.1103/PhysRevLett.116.197003)
 * Quantum Chemistry [QChem]
   - [x] McMurchie-Davidson molecular integrals evaluation scheme

@@ -8,8 +8,14 @@ using LinearAlgebra
 #using SparseArrays
 #import REPL
 using REPL.TerminalMenus
-using Plots
-unicodeplots(); #gr()
+#using Plots
+#unicodeplots(); #gr()
+import PyPlot
+pyplt = PyPlot
+mpl = PyPlot.matplotlib
+pyplt.matplotlib.style.reload_library()
+pyplt.matplotlib.style.use("7-25in_color")
+mpl.use(backend="Qt5Agg")
 
 options = [
        "Particle in an infinite potential well",
@@ -193,20 +199,55 @@ function schroedinger(p; periodic=false,method=:centraldiff)
    T = build_T(steps,Δx,periodic=periodic,method=method)
    E, V, nbound = diagonalize_hamiltonian(T,U)
    imprime(p,E,nbound)
-   plot(xvec,U,
-        xlabel = "x",
-        ylabel = "Energy [Ha]",
-        ylim = extrema(U),
-        lab = "U",
-        widen = false,
-        #color = :red,
-        width = 80,
-        show=true)
+   #plot(xvec,U,
+   #     xlabel = "x",
+   #     ylabel = "Energy [Ha]",
+   #     ylim = extrema(U),
+   #     lab = "U",
+   #     widen = false,
+   #     #color = :red,
+   #     width = 80,
+   #     show=true)
    #V = V' * V # Ψ²
-   plot(xvec,V[:,1],lab="Ground State Ψ₁")
-   plot!(xvec,V[:,2], lab="Excited State Ψ₂", ylabel = "Prob.   ", widen=false, show=true)
+   #plot(xvec,V[:,1],lab="Ground State Ψ₁")
+   #plot!(xvec,V[:,2], lab="Excited State Ψ₂", ylabel = "Prob.   ", widen=false, show=true)
    #xticks!(-8:8, ["$i" for i in -8:8])
-   #xvec, U
+   #
+   fig = pyplt.figure()
+   #fig.set_size_inches([15/2.54,10/2.54],forward=true)
+   fig.set_dpi(260)
+   ax = fig.add_subplot(111)
+   ax2 = ax.twinx()
+   # Plot data
+   ax.plot(xvec,U, label = "U",color=:black)
+   ax2.plot(xvec,V[:,1],label="Ground state",color=:blue)
+   ax2.plot(xvec,V[:,2],label="Excited state",color=:blue,":")
+   # Set axes limits
+   ax.set_xlim(extrema(xvec)...)
+   ax.set_ylim(extrema(U)...)
+   ax2.set_xlim(extrema(xvec)...)
+   ax2.set_ylim(extrema(V[:,1:2])...)
+   # Set axis labels
+   ax.set_xlabel("x")
+   ax.set_ylabel("Energy [Ha]")
+   ax2.set_ylabel("Eigenstate amplitude", labelpad=10,color=:blue)
+   # Edit the tick parameters of the new x-axis
+   ax2.yaxis.set_tick_params(which="major", size=10, width=2, direction="in",labelcolor=:blue)
+   ax2.yaxis.set_tick_params(which="minor", size=7, width=2, direction="in",labelcolor=:blue)
+   # Add ticks manually to wfn axis
+   ax2.yaxis.set_major_locator(mpl.ticker.FixedLocator(range(minimum(V[:,1:2]), stop=maximum(V[:,1:2]), length=5)))
+   ax2.yaxis.set_minor_locator(mpl.ticker.FixedLocator(range(minimum(V[:,1:2]), stop=maximum(V[:,1:2]), length=19)))
+   # Add tick labels manually to wfn axis
+   #ax2.set_yticklabels(["-1.0", "-0.5","0.0", "0.5", "1.0"])
+   # Add legend to plot
+   #ax.legend(bbox_to_anchor=(1.0, 0.9), loc=1, frameon=false)
+   #ax2.legend(bbox_to_anchor=(1.0, 0.7), loc=1, frameon=false)
+   ax.legend(bbox_to_anchor=(-0.1, 1.15), loc="upper center", ncol=3,frameon=false)
+   ax2.legend(bbox_to_anchor=(0.6, 1.15), loc="upper center", ncol=3,frameon=false)
+   fig.tight_layout(pad=0.1) #,top_margin=3)
+   #fig.subplots_adjust(top=0.15,left=0.15,right=0.2,bottom=0.1)
+   #figsize = fig.get_size_inches()
+   pyplt.draw()
 end
 
 function build_T(steps,Δx; periodic=false,method::Symbol)
@@ -259,58 +300,61 @@ boxcar(x,center,with,A) = A*rect(x+center,width) # least ambiguous
 steps = 2000
 method = :centraldiff
 method = :numerov
-if model == 1
-   println("Enter the width of your infinite well in atomic units (a.u.) ∈ [0.5, 15]: ")
-   width = parse(Float64,readline(stdin))
-   println("Enter the number of wavefunctions you would like to plot ∈ ℕ: ")
-   nwfn = parse(Int,readline(stdin))
-   p = InfPotentialParams(width,nwfn,steps)
-   schroedinger(p,method=method)
-elseif model == 2
-   println("Enter the width of your finite well in atomic units (a.u.) ∈ [1.0, 15]: ")
-   width = parse(Float64,readline(stdin))
-   println("Enter the depth of the well ∈ [20, 500]: ")
-   depth = parse(Float64,readline(stdin))
-   p = FinitePotentialParams(width, depth,steps)
-   schroedinger(p,method=method)
-elseif model == 3
-   println("Enter the width of your first finite well in atomic units (a.u.) ∈ [0.5 and 10.0]: ")
-   width1 = parse(Float64,readline(stdin))
-   println("Enter the width of your second finite well in atomic units (a.u.) ∈ [0.5 and 10.0]: ")
-   width2 = parse(Float64,readline(stdin))
-   println("Enter the depth of the first well ∈ [30, 500]: ")
-   depth1 = parse(Float64,readline(stdin))
-   println("Enter the depth of the second well ∈ [30, 500]: ")
-   depth2 = parse(Float64,readline(stdin))
-   println("Enter the potential width ∈ [0.1, 10.0]: ")
-   potwidth = parse(Float64,readline(stdin))
-   p = DoubleSquarePotentialParams( width1,width2,depth1,depth2,potwidth,steps)
-   schroedinger(p,method=method)
-elseif model == 4
-   println("Enter the depth of the well ∈ [2, 15]: ")
-   depth = parse(Float64,readline(stdin))
-   println("Enter the force constant of your harmonic well ∈ [0.3, 1.4]. ")
-   ω = parse(Float64,readline(stdin))
-   p = HarmonicPotentialParams(depth, ω, steps)
-   schroedinger(p,method=method)
-elseif model == 5
-   println("Enter the depth of the well ∈ [2, 15]: ")
-   depth = parse(Float64,readline(stdin))
-   println("Enter the force constant of your Morse well ∈ [0.05, 1.4]. ")
-   ω = parse(Float64,readline(stdin))
-   p = MorsePotentialParams(depth, ω, steps)
-   schroedinger(p,method=method)
-elseif model == 6
-   println("Enter the width of wells in atomic units (a.u.) ∈ [1.0 and 15.0]: ")
-   width = parse(Float64,readline(stdin))
-   println("Enter the depth of the well ∈ [20, 500]: ")
-   depth = parse(Float64,readline(stdin))
-   println("Enter the potential width ∈ [1.0, 15.0]: ")
-   potwidth = parse(Float64,readline(stdin))
-   println("Enter the number of wells ∈ [3, 7]:")
-   nwells = parse(Int,readline(stdin))
-   p = KronigPenneyPotentialParams(depth,width,potwidth,nwells,steps)
-   schroedinger(p,periodic=true,method=method)
+function selector()
+   if model == 1
+      println("Enter the width of your infinite well in atomic units (a.u.) ∈ [0.5, 15]: ")
+      width = parse(Float64,readline(stdin))
+      println("Enter the number of wavefunctions you would like to plot ∈ ℕ: ")
+      nwfn = parse(Int,readline(stdin))
+      p = InfPotentialParams(width,nwfn,steps)
+      schroedinger(p,method=method)
+   elseif model == 2
+      println("Enter the width of your finite well in atomic units (a.u.) ∈ [1.0, 15]: ")
+      width = parse(Float64,readline(stdin))
+      println("Enter the depth of the well ∈ [20, 500]: ")
+      depth = parse(Float64,readline(stdin))
+      p = FinitePotentialParams(width, depth,steps)
+      schroedinger(p,method=method)
+   elseif model == 3
+      println("Enter the width of your first finite well in atomic units (a.u.) ∈ [0.5 and 10.0]: ")
+      width1 = parse(Float64,readline(stdin))
+      println("Enter the width of your second finite well in atomic units (a.u.) ∈ [0.5 and 10.0]: ")
+      width2 = parse(Float64,readline(stdin))
+      println("Enter the depth of the first well ∈ [30, 500]: ")
+      depth1 = parse(Float64,readline(stdin))
+      println("Enter the depth of the second well ∈ [30, 500]: ")
+      depth2 = parse(Float64,readline(stdin))
+      println("Enter the potential width ∈ [0.1, 10.0]: ")
+      potwidth = parse(Float64,readline(stdin))
+      p = DoubleSquarePotentialParams( width1,width2,depth1,depth2,potwidth,steps)
+      schroedinger(p,method=method)
+   elseif model == 4
+      println("Enter the depth of the well ∈ [2, 15]: ")
+      depth = parse(Float64,readline(stdin))
+      println("Enter the force constant of your harmonic well ∈ [0.3, 1.4]. ")
+      ω = parse(Float64,readline(stdin))
+      p = HarmonicPotentialParams(depth, ω, steps)
+      schroedinger(p,method=method)
+   elseif model == 5
+      println("Enter the depth of the well ∈ [2, 15]: ")
+      depth = parse(Float64,readline(stdin))
+      println("Enter the force constant of your Morse well ∈ [0.05, 1.4]. ")
+      ω = parse(Float64,readline(stdin))
+      p = MorsePotentialParams(depth, ω, steps)
+      schroedinger(p,method=method)
+   elseif model == 6
+      println("Enter the width of wells in atomic units (a.u.) ∈ [1.0 and 15.0]: ")
+      width = parse(Float64,readline(stdin))
+      println("Enter the depth of the well ∈ [20, 500]: ")
+      depth = parse(Float64,readline(stdin))
+      println("Enter the potential width ∈ [1.0, 15.0]: ")
+      potwidth = parse(Float64,readline(stdin))
+      println("Enter the number of wells ∈ [3, 7]:")
+      nwells = parse(Int,readline(stdin))
+      p = KronigPenneyPotentialParams(depth,width,potwidth,nwells,steps)
+      schroedinger(p,periodic=true,method=method)
+   end
 end
 
+selector()
 # TODO: Generalized Matrix Numerov method

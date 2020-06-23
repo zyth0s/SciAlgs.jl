@@ -1,6 +1,12 @@
 
-using Plots
 using Distributions
+using Plots
+import PyPlot
+pyplt = PyPlot
+mpl = PyPlot.matplotlib
+pyplt.matplotlib.style.reload_library()
+pyplt.matplotlib.style.use("7-25in_color")
+mpl.use(backend="Qt5Agg")
 
 function xps_simulation()
 
@@ -101,8 +107,34 @@ x, beCd, beSe = xps_simulation()
 
 dist_Cd = Normal(beCd,10)
 dist_Se = Normal(beSe,10)
-xps_Cd = pdf.(dist_Cd,x)
-xps_Se = pdf.(dist_Se,x)
+xps_Cd = pdf.(dist_Cd,x)[1]
+xps_Se = pdf.(dist_Se,x)[1]
 
-plot( x,xps_Cd, label = "Cd")
-plot!(x,xps_Se, label = "Se", xlabel = "Binding Energy (eV)", ylabel = "Intensity")
+fig = pyplt.figure()
+#fig.set_size_inches([15/2.54,10/2.54],forward=true)
+fig.set_dpi(260)
+ax = fig.add_subplot(111)
+# Plot data
+ax.plot(xps_Cd, label = "Cd")
+ax.plot(xps_Se, label = "Se")
+
+ax.set_ylim(0.001, 0.045)
+# Edit the major and minor tick locations
+ax.xaxis.set_major_locator(mpl.ticker.MultipleLocator(100))
+ax.xaxis.set_minor_locator(mpl.ticker.MultipleLocator( 25))
+ax.yaxis.set_major_locator(mpl.ticker.MultipleLocator(0.005))
+ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(0.001))
+# Set axis labels
+ax.set_xlabel("Binding Energy (eV)")
+ax.set_ylabel("Intensity")
+# Add legend to plot
+ax.legend(bbox_to_anchor=(1.0, 0.9), loc=1, frameon=false)
+# Save plot
+fig.tight_layout(pad=0.1)
+pyplt.draw()
+#pyplt.display_figs()
+pyplt.savefig("figures/xps_Cd_Se.pdf")
+
+
+#plot( x,xps_Cd, label = "Cd")
+#plot!(x,xps_Se, label = "Se", xlabel = "Binding Energy (eV)", ylabel = "Intensity")

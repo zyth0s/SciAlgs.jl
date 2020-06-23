@@ -1,7 +1,12 @@
 using LinearAlgebra
 using Plots, Measures
-#import PyPlot
 using Parameters
+import PyPlot
+pyplt = PyPlot
+mpl = PyPlot.matplotlib
+pyplt.matplotlib.style.reload_library()
+pyplt.matplotlib.style.use("sci")
+mpl.use(backend="Qt5Agg")
 
 include("dos_broadening.jl")
 
@@ -76,9 +81,9 @@ function tight_binding(hamiltonianConstructor::Function,params,name)
         left_margin=5mm,bottom_margin=5mm,
         right_margin=0mm,top_margin=0mm)
    if ismissing(impuritysite)
-      savefig("$(name)_t=$(t)_N=$(N)_E0=0.pdf")
+      savefig("../figures/$(name)_t=$(t)_N=$(N)_E0=0.pdf")
    else
-      savefig("$(name)_t=$(t)_N=$(N)_E0=0_@$(impuritysite)=$Δ.pdf")
+      savefig("../figures/$(name)_t=$(t)_N=$(N)_E0=0_@$(impuritysite)=$Δ.pdf")
    end
 end
 
@@ -100,10 +105,10 @@ function tight_binding_1D_2sites(a,Δ₁₂,t)
 
    plot(kpath/π,[Enk[1,:], Enk[2,:]],
         label=["Ground state" "Excited state"],
-        xlabel="k/pi", ylabel="Energy",
+        xlabel="k pi/a", ylabel="Energy",
         leg = :inside,
        )
-   savefig("1d_2sites.pdf")
+   savefig("../figures/1d_2sites.pdf")
 end
 
 function tight_binding_1D_2sites_sp_orbs(a,Δ₁₂,t)
@@ -125,19 +130,21 @@ function tight_binding_1D_2sites_sp_orbs(a,Δ₁₂,t)
 
    plot(kpath/π,[Enk[1,:], Enk[2,:]],
         label=["p state" "s state"],
-        xlabel="k/pi", ylabel="Energy",
+        xlabel="k pi/a", ylabel="Energy",
         leg = :right,
        )
-   savefig("1d_2sites_sp_orbs.pdf")
+   savefig("../figures/1d_2sites_sp_orbs.pdf")
 end
 
-function tight_binding_2D(a,Δ₁₂,t)
-   # 2D square lattice with 1 site per unit cell, s orbitals
+function tight_binding_2D(a,b,Δ₁₂,ta,tb)
+   # 2D rectangular lattice with 1 site per unit cell, s orbitals
+   @assert a == b # does not handle rectangular with analytic formula
+   @assert Δ₁₂ == 0 # does not handle ≠ ε with analytic formula
    ε1 = 0 # without loss of generality energy reference at 0
    ε2 = Δ₁₂
 
-   Hamiltonian(kx,ky) = [               ε1           2t*(cos(kx*a) + cos(ky*a));
-                         2t*(cos(kx*a) + cos(ky*a))               ε2            ]
+   Hamiltonian(kx,ky) = [               ε1               2ta*cos(kx*a) + 2tb*cos(ky*b);
+                         2ta*cos(kx*a) + 2tb*cos(ky*b)                  ε2            ]
 
    # ............................
    # Band plot
@@ -147,10 +154,10 @@ function tight_binding_2D(a,Δ₁₂,t)
    kpath[2,  1:nkpts] .= 0
    #
    kpath[1,(nkpts+1):2nkpts] .= π/a
-   kpath[2,(nkpts+1):2nkpts]  = range(0,stop=π/a,length=nkpts)
+   kpath[2,(nkpts+1):2nkpts]  = range(0,stop=π/b,length=nkpts)
    #
    kpath[1,(2nkpts+1):3nkpts]  = range(π/a,stop=0,length=nkpts)
-   kpath[2,(2nkpts+1):3nkpts]  = range(π/a,stop=0,length=nkpts)
+   kpath[2,(2nkpts+1):3nkpts]  = range(π/b,stop=0,length=nkpts)
    Enk = zeros(2,3nkpts)
 
    for ik in 1:3nkpts
@@ -158,36 +165,67 @@ function tight_binding_2D(a,Δ₁₂,t)
       ky = kpath[2,ik]
       H_k = Hamiltonian(kx,ky)
       e, vs = eigen(H_k)
-      Enk[:,ik] = e
+      #Enk[:,ik] = e # FIXME
+      Enk[1,ik] = ε1 + ε2 - 2abs(ta)*cos(kx*a) - 2abs(tb)*cos(ky*b) # analytic formula
    end
 
    #plot(1:3nkpts,[Enk[1,:],Enk[2,:]],
-   plot(1:3nkpts,Enk[1,:],
-        label=["Ground state" "Excited state"],
-        xlabel="kpath/pi", ylabel="Energy",
-        leg = :inside,
-       )
-   savefig("2d_1sites.pdf")
+   #plot(1:3nkpts,Enk[1,:],
+   #     label=["Ground state" "Excited state"],
+   #     xlabel="kpath/pi", ylabel="Energy",
+   #     leg = :inside,
+   #    )
+   #savefig("2d_1sites.pdf")
+   fig = pyplt.figure()
+   fig.set_dpi(260)
+   ax = fig.add_subplot(111)
+   ax.plot(1:3nkpts,Enk[1,:], label="Ground state")
+   ax.xaxis.set_major_locator(mpl.ticker.MultipleLocator(100))
+   ax.set_xticklabels(["d","(0,0)T", "(1,0)T", "(1,1)T", "(0,0)T"])
+   ax.set_xlim(0,3nkpts)
+   ax.set_ylim(-2abs(ta)-2abs(tb),2abs(ta)+2abs(tb))
+   ax.grid(true)
+   ax.set_xlabel("(kx,ky)T pi/a")
+   ax.set_ylabel("Energy")
+   fig.tight_layout(pad=0.1)
+   pyplt.savefig("../figures/2d_1sites.pdf")
 
    # ..........................................................
    # BZ integration
-   nmesh = 100
+   nmesh = 101
    Enk = zeros(2,nmesh,nmesh)
-   kxrange = kyrange = range(-π/a,stop=π/a,length=nmesh)
+   kxrange = range(-π/a,stop=π/a,length=nmesh)
+   kyrange = range(-π/b,stop=π/b,length=nmesh)
    for (ikx,kx) in enumerate(kxrange), 
        (iky,ky) in enumerate(kyrange)
       H_k = Hamiltonian(kx,ky)
-      e, vs = eigen(H_k)
-      Enk[:,ikx,iky] = e
+      #e, vs = eigen(H_k) # FIXME
+      ##_,_,eschur = schur(H_k)
+      Enk[1,ikx,iky] = ε1 + ε2 - 2abs(ta)*cos(kx*a) - 2abs(tb)*cos(ky*b) # analytic result a = b; ...
+      #if abs(kx) + abs(ky) < pi/a
+      #   Enk[:,ikx,iky] = e
+      #else
+      #   Enk[:,ikx,iky] = reverse(e)
+      #end
+      #isapprox(e[1] , ε1 + ε2 + 2ta*cos(kx*a) + 2tb*cos(ky*b), atol=1e-1) || error("wrong eigenvalue $(e[1]) ≠ $(ε1 + ε2 + 2ta*cos(kx*a) + 2tb*cos(ky*b))")
+      #@show kx, ky
+      #println(e[1]," ", e[2], " ", ε1 + ε2 - 2abs(ta)*cos(kx*a) - 2abs(tb)*cos(ky*b))
+      #e[1], e[2] = e[2], e[1]
    end
 
-   contour(kxrange./π,kyrange./π,Enk[1,:,:],
-        label=["Ground state" "Excited state"],
-        xlabel="k_x/pi", ylabel="k_y/pi",
-        leg = :inside,
-        levels=15,fill=true,
-       )
-   savefig("2d_1sites_contour.pdf")
+   fig = pyplt.figure()
+   fig.set_dpi(260)
+   ax = fig.add_subplot(111)
+   ax.set_aspect("equal")
+   cont = ax.contourf(kxrange./π,kyrange./π,Enk[1,:,:], levels=15)
+   #cont = ax.plot_surface(kxrange./π,kyrange./π,Enk[1,:,:])
+   #cont = ax.imshow(Enk[1,:,:],extent=(-1,1,-1,1))
+   # Set axis labels
+   ax.set_xlabel("kx pi/a")
+   ax.set_ylabel("ky pi/b")
+   pyplt.colorbar(cont,format="%+3.1f")
+   fig.tight_layout(pad=0.1)
+   pyplt.savefig("../figures/2d_1sites_contour.pdf")
 end
 
 # -----------------------------------------------------------------------------------
@@ -241,7 +279,7 @@ dos = plot(dos,e_dos, ylabel="Energy", xlabel="DOS",leg=false,
             ylims=(-W-1,W+1))
 l = @layout [ a b]
 plot(band,dos,layout=l)
-savefig("C.1_bandos_ring_t=$(t)_N=$(N)_E0=0.pdf")
+savefig("../figures/C.1_bandos_ring_t=$(t)_N=$(N)_E0=0.pdf")
 
 # -----------------------------------------------------------------------------------
 t = 2.5; N = 1001; Δ = -2; impuritysite = N÷2
@@ -257,12 +295,12 @@ dos = plot(dos,e_dos, ylabel="Energy", xlabel="DOS",leg=false,
      ylims=(-W-1,W+1))
 l = @layout [ a b]
 plot(band,dos,layout=l)
-savefig("C.2_bandos_ring_t=$(t)_N=$(N)_E0=0_middleimpurity=$Δ.pdf")
+savefig("../figures/C.2_bandos_ring_t=$(t)_N=$(N)_E0=0_middleimpurity=$Δ.pdf")
 
 plot(vs[:,1].*vs[:,1],xlims=(490,510), label="Bound state",
      ylabel="Probability",xlabel="Site",
      title="Contribution of site orbitals to impurity state")
-savefig("C.2_boundstate_ring_t=$(t)_N=$(N)_E0=0_middleimpurity=$Δ.pdf")
+savefig("../figures/C.2_boundstate_ring_t=$(t)_N=$(N)_E0=0_middleimpurity=$Δ.pdf")
 
 
 # Surface states: Schokley/Tamm states
@@ -303,4 +341,5 @@ tight_binding_1D_2sites(1,2,2) # a, Δ₁₂, t
 tight_binding_1D_2sites_sp_orbs(1,2,2) # a, Δ₁₂, t
 
 ## -----------------------------------------------------------------------------------
-tight_binding_2D(1,-2,-2) # a, Δ₁₂, t
+tight_binding_2D(1,1,0,1,1) # a, b, Δ₁₂, ta, tb
+#tight_binding_2D(10,5,2,0.5,1) # a, b, Δ₁₂, ta, tb

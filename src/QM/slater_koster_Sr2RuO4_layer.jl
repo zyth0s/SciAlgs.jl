@@ -105,7 +105,7 @@ Enk = zeros(nbands,nkpoints)
 for k in 1:nkpoints
    kx = kpath[1,k]
    ky = kpath[2,k]
-   H_k = buildH_RuO2layer(Ep_sph,Ed_sph,DQ,DS,DT,ppσ,ppπ,pdσ,pdπ,kx,ky)
+   H_k = build_H_k_RuO2layer(Ep_sph,Ed_sph,DQ,DS,DT,ppσ,ppπ,pdσ,pdπ,kx,ky)
    εk, ψk = eigen(H_k)
    Enk[:,k] = εk
 end
@@ -130,7 +130,7 @@ ky_Fermi_surf = []
 for nx in 1:nkmesh1d, ny in 1:nkmesh1d
    kx = π*(nx-0.5)/nkmesh1d
    ky = π*(ny-0.5)/nkmesh1d
-   H_k = buildH_RuO2layer(Ep_sph,Ed_sph,DQ,DS,DT,ppσ,ppπ,pdσ,pdπ,kx,ky)
+   H_k = build_H_k_RuO2layer(Ep_sph,Ed_sph,DQ,DS,DT,ppσ,ppπ,pdσ,pdπ,kx,ky)
    εk, ψk = eigen(H_k)
    if minimum(abs.(εk)) < δEFermi
       push!(kx_Fermi_surf,kx/π)
@@ -148,14 +148,14 @@ dos = plot(e_dos, dos,xlabel="DOS",leg=false,
            ylims=(emin,emax))
 l = @layout [a b]
 plot(band,dos,layout=l)
-savefig("Sr2RuO4_banddos.pdf")
+savefig("../figures/Sr2RuO4_banddos.pdf")
 
 pdos = plot(title="Sr2RuO4 PDOS",xlabel="Energy")
 for n in 1:nbands
    plot!(pdos,dos_broadening(vec(Enk),vec(PDOS[:,:,n]))...,
         label="AO $n")
 end
-savefig(pdos,"Sr2RuO4_pdos.pdf")
+savefig(pdos,"../figures/Sr2RuO4_pdos.pdf")
 
 fermi_surf = scatter(title="Sr2RuO4 Fermi surface",leg=false,
              xticks=([-1,-0.5,0,0.5,1],["-\\pi", "-\\pi/2", "0", "\\pi/2", "\\pi"]),
@@ -166,5 +166,5 @@ scatter!(fermi_surf, kx_Fermi_surf, ky_Fermi_surf,markercolor=:red,markersize=1.
 scatter!(fermi_surf,-kx_Fermi_surf, ky_Fermi_surf,markercolor=:red,markersize=1.7,markerstrokewidth=0)
 scatter!(fermi_surf, kx_Fermi_surf,-ky_Fermi_surf,markercolor=:red,markersize=1.7,markerstrokewidth=0)
 scatter!(fermi_surf,-kx_Fermi_surf,-ky_Fermi_surf,markercolor=:red,markersize=1.7,markerstrokewidth=0)
-savefig(fermi_surf,"Sr2RuO4_Fermi_surface.pdf")
+savefig(fermi_surf,"../figures/Sr2RuO4_Fermi_surface.pdf")
 

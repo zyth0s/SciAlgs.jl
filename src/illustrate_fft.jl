@@ -13,8 +13,8 @@ using LinearAlgebra
 # 0. Get Fabio and Lena
 fabio = testimage("fabio_gray_512")
 lena  = testimage("lena_gray_512")
-save("fabio.png",fabio)
-save("lena.png",lena)
+save("figures/fabio.png",fabio)
+save("figures/lena.png",lena)
 
 fabio_array = channelview(fabio)
 lena_array  = channelview(lena)
@@ -30,13 +30,13 @@ lena_array_recip_pha  = angle.(lena_array_recip)
 # Reconstruct Fabio
 fabio2_array      = ifft(fabio_array_recip    )
 fabio2      = Gray.(real(fabio2_array     ))
-save("fabio2.png",     fabio2     )
+save("figures/fabio2.png",     fabio2     )
 
 
 # Reconstruct Lena
 lena2_array      = ifft(lena_array_recip    )
 lena2      = Gray.(real(lena2_array     ))
-save("lena2.png",     lena2     )
+save("figures/lena2.png",     lena2     )
 
 # ------------------------------------------------------
 # Phases are more important than moduli
@@ -59,8 +59,8 @@ fabiomod_lenapha_array = ifft(fabiomod_lenapha_array_recip)
 lenamod_fabiopha_array = ifft(lenamod_fabiopha_array_recip)
 fabiomod_lenapha = Gray.(real(fabiomod_lenapha_array))
 lenamod_fabiopha = Gray.(real(lenamod_fabiopha_array))
-save("fabiomod_lenapha.png", fabiomod_lenapha)
-save("lenamod_fabiopha.png", lenamod_fabiopha)
+save("figures/fabiomod_lenapha.png", fabiomod_lenapha)
+save("figures/lenamod_fabiopha.png", lenamod_fabiopha)
 
 #
 #_fabio_array_recip = fabio_array_recip_mod .* exp.(im*fabio_array_recip_pha)

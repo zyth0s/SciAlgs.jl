@@ -2,7 +2,7 @@
 # Script to explain the spectral decomposition,
 # also called eigenvalue equation
 #
-# Note about notation: - vector have a bar above, like v̂
+# Note about notation: - vectors have a bar above, like v̂
 #                      - matrices have a bar below, like A̲
 #                      - scalars have no bar
 #                      - ' means the (conjugate) transpose
