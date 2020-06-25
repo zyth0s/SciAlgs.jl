@@ -58,6 +58,7 @@ Algorithms
   - [x] Cartesian to polar conversion.
   - [x] Find closest atom
   - [x] Cartesian to internal coordinates (Z-matrix)
+  - [x] Read a XYZ formatted file
 * Numerical Quadrature [NumQuad]
   - [x] 1D quadratures:
     + [x] Trapezoidal quadrature
@@ -89,10 +90,10 @@ Algorithms
   - [x] Tight-binding 1D homoatomic chain/ring + impurity. Surface state.
   - [x] Tight-binding 1D heteroatomic chain/ring with s, and s&p orbitals
   - [x] Tight-binding in 2D/3D homoatomic
+* Electronic Structure [ElStruct]
   - [x] Slater-Koster Tight-binding of Sr2RuO4 [PRL 116, 197003 (2016)](https://link.aps.org/doi/10.1103/PhysRevLett.116.197003)
-* Quantum Chemistry [QChem]
   - [x] McMurchie-Davidson molecular integrals evaluation scheme
-  - [x] Read a XYZ formatted file
+  - [x] A simple plane-wave DFT 
 * Spectroscopy
   - [x] X-ray Photoelectron Spectrocopy (XPS) [J. Chem. Educ. 2019, 96, 7, 1502-1505](https://pubs.acs.org/doi/10.1021/acs.jchemed.9b00236)
 * Electrochemistry
