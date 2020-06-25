@@ -1,6 +1,7 @@
 #!/usr/bin/env julia
 # Forked from https://github.com/SamChill/hartree-fock
 # Modern Quantum Chemistry: Introduction to Advanced Electronic Structure Theory by Szabo-Ostlund
+# Appendix A and §3.5
 
 using Printf
 using SpecialFunctions
