@@ -93,7 +93,8 @@ Algorithms
 * Electronic Structure [ElStruct]
   - [x] Slater-Koster Tight-binding of Sr2RuO4 [PRL 116, 197003 (2016)](https://link.aps.org/doi/10.1103/PhysRevLett.116.197003)
   - [x] McMurchie-Davidson molecular integrals evaluation scheme
-  - [x] A simple plane-wave DFT 
+  - [x] Simple plane-wave Density Functional Theory (DFT)
+  - [x] Simple Hartree-Fock (HF) [Modern Quantum Chemistry. Szabo-Ostlund](https://store.doverpublications.com/0486691861.html)
 * Spectroscopy
   - [x] X-ray Photoelectron Spectrocopy (XPS) [J. Chem. Educ. 2019, 96, 7, 1502-1505](https://pubs.acs.org/doi/10.1021/acs.jchemed.9b00236)
 * Electrochemistry
