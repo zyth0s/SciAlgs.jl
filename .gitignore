@@ -5,5 +5,9 @@
 *.jl.*.cov
 *.jl.mem
 
+*.so
+*.o
+*.mod
+
 *.png
 *.pdf
