@@ -9,29 +9,35 @@
 SciAlgs is a compilation of fundamental scientific algorithms.
 The collection is not intended to be exhaustive but to offer clear and concise implementations.
 
+A disgression of the reasons for choosing Julia follows.
 Translating formulas to code is a non trivial task. This process was first addressed
-by Fortran (Formula translator) with great success. Fortran has found until nowadays
-widespread application. However, some of its characteristics (not interactive; low level string manipulation;
-lack of standard library; attached to bad programming practices)
-impose a barrier for its broader application. In particular, simple algorithms
-for a proof of concept do not benefit from the verbosity of Fortran.
-Interactive and modern languages allow the user to play more with the algorithms.
-Matlab has that functionality but it is not open source
+by Fortran (that is, Formula translator) with great success, and thus Fortran has found widespread 
+application until nowadays. However, some of its characteristics (not interactive; low level string manipulation;
+lack of standard library; attached to bad programming practices) make it less attractive to young scientists
+and professional programmers. In particular, both the compilation/execution
+process and the verbosity of the language slow down the implementation and distract the programmer
+from scientific to technical questions.
+Interactive and modern languages allow a more agile development and a more concise
+implementation of the algorithms.
+Matlab has such functionality but it is not open source. On the other hand,
 Octave offers similar capabilties but it is too focused on array handling like Matlab, with less
-attention to other general purpose programming tasks.
+attention to other general purpose programming tasks and the developement of new packages has stagnated.
 Python has been the alternative but numerical arrays are not first class objects in the language and
 optimization usually lends to rewriting code in other language.
 Julia offers an easy and natural array language like Fortran (no need of extra libraries to handle numerical
 arrays; same 1 index convention) whereas it also includes modern programming language capabilities.
-  
+
+Ideally, the implementation would be in only one language (here Julia). In case that a routine
+is not fast enough, the kernel could be written in Fortran (0-indexation in C could be a source of trouble).
 
 Some of the aims would be:
-* To rewrite some old programs to avoid their obsolescence.
-* Provide simple functions to perform basic operations, such that an average researcher can understand.
-* Modern development practices: tests, continuous integration, collaborative development, ...
+* Concise and pedagogical implementations
 * Make algorithms accessible to researchers without expertise in computer programming.
-* Enrich the ecosystem of scientific packages in Julia planting a seed.
-* Reproduce figures/data of published papers, mainly educative ones.
+* Rewrite legacy programs more clearly (e.g. no spaguetti code)
+* Provide useful functions to perform basic operations
+* Integrate modern development practices: tests, continuous integration, collaborative development, ...
+* Enrich Julia's package ecosystem with new functionalities
+* Reproduce figures/data of published papers (mainly educative ones).
 
 
 Some of the topics that are going to be covered are:
@@ -152,4 +158,7 @@ Algorithms
 * Plots [plots]
   - [x] Simple PyPlot figure
   - [x] Subplots with PyPlot
+* Mixed language
+  - [x] Examples of Fortran interfaces
+  - [x] Examples of C interfaces
 
