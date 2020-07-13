@@ -2,30 +2,28 @@
 # Odashima, Prado, Vernek. "Pedagogical introduction to equilibrium Green's functions: 
 #                           condensed-matter examples with numerical implementations"
 #                           10.1590/1806-9126-RBEF-2016-0087
-# §2.4 Infinite linear chain with a tight-binding Hamiltonian
-# solved with retarded Green's functions method
+# §3.2 Semi-infinite linear chain (with surface-bulk retarded Green's functions)
 
 using PyPlot                        # Matplotlib library
 
+
+η=eps()                             # positive infinitesimal
 ϵ₀ = 0                              # local site energy
-η = eps()                           # positive infinitesimal
-ωmin = -2; ωmax = 2                 # energy range
+ωmin = -4; ωmax = 4                 # energy range
 Nω = 1000                           # number of energy points
 ω = range(ωmin,stop=ωmax,length=Nω) # vector of energies
 g = @. 1 / (ω - ϵ₀ + η*im)          # undressed propagator, eq. (66)
 t = 1                               # symmetric real hopping
 
-# Semi-infinite chain analytic expression G₁₁, eq. (78)
+# Semi-infinite chain analytic, eq. (78), choose sign -
 
-Gsemi = @. (1 / (2g*t^2)) * (1 - sqrt(1-4t^2*g^2))
+G11 = @. 1/(2g*t^2) * (1 - sqrt(1-4t^2*g^2))
 
-# Infinite chain analytic expression obtained
-# by joining two semi-infinite chains, eq. (83)
-
-Ginf = @. Gsemi/(1-Gsemi^2*t^2)
-
-# Figure 8 in paper
+# Figure 5 in paper
 xlabel(L"Energy, ($\omega - \epsilon_0 $)/t")
-ylabel(L"Local density of states, $\rho_{11} (\omega) $")
-axis([ωmin,ωmax,0,1.4])
-plot(ω, (-1.0/π)*imag(Ginf), linewidth=3.0) # eq. (44)
+axis([-4,4,-1,1])
+plot(ω, -abs(t)*imag(G11), label=L"-|t| \; Im(G_{11})")
+fill(ω, -abs(t)*imag(G11))
+plot(ω,  abs(t)*real(G11), label=L"\quad |t| \; Re(G_{11})",ls="--")
+legend(loc="lower right")
+

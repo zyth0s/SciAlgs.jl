@@ -35,8 +35,9 @@ function semi_inf_chain_surf_bulk_recursive(Ndec=16, # number of decimation iter
    ω, G11
 end
 
+# Figure 13 in paper
 xlabel(L"Energy, ($\omega - \epsilon_0 $)/t")
-ylabel(L"Density of states, $\rho_{11} (\omega) $")
+ylabel(L"Local density of states, $\rho_{11} (\omega) $")
 axis([-2,2,0,8])
 for Ndec in 0:3
    ω, G11 = semi_inf_chain_surf_bulk_recursive(Ndec,0.02)
@@ -46,9 +47,10 @@ end
 legend()
 
 clf()
+# Figure 14 in paper
 title("Semi-infinite chain with surface-bulk RFG")
 xlabel(L"Energy, ($\omega - \epsilon_0 $)/t")
-ylabel(L"Density of states, $\rho_{11} (\omega) $")
+ylabel(L"Local density of states, $\rho_{11} (\omega) $")
 axis([-2,2,0,1.6])
 for Ndec in 11:14
    ω, G11 = semi_inf_chain_surf_bulk_recursive(Ndec,1e-4)
