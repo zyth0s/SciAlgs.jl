@@ -9,11 +9,11 @@ using PyPlot                        # Matplotlib library
 function semi_inf_chain_surf_bulk_recursive(Ndec=16, # number of decimation iterations
                                             η=eps()) # positive infinitesimal
    ϵ₀ = 0                              # local site energy
-   ωmin = -2; ωmax = 2                 # energy range
+   ωmin, ωmax = -2, 2                  # energy range
    Nω = 1000                           # number of energy points
    ω = range(ωmin,stop=ωmax,length=Nω) # vector of energies
    g = @. 1 / (ω - ϵ₀ + η*im)          # undressed propagator, eq. (66)
-   g10 = g20 = g30 = g                 # initialization of undressed GF
+   g10 = g20 = g30 = g                 # initialization of undressed retarded GF
    t = td = ones(Nω)                   # symmetric real hopping
 
    for i in 1:Ndec # Decimation Loop
@@ -22,8 +22,8 @@ function semi_inf_chain_surf_bulk_recursive(Ndec=16, # number of decimation iter
       g2 = @. g20/(1 - g20*td*g20*t - g20*t*g20*td) # effective Green’s function of site 2, eq. (129)
       g3 = @. g30/(1 - g30*td*g20*t) # eq. (132)
 
-      t  = t  .* g20 .* t            # Renormalization of the hoppings
-      td = td .* g20 .* td           # Note that we do not conjugate g20
+      t  = t  .* g20 .* t            # Renormalization of the hoppings, t̃
+      td = td .* g20 .* td           # Note that we do not conjugate g20, t̃*
 
       g10 = g1                       # Update of the loop variables
       g20 = g2

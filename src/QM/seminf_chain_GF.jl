@@ -9,7 +9,7 @@ using PyPlot                        # Matplotlib library
 
 η=eps()                             # positive infinitesimal
 ϵ₀ = 0                              # local site energy
-ωmin = -4; ωmax = 4                 # energy range
+ωmin, ωmax = -4, 4                  # energy range
 Nω = 1000                           # number of energy points
 ω = range(ωmin,stop=ωmax,length=Nω) # vector of energies
 g = @. 1 / (ω - ϵ₀ + η*im)          # undressed propagator, eq. (66)
@@ -19,7 +19,7 @@ t = 1                               # symmetric real hopping
 
 G11 = @. 1/(2g*t^2) * (1 - sqrt(1-4t^2*g^2))
 
-# Figure 5 in paper
+# Figure 5 in paper; Fig 5.10 Economou 3ed
 xlabel(L"Energy, ($\omega - \epsilon_0 $)/t")
 axis([-4,4,-1,1])
 plot(ω, -abs(t)*imag(G11), label=L"-|t| \; Im(G_{11})")
