@@ -51,6 +51,7 @@ Some of the topics that are going to be covered are:
 Algorithms
 ===========
 
+* [Algorithms from THE BOOK](https://bookstore.siam.org/ot168/bonus) by Kenneth Lange
 * Statistics [Stat]
   - [x] Linear least squares minimization http://mathworld.wolfram.com/LeastSquaresFitting.html
   - [x] Theil's method to fit data to straight line. 
