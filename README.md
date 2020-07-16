@@ -163,6 +163,7 @@ Algorithms
 * Plots [plots]
   - [x] Simple PyPlot figure
   - [x] Subplots with PyPlot
+  - [x] Some mplstyles
 * Mixed language
   - [x] Examples of Fortran interfaces
   - [x] Examples of C interfaces

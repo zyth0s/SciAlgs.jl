@@ -11,3 +11,5 @@
 
 *.png
 *.pdf
+
+.DS_Store

@@ -1,0 +1,48 @@
+# Seaborn colorblind palette
+axes.prop_cycle: cycler('color', ['0072B2', '009E73', 'D55E00', 'CC79A7', 'F0E442', '56B4E9'])
+patch.facecolor: 0072B2
+
+# Font Properties
+font.family: serif
+font.serif: Avenir
+font.size: 12.0
+axes.linewidth: 1
+
+# Figure Properties
+figure.figsize: 5,4
+figure.dpi: 100
+
+# Axes Properties
+axes.labelpad: 4
+axes.labelsize: 12
+
+# Tick properties
+# x-axis
+xtick.top: True
+xtick.direction: out
+xtick.major.size: 6
+xtick.major.width: 1
+xtick.minor.size: 3
+xtick.minor.width: 0.5
+xtick.labelsize: 10
+# y-axis
+ytick.right: True
+ytick.direction: out
+ytick.major.size: 6
+ytick.major.width: 1
+ytick.minor.size: 3
+ytick.minor.width: 0.5
+ytick.labelsize: 10
+
+# Line properties
+lines.linewidth: 2
+
+# Legend properties
+legend.framealpha: 1
+legend.frameon: False
+#legend.loc: 'best'
+
+# PS/PDF
+# added this because the pdf backend did not support Avenir font
+pdf.fonttype: 42 # a.k.a. TrueType
+ps.fonttype:  42 # a.k.a. TrueType
