@@ -58,7 +58,7 @@ ival = sortperm(W);
 Csort = C[:,ival];
 val = W[ival]
 #uout = open("results.dat","w")
-open("results.dat","w") do uout
+open("../outputs/variational.dat","w") do uout
   write(uout,"Sorted eigenvalues:\n")
   @printf(uout,"%12.9f %12.9f %12.9f\n",val[1:MAXN]...)
 end
