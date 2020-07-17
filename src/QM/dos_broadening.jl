@@ -1,12 +1,11 @@
 
-function dos_broadening(es,siteweight=missing)
+function dos_broadening(es,siteweight=missing;width=0.05)
   # DOS or PDOS broadening. Convolutes with Gaussian
   # with support ∈ [-10,10]
   # es is an array with the eigenenergies
   # siteweight is an array with the contribution of a site orbital to each eigenstate
   dos = zeros(10001)
   shape = zeros(20001)
-  width = 0.05
   for i in 1:20001
     dummy = 0.002*(i-10001)/(0.5*width)
     shape[i] = 1.0/(1.0 + dummy^2)
