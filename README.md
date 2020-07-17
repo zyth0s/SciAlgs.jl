@@ -52,6 +52,7 @@ Algorithms
 ===========
 
 * [Algorithms from THE BOOK](https://bookstore.siam.org/ot168/bonus) by Kenneth Lange
+* [Computational Fluid Dynamics Course](https://github.com/surajp92/CFD_Julia)
 * Statistics [Stat]
   - [x] Linear least squares minimization http://mathworld.wolfram.com/LeastSquaresFitting.html
   - [x] Theil's method to fit data to straight line. 
