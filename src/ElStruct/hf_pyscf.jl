@@ -30,9 +30,8 @@ function lowdinOrtho(A,B)
 end
 
 function buildFock(hcore,D,nao,eri)
-    F = zeros(nao,nao)  
+    F = deepcopy(hcore)
     for i in 1:nao, j in 1:nao
-        F[i,j] = hcore[i,j]  
         for k in 1:nao, l in 1:nao
             ijkl = get_4idx(i,j,k,l)
             ikjl = get_4idx(i,k,j,l)
