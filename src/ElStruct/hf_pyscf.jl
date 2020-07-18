@@ -1,7 +1,7 @@
 
 using PyCall: pyimport
 using Formatting: printfmt
-using LinearAlgebra: eigen, Diagonal, dot, norm, Hermitian
+using LinearAlgebra: Diagonal, Hermitian, eigen, norm
 
 pyscf = pyimport("pyscf")
 
