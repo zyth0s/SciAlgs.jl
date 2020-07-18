@@ -9,9 +9,9 @@ index(i,j) = max(i-1,j-1)*(max(i-1,j-1)+1)÷2 + min(i-1,j-1) + 1 # 1 based index
 
 # Compound indices ijkl
 function get_4idx(i,j,k,l)
-    ij = index(i,j)
-    kl = index(k,l)
-    index(ij,kl)
+   ij = index(i,j)
+   kl = index(k,l)
+   index(ij,kl)
 end
 
 # Lowdin symmetric Orthogonalization (with A = X^(-1/2)) 
@@ -20,15 +20,14 @@ function lowdinOrtho(A,B)
 end
 
 function buildFock(hcore,D,nao,eri)
-    F = deepcopy(hcore)
-    for i in 1:nao, j in 1:nao
-        for k in 1:nao, l in 1:nao
-            ijkl = get_4idx(i,j,k,l)
-            ikjl = get_4idx(i,k,j,l)
-            F[i,j] += D[k,l]*(2eri[ijkl]-eri[ikjl])  
-         end
-    end
-    F
+   F = deepcopy(hcore)
+   for i in 1:nao, j in 1:nao,
+       k in 1:nao, l in 1:nao
+      ijkl = get_4idx(i,j,k,l)
+      ikjl = get_4idx(i,k,j,l)
+      F[i,j] += D[k,l]*(2eri[ijkl]-eri[ikjl])
+   end
+   F
 end
 
 function scf_rhf(mol)
@@ -122,7 +121,7 @@ function scf_rhf(mol)
       Etot = Eelec + enuc
 
       printfmt(" {1:3d}  {2:14.8f}  {3:14.8f}  {4:14.8f} {5:14.8f}\n",
-                 iteri,   Eelec,       Etot,        ΔE   ,     ΔD)
+                 iteri,   Eelec,       Etot,      ΔE   ,    ΔD)
       ########################################################
       #10: TEST FOR CONVERGENCE: WHILE LOOP (go up)
       ########################################################
