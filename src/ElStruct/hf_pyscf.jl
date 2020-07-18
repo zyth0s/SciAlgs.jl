@@ -1,11 +1,20 @@
 
+# Restricted Hartree-Fock program that uses PySCF to calculate the integrals in the AO basis.
+# Calculates the energy of any molecule, however, it has no SCF speedup.
+# Therefore, it may converge poorly.
+# Instructions at https://github.com/zyth0s/ProgrammingProjects/tree/master/Project%2303
+# may be of interest.
+
 using PyCall: pyimport
 using Formatting: printfmt
 using LinearAlgebra: Diagonal, Hermitian, eigen, norm
 
 pyscf = pyimport("pyscf")
 
-index(i,j) = max(i-1,j-1)*(max(i-1,j-1)+1)÷2 + min(i-1,j-1) + 1 # 1 based indexing
+function index(i,j)
+   m,M = minmax(i-1,j-1)
+   M*(M+1)÷2 + m + 1
+end
 
 # Compound indices ijkl
 function get_4idx(i,j,k,l)
