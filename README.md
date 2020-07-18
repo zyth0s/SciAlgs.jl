@@ -110,6 +110,7 @@ Algorithms
   - [x] Simple plane-wave Density Functional Theory (DFT)
   - [x] Simple Hartree-Fock (HF) with GTOs (H2,He) [Szabo-Ostlund. Modern Quantum Chemistry.](https://store.doverpublications.com/0486691861.html)
   - [x] Simple Hartree-Fock (HF) with GTOs (H2,He) [J. Thijssen. Computational Physics](https://www.cambridge.org/core/books/computational-physics/BEE73B0139D4A9993193B57CDC62096E)
+  - [x] Simple Hartree-Fock (HF) with PySCF
   - [x] Davidson diagonalization [J. Comput. Phys. 17, 87–94](https://doi.org/10.1016/0021-9991(75)90065-0)
 * Spectroscopy
   - [x] X-ray Photoelectron Spectrocopy (XPS) [J. Chem. Educ. 2019, 96, 7, 1502-1505](https://pubs.acs.org/doi/10.1021/acs.jchemed.9b00236)
