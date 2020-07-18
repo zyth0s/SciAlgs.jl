@@ -1,13 +1,17 @@
 
 using PyCall: pyimport
 using Formatting: printfmt
-using LinearAlgebra: eigen, Diagonal, dot, norm
+using LinearAlgebra: eigen, Diagonal, dot, norm, Hermitian
 
 pyscf = pyimport("pyscf")
 
 mol = pyscf.gto.Mole()
 mol.build(verbose = 0,
-          atom = join(split(read(open("../data/h2.xyz"),String),"\n")[3:end],"\n"), # from XYZ file format
+          #atom = join(split(read(open("../data/h2.xyz"),String),"\n")[3:end],"\n"), # from XYZ file format
+          #atom = join(split(read(open("../data/acetaldehyde.xyz"),String),"\n")[3:end],"\n"), # from XYZ file format
+          atom = """8 0 0. 0
+          1 0 -0.757 0.587
+          1 0 0.757 0.587""",
           basis = "sto-3g",
          )
 
@@ -106,7 +110,7 @@ function scf_rhf(mol)
       # Transformed Fock matrix
       Fp = lowdinOrtho(s_minushalf,F)
       # MO coeffs as linear combination of orthonormal MO basis functions
-      e, Cp = eigen(Fp)
+      e, Cp = eigen(Hermitian(Fp))
       # New MO Coefficients as linear combination of AO basis functions
       C = s_minushalf * Cp
       # Renew Density Matrix. 
@@ -126,16 +130,16 @@ function scf_rhf(mol)
          Eelec += D[i,j]*(hcore[i,j] + F[i,j])
       end
 
-      ΔE    = Eelec - oldEelec
+      ΔE   = Eelec - oldEelec
       Etot = Eelec + enuc
 
-      printfmt(" {1:3d}  {2:13.10f}  {3:13.10f}  {4:13.10f} {5:13.10f}\n",
+      printfmt(" {1:3d}  {2:14.8f}  {3:14.8f}  {4:14.8f} {5:14.8f}\n",
                  iteri,   Eelec,       Etot,        ΔE   ,     ΔD)
       ########################################################
       #10: TEST FOR CONVERGENCE: WHILE LOOP (go up)
       ########################################################
    end
-   ifelse(iteri < itermax, println("CONVERGED!!"), nothing)
+   @info ifelse(iteri < itermax, "CONVERGED!!", "NOT CONVERGED!!")
    Etot
 end
 
