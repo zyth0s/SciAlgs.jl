@@ -5,16 +5,6 @@ using LinearAlgebra: eigen, Diagonal, dot, norm, Hermitian
 
 pyscf = pyimport("pyscf")
 
-mol = pyscf.gto.Mole()
-mol.build(verbose = 0,
-          #atom = join(split(read(open("../data/h2.xyz"),String),"\n")[3:end],"\n"), # from XYZ file format
-          #atom = join(split(read(open("../data/acetaldehyde.xyz"),String),"\n")[3:end],"\n"), # from XYZ file format
-          atom = """8 0 0. 0
-          1 0 -0.757 0.587
-          1 0 0.757 0.587""",
-          basis = "sto-3g",
-         )
-
 index(i,j) = max(i-1,j-1)*(max(i-1,j-1)+1)÷2 + min(i-1,j-1) + 1 # 1 based indexing
 
 # Compound indices ijkl
@@ -40,7 +30,6 @@ function buildFock(hcore,D,nao,eri)
     end
     F
 end
-
 
 function scf_rhf(mol)
    nelec = mol.nelectron
@@ -141,6 +130,16 @@ function scf_rhf(mol)
    @info ifelse(iteri < itermax, "CONVERGED!!", "NOT CONVERGED!!")
    Etot
 end
+
+mol = pyscf.gto.Mole()
+mol.build(verbose = 0,
+          #atom = join(split(read(open("../data/h2.xyz"),String),"\n")[3:end],"\n"), # from XYZ file format
+          #atom = join(split(read(open("../data/acetaldehyde.xyz"),String),"\n")[3:end],"\n"), # from XYZ file format
+          atom = """8 0 0. 0
+          1 0 -0.757 0.587
+          1 0 0.757 0.587""",
+          basis = "sto-3g",
+         )
 
 e_rhf_me    =       scf_rhf(mol)
 e_rhf_pyscf = pyscf.scf.RHF(mol).kernel()
