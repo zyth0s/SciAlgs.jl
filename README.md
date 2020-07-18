@@ -162,7 +162,8 @@ Algorithms
   - [x] Earth's atmosphere refraction with altitude
   - [x] Conic sections visualization
   - [x] Kepler's equation for the eccentric anomaly
-  - [x] Solar system simulation from orbital elements. [Solar System Dynamics](http://ssdbook.maths.qmul.ac.uk/)
+  - [x] Solar system simulation from orbital elements. [Murray-Dermott. Solar System Dynamics](http://ssdbook.maths.qmul.ac.uk/)
+  - [x] Arenstorf orbits to reach the Moon
 * Chaos
   - [x] Bifurcation diagram of the logistic map
 * Plots [plots]
