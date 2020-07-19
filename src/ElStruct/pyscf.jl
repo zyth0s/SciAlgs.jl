@@ -1,5 +1,8 @@
 
-# Restricted Hartree-Fock program that uses PySCF to calculate the integrals in the AO basis.
+# Calculation of the electronic structure of a molecule
+# with the help of PySCF to calculate AO integrals
+# * Restricted Hartree-Fock
+# * Møller-Plesset order 2
 # Calculates the energy of any molecule, however, it has no SCF speedup.
 # Therefore, it may converge poorly.
 # Instructions at https://github.com/zyth0s/ProgrammingProjects/tree/master/Project%2303
