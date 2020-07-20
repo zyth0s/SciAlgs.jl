@@ -13,8 +13,11 @@ using Formatting: printfmt
 using LinearAlgebra: Diagonal, Hermitian, eigen, norm
 
 pyscf = pyimport("pyscf")
-mp = pyimport("pyscf.mp") # Had to import mp alone ??!
+mp = pyimport("pyscf.mp")   # Had to import mp alone ??!
+cc = pyimport("pyscf.cc") # Had to import mp alone ??!
 np = pyimport("numpy") # alternative: Einsum.jl
+
+#using PyPlot: imshow
 
 function pyscf_atom_from_xyz(fpath::String)
    join(split(read(open(fpath),String),"\n")[3:end],"\n")
@@ -38,7 +41,7 @@ function lowdinOrtho(A,B)
 end
 
 function buildFock(hcore,D,nao,eri)
-   F = deepcopy(hcore)
+   F = copy(hcore)
    for i in 1:nao, j in 1:nao,
        k in 1:nao, l in 1:nao
       ijkl = get_4idx(i,j,k,l)
@@ -90,7 +93,7 @@ function scf_rhf(mol)
    #*******************************************************
    #*******************************************************
 
-   iteri     = 0    # current iteration
+   iteri     = 0    # extant iteration
    itermax   = 100  # max number of iterations
    δE        = 1e-8 # energy threshold for convergence
    δD        = 1e-8 # density matrix (D) threshold for convergence
@@ -99,7 +102,7 @@ function scf_rhf(mol)
    Etot      = 0.0  # total energy
    e         = zeros(nao)
    C         = zeros(nao,nao)
-   println(" Iter        E(elec)        E(tot)        Delta(E)        RMS(D)")
+   println(" Iter        E(elec)        E(tot)        ΔE(elec)         ΔD")
    println("-----   --------------  -------------  ------------  -------------")
 
    while abs(ΔE) > δE && iteri < itermax && ΔD > δD
@@ -123,7 +126,7 @@ function scf_rhf(mol)
       # New MO Coefficients as linear combination of AO basis functions
       C = s_minushalf * Cp
       # Renew Density Matrix. 
-      D, oldD = zeros(nao,nao), deepcopy(D)
+      D, oldD = zeros(nao,nao), copy(D)
 
       mocc = C[:,1:nocc]
       D  = mocc * mocc'
@@ -154,7 +157,7 @@ end
 
 #########################################################################
 # Project #4: The Second-Order Moller-Plesset
-#             Perturbation Theory (MP2) Energy
+#             Perturbation Theory (MP₂) Energy
 #########################################################################
 
 ########################################################
@@ -223,9 +226,10 @@ function ao2mo_smart(nao,C,eri,mol)
    end
    eri_mo
 end
+#eri_mo   = pyscf.ao2mo(nao,C,eri,mol)
 
 ########################################################
-#4: COMPUTE THE MP2 ENERGY
+#4: COMPUTE THE MP₂ ENERGY
 ########################################################
 function short_mp2(e,C,eri,mol)
    nocc  = mol.nelectron ÷ 2
@@ -266,7 +270,318 @@ function mymp2(e,C,eri,mol; alg::Symbol=:ao2mo_smart)
    emp2
 end
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#  Project #5: The Coupled Cluster Singles and Doubles (CCSD) Energy
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#    J.F. Stanton, J. Gauss, J.D. Watts,
+#    and R.J. Bartlett, J. Chem. Phys.
+#    volume 94, pp. 4334-4345 (1991).
+
+# We follow the convention that
+# i, j, k,... represent occupied orbitals, with
+# a, b, c,... unoccupied.
+# p, q, r,... are generic indices which may represent
+#             either occupied or unoccupied
+# orbitals.
+
+###################################################
+#1: Preparing the Spin-Orbital Basis Integrals
+###################################################
+# Translate integrals from spatial mo basis to spin-orbital basis
+function orb_to_spinorb(e,eri_mo)
+   # 1  2  3  4  5  6  7  8
+   # α, β, α, β, α, β, α, β, ...
+   nao  = length(e)
+   nsmo = 2nao
+   eri_smo = zeros(nsmo,nsmo,nsmo,nsmo)
+   for p in 1:nsmo, q in 1:nsmo, r in 1:nsmo, s in 1:nsmo
+      prqs = get_4idx((p+1)÷2,(r+1)÷2,(q+1)÷2,(s+1)÷2)
+      psqr = get_4idx((p+1)÷2,(s+1)÷2,(q+1)÷2,(r+1)÷2)
+      value1 = eri_mo[prqs] * (mod(p,2) == mod(r,2)) * (mod(q,2) == mod(s,2))
+      value2 = eri_mo[psqr] * (mod(p,2) == mod(s,2)) * (mod(q,2) == mod(r,2))
+      eri_smo[p,q,r,s] = value1 - value2
+   end
+   # The fock matrix is diagonal in the spin-MO basis
+   fs = zeros(nsmo)
+   for i in 1:nsmo
+      fs[i] = e[(i+1)÷2]
+   end
+   fs = Diagonal(fs)
+   eri_smo, fs
+end
+
+###################################################
+#2: Build the Initial-Guess Cluster Amplitudes
+###################################################
+
+function initial_amplitudes(occupied,virtual,fs,eri_smo)
+   nsmo = length(occupied) + length(virtual)
+   t1 = zeros(nsmo,nsmo)
+   t2 = zeros(nsmo,nsmo,nsmo,nsmo)
+
+   # MP₂ guess for T₂ amplitudes
+   # t[a,b,i,j] = ⟨ij||ab⟩/ (ϵi + ϵj - ϵa - ϵb)
+   # E_mp2      = 1/4 * ∑ijab ⟨ij||ab⟩ t[a,b,i,j]
+   emp2 = 0.0
+   for i in occupied, a in virtual,
+       j in occupied, b in virtual
+      t2[a,b,i,j] += eri_smo[i,j,a,b] / (fs[i,i] + fs[j,j] - fs[a,a] - fs[b,b])
+      emp2 += 0.5*0.5*t2[a,b,i,j]*eri_smo[i,j,a,b]
+   end
+   t1, t2, emp2
+end
+
+###################################################
+#3: Calculate the CC Intermediates
+###################################################
+
+# Effective doubles
+function tau_(t1,t2,a,b,i,j)
+   # Stanton1991 (9)
+   t2[a,b,i,j] + 0.5(t1[a,i]*t1[b,j] - t1[b,i]*t1[a,j])
+end
+function tau(t1,t2,a,b,i,j)
+   # Stanton1991 (10)
+   t2[a,b,i,j] + t1[a,i]*t1[b,j] - t1[b,i]*t1[a,j]
+end
+
+function updateF_W(occupied,virtual, # occ and virt spin-MO spaces
+                     t1,t2,            # CC amplitudes
+                     fs,eri_smo)       # integrals in spin-MO basis
+   nsmo = length(occupied) + length(virtual)
+   # Stanton1991 (3)
+   Fae = zeros(nsmo,nsmo)
+   for a in virtual, e in virtual
+      Fae[a,e] = (1 - (a == e))*fs[a,e]
+      for m in occupied
+         Fae[a,e] += -0.5*fs[m,e]*t1[a,m]
+         for f in virtual
+            Fae[a,e] += t1[f,m]*eri_smo[m,a,f,e]
+            for n in occupied
+               Fae[a,e] += -0.5*tau_(t1,t2,a,f,m,n)*eri_smo[m,n,e,f]
+            end
+         end
+      end
+   end
+   # Stanton1991 (4)
+   Fmi = zeros(nsmo,nsmo)
+   for m in occupied, i in occupied
+      Fmi[m,i] = (1 - (m == i))*fs[m,i]
+      for e in virtual
+         Fmi[m,i] += 0.5t1[e,i]*fs[m,e]
+         for n in occupied
+            Fmi[m,i] += t1[e,n]*eri_smo[m,n,i,e]
+            for f in virtual
+               Fmi[m,i] += 0.5tau_(t1,t2,e,f,i,n)*eri_smo[m,n,e,f]
+            end
+         end
+      end
+   end
+   # Stanton1991 (5)
+   Fme = zeros(nsmo,nsmo)
+   for e in virtual, m in occupied
+      Fme[m,e] = fs[m,e]
+      for f in virtual, n in occupied
+         Fme[m,e] += t1[f,n]*eri_smo[m,n,e,f]
+      end
+   end
+   # Stanton1991 (6)
+   Wmnij = zeros(nsmo,nsmo,nsmo,nsmo)
+   for m in occupied, n in occupied, i in occupied, j in occupied
+      Wmnij[m,n,i,j] = eri_smo[m,n,i,j]
+      for e in virtual # P_(ij)
+         Wmnij[m,n,i,j] += t1[e,j]*eri_smo[m,n,i,e] -
+                           t1[e,i]*eri_smo[m,n,j,e]
+         for f in virtual
+            Wmnij[m,n,i,j] += 0.25tau(t1,t2,e,f,i,j)*eri_smo[m,n,e,f]
+         end
+      end
+   end
+   # Stanton1991 (7)
+   Wabef = zeros(nsmo,nsmo,nsmo,nsmo)
+   for a in virtual, b in virtual, e in virtual, f in virtual
+      Wabef[a,b,e,f] = eri_smo[a,b,e,f]
+      for m in occupied # P_(ab)
+         Wabef[a,b,e,f] += -t1[b,m]*eri_smo[a,m,e,f] +
+                            t1[a,m]*eri_smo[b,m,e,f]
+         for n in occupied
+            Wabef[a,b,e,f] += 0.25tau(t1,t2,a,b,m,n)*eri_smo[m,n,e,f]
+         end
+      end
+   end
+   # Stanton1991 (8)
+   Wmbej = zeros(nsmo,nsmo,nsmo,nsmo)
+   for b in virtual, m in occupied, e in virtual, j in occupied
+      Wmbej[m,b,e,j] = eri_smo[m,b,e,j]
+      for f in virtual
+         Wmbej[m,b,e,j] += t1[f,j]*eri_smo[m,b,e,f]
+      end
+      for n in occupied
+         Wmbej[m,b,e,j] += -t1[b,n]*eri_smo[m,n,e,j]
+         for f in virtual
+            Wmbej[m,b,e,j] += -(0.5*t2[f,b,j,n] + t1[f,j]*t1[b,n])*eri_smo[m,n,e,f]
+         end
+      end
+   end
+   Fae, Fmi, Fme, Wmnij, Wabef, Wmbej
+end
+
+###############################################
+#4: Compute the Updated Cluster Amplitudes
+###############################################
+
+# Stanton1991 (1)
+function updateT1(occupied,virtual, # occ and virt spin-MO spaces
+                  t1,t2,            # CC amplitudes
+                  fs,eri_smo,       # integrals in spin-MO basis
+                  Fae,Fmi,Fme)      # one-particle CC intermediates
+   nsmo = length(occupied) + length(virtual)
+   # Denominator energies
+   Dai = zeros(nsmo,nsmo)
+   for a in virtual,i in occupied
+      # Stanton1991 (12)
+      Dai[a,i] = fs[i,i] - fs[a,a]
+   end
+   _t1 = zeros(nsmo,nsmo)
+   for a in virtual, i in occupied
+      _t1[a,i] = fs[i,a] # 1st RHS term (leading term in the expansion)
+      for e in virtual
+         _t1[a,i] += t1[e,i]*Fae[a,e] # 2nd RHS term
+      end
+      for m in occupied
+         _t1[a,i] += -t1[a,m]*Fmi[m,i] # 3rd RHS term
+         for e in virtual
+            _t1[a,i] += t2[a,e,i,m]*Fme[m,e] # 4th RHS term
+            for f in virtual
+               _t1[a,i] += -0.5t2[e,f,i,m]*eri_smo[m,a,e,f] # 6th RHS term
+            end
+            for n in occupied
+               _t1[a,i] += -0.5t2[a,e,m,n]*eri_smo[n,m,e,i] # 7th RHS term
+            end
+         end
+      end
+      for f in virtual,n in occupied
+         _t1[a,i] += -t1[f,n]*eri_smo[n,a,i,f] # 5th RHS term
+      end
+      _t1[a,i] /= Dai[a,i] # LHS
+   end
+   _t1
+end
+
+# Stanton1991 (2)
+function updateT2(occupied,virtual,  # occ and virt spin-MO spaces
+                  t1,t2,             # CC amplitudes
+                  fs,eri_smo,        # integrals in spin-MO basis
+                  Fae,Fmi,Fme,       # one-particle CC intermediates
+                  Wmnij,Wabef,Wmbej) # two-particle CC intermediates
+   nsmo = length(occupied) + length(virtual)
+   # Denominator energies
+   Dabij = zeros(nsmo,nsmo,nsmo,nsmo)
+   for a in virtual, i in occupied, b in virtual, j in occupied
+      # Stanton1991 (13)
+      Dabij[a,b,i,j] = fs[i,i] + fs[j,j] - fs[a,a] - fs[b,b]
+   end
+   _t2 = zeros(nsmo,nsmo,nsmo,nsmo)
+   for a in virtual, i in occupied, b in virtual, j in occupied
+      _t2[a,b,i,j] = eri_smo[i,j,a,b] # 1st RHS (leading term in the expansion)
+      for e in virtual # 2nd RHS term
+         taeij, tbeij = t2[a,e,i,j], t2[b,e,i,j]
+         _t2[a,b,i,j] += taeij*Fae[b,e] -
+                         tbeij*Fae[a,e]   # asym. permutes b <-> a
+         for m in occupied # 3rd RHS term
+            _t2[a,b,i,j] += -0.5taeij*t1[b,m]*Fme[m,e] +
+                             0.5tbeij*t1[a,m]*Fme[m,e]   # asym. permutes b <-> a
+         end
+      end
+      for m in occupied # 4th RHS term
+         tabim, tabjm = t2[a,b,i,m], t2[a,b,j,m]
+         _t2[a,b,i,j] += -tabim*Fmi[m,j] +
+                          tabjm*Fmi[m,i]  # asym. permutes i <-> j
+         for e in virtual # 5th RHS term
+            _t2[a,b,i,j] += -0.5tabim*t1[e,j]*Fme[m,e] +
+                             0.5tabjm*t1[e,i]*Fme[m,e]  # asym. permutes i <-> -j
+         end
+      end
+      for e in virtual # 10th RHS term
+         _t2[a,b,i,j] += t1[e,i]*eri_smo[a,b,e,j] -
+                         t1[e,j]*eri_smo[a,b,e,i]  # asym. permutes i <-> j
+         for f in virtual # 7th RHS term
+            _t2[a,b,i,j] += 0.5tau(t1,t2,e,f,i,j)*Wabef[a,b,e,f]
+         end
+      end
+      for m in occupied # 11th RHS term
+         _t2[a,b,i,j] += -t1[a,m]*eri_smo[m,b,i,j] +
+                          t1[b,m]*eri_smo[m,a,i,j]   # asym. permutes a <-> b
+         for e in virtual # 8-9th RHS terms
+            taeim, taejm = t2[a,e,i,m], t2[a,e,j,m]
+            tbeim, tbejm = t2[b,e,i,m], t2[b,e,j,m]
+            _t2[a,b,i,j] +=  taeim*Wmbej[m,b,e,j] - t1[e,i]*t1[a,m]*eri_smo[m,b,e,j] +
+                            -taejm*Wmbej[m,b,e,i] + t1[e,j]*t1[a,m]*eri_smo[m,b,e,i] + # i <-> j
+                            -tbeim*Wmbej[m,a,e,j] - t1[e,i]*t1[b,m]*eri_smo[m,a,e,j] + #          a <-> b
+                             tbejm*Wmbej[m,a,e,i] - t1[e,j]*t1[b,m]*eri_smo[m,a,e,i]   # i <-> j, a <-> b
+         end
+         for n in occupied # 6th RHS term
+            _t2[a,b,i,j] += 0.5tau(t1,t2,a,b,m,n)*Wmnij[m,n,i,j]
+         end
+      end
+      _t2[a,b,i,j] /= Dabij[a,b,i,j] # LHS
+   end
+   _t2
+end
+
+###########################################
+#5: Check for Convergence and Iterate
+###########################################
+
+function extant_E_CCSD(occupied, virtual, fs, t1, t2, eri_smo)
+   # Calculate the extant CC correlation energy
+   # E_CC = ∑ia fia t[a,i] + 1/4 ∑ijab ⟨ij||ab⟩t[a,b,i,j] + 1/2 ∑ijab ⟨ij||ab⟩ t[a,i] t[b,j]
+   E_CCSD = 0.0
+   for a in virtual, i in occupied
+      E_CCSD += fs[i,a] * t1[a,i]
+      for b in virtual, j in occupied
+         E_CCSD += 0.25eri_smo[i,j,a,b] * t2[a,b,i,j] +
+                    0.5eri_smo[i,j,a,b] * t1[a,i] * t1[b,j]
+      end
+   end
+   E_CCSD
+end
+
+function ccsd(e, C, eri)
+
+   nao      = size(C)[1]
+   nsmo     = 2nao
+   nelec    = mol.nelectron
+   occupied =       1:nelec
+   virtual  = nelec+1:nsmo
+   eri_mo = ao2mo_smart(nao,C,eri,mol)
+
+   eri_smo, fs = orb_to_spinorb(e,eri_mo)
+
+   t1,t2, E_MP2 = initial_amplitudes(occupied,virtual,fs,eri_smo)
+
+   E_CCSD  = 0.0
+   ΔE_CCSD = 1.0
+   iteri   = 0
+   itermax = 60
+   println(" Iter        E(CCSD)        ΔE(CCSD)")
+   println("-----   --------------   --------------")
+   while ΔE_CCSD > 1e-9 && iteri < itermax
+      iteri += 1
+      Fae,Fmi,Fme,Wmnij,Wabef,Wmbej = updateF_W(occupied,virtual,t1,t2,fs,eri_smo)
+      t1 = updateT1(occupied,virtual,t1,t2,fs,eri_smo,Fae,Fmi,Fme)
+      t2 = updateT2(occupied,virtual,t1,t2,fs,eri_smo,Fae,Fmi,Fme,Wmnij,Wabef,Wmbej)
+      E_CCSD, oldE_CCSD = extant_E_CCSD(occupied,virtual,fs,t1,t2,eri_smo), E_CCSD
+      ΔE_CCSD = abs(E_CCSD - oldE_CCSD)
+      printfmt("{1:5d}   {2:13.10f}   {3:13.10f}\n",iteri,E_CCSD,ΔE_CCSD)
+   end
+   @info ifelse(iteri < itermax, "CONVERGED!!", "NOT CONVERGED!!")
+   E_CCSD, E_MP2
+end
+
+
 #########################################################################
+# Test HF, MP₂, and CCSD
 mol = pyscf.gto.Mole()
 mol.build(verbose = 0,
           basis = "sto-3g",
@@ -284,21 +599,35 @@ e_rhf_pyscf    = mf.kernel()
 
 println( "           E(HF)     ")
 println( "        -------------")
-printfmt(" ME:    {1:13.10f}  \n", e_rhf_me)
-printfmt(" PySCF: {1:13.10f}  \n", e_rhf_pyscf)
+printfmt(" ME:    {1:13.8f}  \n", e_rhf_me)
+printfmt(" PySCF: {1:13.8f}  \n", e_rhf_pyscf)
 
 eri   = mol.intor("cint2e_sph", aosym="s8")
 println()
-e_mp2_me2   = @time mymp2(e,C,eri,mol,alg=:ao2mo_noddy) # Naive  ao2mo with my MP2
-e_mp2_me3   = @time mymp2(e,C,eri,mol,alg=:ao2mo_smart) # Smart  ao2mo with my MP2
-e_mp2_me1   = @time short_mp2(e,C,eri,mol)              # einsum ao2mo with my MP2
-e_mp2_pyscf = @time mp.MP2(mf).kernel()[1]              # pure PySCF MP2 solution
+e_mp2_me1   = @time mymp2(e,C,eri,mol,alg=:ao2mo_noddy) # Naive  ao2mo with my MP₂
+e_mp2_me2   = @time mymp2(e,C,eri,mol,alg=:ao2mo_smart) # Smart  ao2mo with my MP₂
+e_mp2_me3   = @time short_mp2(e,C,eri,mol)              # einsum ao2mo with my MP₂
+e_mp2_pyscf = @time mp.MP2(mf).kernel()[1]              # pure PySCF MP₂ solution
 println()
 
-println( "           ΔE(MP2)   ")
-println( "        -------------")
-printfmt(" ME1:   {1:13.10f}  \n", e_mp2_me1)
-printfmt(" ME2:   {1:13.10f}  \n", e_mp2_me2)
-printfmt(" ME3:   {1:13.10f}  \n", e_mp2_me3)
-printfmt(" PySCF: {1:13.10f}  \n", e_mp2_pyscf)
+println( "             ΔE(MP₂)        E(MP₂)   ")
+println( "          -----------   -------------")
+printfmt(" ME1:   {1:13.8f}   {2:13.8f}  \n", e_mp2_me1,  e_rhf_me   +e_mp2_me1)
+printfmt(" ME2:   {1:13.8f}   {2:13.8f}  \n", e_mp2_me2,  e_rhf_me   +e_mp2_me1)
+printfmt(" ME3:   {1:13.8f}   {2:13.8f}  \n", e_mp2_me3,  e_rhf_me   +e_mp2_me1)
+printfmt(" PySCF: {1:13.8f}   {2:13.8f}  \n", e_mp2_pyscf,e_rhf_pyscf+e_mp2_pyscf)
+println()
 
+@time e_ccsd_me, emp2 = ccsd(e,C,eri)
+@time e_ccsd_pyscf    = cc.ccsd.CC(mf).kernel()[1]
+emp2 ≈ e_mp2_me3 || @warn "E_MP2 from CC is not accurate"
+println()
+
+println("            E(HF)            ΔE(MP2)           E(MP2)           ΔE(CCSD)  ")
+println("        --------------   --------------   ---------------   ---------------")
+printfmt(" ME:    {1:13.10f}    {2:13.10f}    {3:13.10f}    {4:13.10f}\n",
+                 e_rhf_me,      e_mp2_me3,     e_rhf_me+e_mp2_me3,    e_ccsd_me)
+printfmt(" PySCF: {1:13.10f}    {2:13.10f}    {3:13.10f}    {4:13.10f}\n",
+                  e_rhf_pyscf,  e_mp2_pyscf,e_rhf_pyscf+e_mp2_pyscf,e_ccsd_pyscf)
+
+#mf.analyze(verbose=5,ncol=10, digits=9)
