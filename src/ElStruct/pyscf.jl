@@ -33,7 +33,7 @@ function get_4idx(i,j,k,l)
    index(ij,kl)
 end
 
-# Lowdin symmetric Orthogonalization (with A = X^(-1/2)) 
+# Löwdin symmetric Orthogonalization (with A = X^(-1/2))
 function lowdinOrtho(A,B)
    A' * B * A
 end
@@ -127,7 +127,6 @@ function scf_rhf(mol)
       #      sequences using direct inversion of the iterative subspace (DIIS)".
       #      Available at: vergil.chemistry.gatech.edu/notes/diis/diis.pdf. (1998)
       #########################################################################
-      #push!(DIISstack, DIIS_residual' - DIIS_residual)
       # orbital gradient in AO basis: F Di Si - S Di Fi
       # better choice:     (S^-0.5)' (F Di Si - S Di Fi) S^-0.5
       DIIS_residual = s * P * F
@@ -284,8 +283,8 @@ function short_mp2(e,C,eri,mol)
    virtual  = nocc+1:nao
    eri = pyscf.ao2mo.restore(1,eri,nao) # reshape
    eri_mo = np.einsum("pa,qi,rb,sj,pqrs->aibj",C[:,1:nocc],C,C[:,1:nocc],C,eri)
-   for i in occupied, a in virtual,
-       j in occupied, b in virtual
+   @inbounds for i in occupied, a in virtual,
+                 j in occupied, b in virtual
        eiajb, eibja = eri_mo[i,a,j,b],  eri_mo[i,b,j,a]
        emp2 += eiajb * (2.0eiajb-eibja) / (e[i]+e[j]-e[a]-e[b])
     end
@@ -301,8 +300,8 @@ function mymp2(e,C,eri,mol; alg::Symbol=:ao2mo_smart)
    occupied =      1:nocc
    virtual  = nocc+1:nao
    eri_mo   = ao2mo(nao,C,eri,mol)
-   for i in occupied, a in virtual,
-       j in occupied, b in virtual
+   @inbounds for i in occupied, a in virtual,
+                 j in occupied, b in virtual
       iajb = get_4idx(i,a,j,b)
       ibja = get_4idx(i,b,j,a)
       emp2 += eri_mo[iajb] * (2.0eri_mo[iajb]-eri_mo[ibja]) / (e[i]+e[j]-e[a]-e[b])
@@ -337,7 +336,7 @@ function orb_to_spinorb(e,eri_mo)
    nao  = length(e)
    nsmo = 2nao
    eri_smo = zeros(nsmo,nsmo,nsmo,nsmo)
-   for p in 1:nsmo, q in 1:nsmo, r in 1:nsmo, s in 1:nsmo
+   @inbounds for p in 1:nsmo, q in 1:nsmo, r in 1:nsmo, s in 1:nsmo
       prqs = get_4idx((p+1)÷2,(r+1)÷2,(q+1)÷2,(s+1)÷2)
       psqr = get_4idx((p+1)÷2,(s+1)÷2,(q+1)÷2,(r+1)÷2)
       value1 = eri_mo[prqs] * (mod(p,2) == mod(r,2)) * (mod(q,2) == mod(s,2))
@@ -366,8 +365,8 @@ function initial_amplitudes(occupied,virtual,fs,eri_smo)
    # t[a,b,i,j] = ⟨ij||ab⟩/ (ϵi + ϵj - ϵa - ϵb)
    # E_mp2      = 1/4 * ∑ijab ⟨ij||ab⟩ t[a,b,i,j]
    emp2 = 0.0
-   for i in occupied, a in virtual,
-       j in occupied, b in virtual
+   @inbounds for i in occupied, a in virtual,
+                 j in occupied, b in virtual
       t2[a,b,i,j] += eri_smo[i,j,a,b] / (fs[i,i] + fs[j,j] - fs[a,a] - fs[b,b])
       emp2 += 0.5*0.5*t2[a,b,i,j]*eri_smo[i,j,a,b]
    end
@@ -394,13 +393,13 @@ function updateF_W(occupied,virtual, # occ and virt spin-MO spaces
    nsmo = length(occupied) + length(virtual)
    # Stanton1991 (3)
    Fae = zeros(nsmo,nsmo)
-   for a in virtual, e in virtual
+   @inbounds for a in virtual, e in virtual
       Fae[a,e] = (1 - (a == e))*fs[a,e]
-      for m in occupied
+      @inbounds for m in occupied
          Fae[a,e] += -0.5*fs[m,e]*t1[a,m]
-         for f in virtual
+         @inbounds for f in virtual
             Fae[a,e] += t1[f,m]*eri_smo[m,a,f,e]
-            for n in occupied
+            @inbounds for n in occupied
                Fae[a,e] += -0.5*tau_(t1,t2,a,f,m,n)*eri_smo[m,n,e,f]
             end
          end
@@ -408,13 +407,13 @@ function updateF_W(occupied,virtual, # occ and virt spin-MO spaces
    end
    # Stanton1991 (4)
    Fmi = zeros(nsmo,nsmo)
-   for m in occupied, i in occupied
+   @inbounds for m in occupied, i in occupied
       Fmi[m,i] = (1 - (m == i))*fs[m,i]
-      for e in virtual
+      @inbounds for e in virtual
          Fmi[m,i] += 0.5t1[e,i]*fs[m,e]
-         for n in occupied
+         @inbounds for n in occupied
             Fmi[m,i] += t1[e,n]*eri_smo[m,n,i,e]
-            for f in virtual
+            @inbounds for f in virtual
                Fmi[m,i] += 0.5tau_(t1,t2,e,f,i,n)*eri_smo[m,n,e,f]
             end
          end
@@ -422,46 +421,46 @@ function updateF_W(occupied,virtual, # occ and virt spin-MO spaces
    end
    # Stanton1991 (5)
    Fme = zeros(nsmo,nsmo)
-   for e in virtual, m in occupied
+   @inbounds for e in virtual, m in occupied
       Fme[m,e] = fs[m,e]
-      for f in virtual, n in occupied
+      @inbounds for f in virtual, n in occupied
          Fme[m,e] += t1[f,n]*eri_smo[m,n,e,f]
       end
    end
    # Stanton1991 (6)
    Wmnij = zeros(nsmo,nsmo,nsmo,nsmo)
-   for m in occupied, n in occupied, i in occupied, j in occupied
+   @inbounds for m in occupied, n in occupied, i in occupied, j in occupied
       Wmnij[m,n,i,j] = eri_smo[m,n,i,j]
-      for e in virtual # P_(ij)
+      @inbounds for e in virtual # P_(ij)
          Wmnij[m,n,i,j] += t1[e,j]*eri_smo[m,n,i,e] -
                            t1[e,i]*eri_smo[m,n,j,e]
-         for f in virtual
+         @inbounds for f in virtual
             Wmnij[m,n,i,j] += 0.25tau(t1,t2,e,f,i,j)*eri_smo[m,n,e,f]
          end
       end
    end
    # Stanton1991 (7)
    Wabef = zeros(nsmo,nsmo,nsmo,nsmo)
-   for a in virtual, b in virtual, e in virtual, f in virtual
+   @inbounds for a in virtual, b in virtual, e in virtual, f in virtual
       Wabef[a,b,e,f] = eri_smo[a,b,e,f]
-      for m in occupied # P_(ab)
+      @inbounds for m in occupied # P_(ab)
          Wabef[a,b,e,f] += -t1[b,m]*eri_smo[a,m,e,f] +
                             t1[a,m]*eri_smo[b,m,e,f]
-         for n in occupied
+         @inbounds for n in occupied
             Wabef[a,b,e,f] += 0.25tau(t1,t2,a,b,m,n)*eri_smo[m,n,e,f]
          end
       end
    end
    # Stanton1991 (8)
    Wmbej = zeros(nsmo,nsmo,nsmo,nsmo)
-   for b in virtual, m in occupied, e in virtual, j in occupied
+   @inbounds for b in virtual, m in occupied, e in virtual, j in occupied
       Wmbej[m,b,e,j] = eri_smo[m,b,e,j]
-      for f in virtual
+      @inbounds for f in virtual
          Wmbej[m,b,e,j] += t1[f,j]*eri_smo[m,b,e,f]
       end
-      for n in occupied
+      @inbounds for n in occupied
          Wmbej[m,b,e,j] += -t1[b,n]*eri_smo[m,n,e,j]
-         for f in virtual
+         @inbounds for f in virtual
             Wmbej[m,b,e,j] += -(0.5*t2[f,b,j,n] + t1[f,j]*t1[b,n])*eri_smo[m,n,e,f]
          end
       end
@@ -481,29 +480,29 @@ function updateT1(occupied,virtual, # occ and virt spin-MO spaces
    nsmo = length(occupied) + length(virtual)
    # Denominator energies
    Dai = zeros(nsmo,nsmo)
-   for a in virtual,i in occupied
+   @inbounds for a in virtual,i in occupied
       # Stanton1991 (12)
       Dai[a,i] = fs[i,i] - fs[a,a]
    end
    _t1 = zeros(nsmo,nsmo)
-   for a in virtual, i in occupied
+   @inbounds for a in virtual, i in occupied
       _t1[a,i] = fs[i,a] # 1st RHS term (leading term in the expansion)
-      for e in virtual
+      @inbounds for e in virtual
          _t1[a,i] += t1[e,i]*Fae[a,e] # 2nd RHS term
       end
-      for m in occupied
+      @inbounds for m in occupied
          _t1[a,i] += -t1[a,m]*Fmi[m,i] # 3rd RHS term
-         for e in virtual
+         @inbounds for e in virtual
             _t1[a,i] += t2[a,e,i,m]*Fme[m,e] # 4th RHS term
-            for f in virtual
+            @inbounds for f in virtual
                _t1[a,i] += -0.5t2[e,f,i,m]*eri_smo[m,a,e,f] # 6th RHS term
             end
-            for n in occupied
+            @inbounds for n in occupied
                _t1[a,i] += -0.5t2[a,e,m,n]*eri_smo[n,m,e,i] # 7th RHS term
             end
          end
       end
-      for f in virtual,n in occupied
+      @inbounds for f in virtual,n in occupied
          _t1[a,i] += -t1[f,n]*eri_smo[n,a,i,f] # 5th RHS term
       end
       _t1[a,i] /= Dai[a,i] # LHS
@@ -520,42 +519,42 @@ function updateT2(occupied,virtual,  # occ and virt spin-MO spaces
    nsmo = length(occupied) + length(virtual)
    # Denominator energies
    Dabij = zeros(nsmo,nsmo,nsmo,nsmo)
-   for a in virtual, i in occupied, b in virtual, j in occupied
+   @inbounds for a in virtual, i in occupied, b in virtual, j in occupied
       # Stanton1991 (13)
       Dabij[a,b,i,j] = fs[i,i] + fs[j,j] - fs[a,a] - fs[b,b]
    end
    _t2 = zeros(nsmo,nsmo,nsmo,nsmo)
-   for a in virtual, i in occupied, b in virtual, j in occupied
+   @inbounds for a in virtual, i in occupied, b in virtual, j in occupied
       _t2[a,b,i,j] = eri_smo[i,j,a,b] # 1st RHS (leading term in the expansion)
-      for e in virtual # 2nd RHS term
+      @inbounds for e in virtual # 2nd RHS term
          taeij, tbeij = t2[a,e,i,j], t2[b,e,i,j]
          _t2[a,b,i,j] += taeij*Fae[b,e] -
                          tbeij*Fae[a,e]   # asym. permutes b <-> a
-         for m in occupied # 3rd RHS term
+         @inbounds for m in occupied # 3rd RHS term
             _t2[a,b,i,j] += -0.5taeij*t1[b,m]*Fme[m,e] +
                              0.5tbeij*t1[a,m]*Fme[m,e]   # asym. permutes b <-> a
          end
       end
-      for m in occupied # 4th RHS term
+      @inbounds for m in occupied # 4th RHS term
          tabim, tabjm = t2[a,b,i,m], t2[a,b,j,m]
          _t2[a,b,i,j] += -tabim*Fmi[m,j] +
                           tabjm*Fmi[m,i]  # asym. permutes i <-> j
-         for e in virtual # 5th RHS term
+         @inbounds for e in virtual # 5th RHS term
             _t2[a,b,i,j] += -0.5tabim*t1[e,j]*Fme[m,e] +
                              0.5tabjm*t1[e,i]*Fme[m,e]  # asym. permutes i <-> -j
          end
       end
-      for e in virtual # 10th RHS term
+      @inbounds for e in virtual # 10th RHS term
          _t2[a,b,i,j] += t1[e,i]*eri_smo[a,b,e,j] -
                          t1[e,j]*eri_smo[a,b,e,i]  # asym. permutes i <-> j
-         for f in virtual # 7th RHS term
+         @inbounds for f in virtual # 7th RHS term
             _t2[a,b,i,j] += 0.5tau(t1,t2,e,f,i,j)*Wabef[a,b,e,f]
          end
       end
-      for m in occupied # 11th RHS term
+      @inbounds for m in occupied # 11th RHS term
          _t2[a,b,i,j] += -t1[a,m]*eri_smo[m,b,i,j] +
                           t1[b,m]*eri_smo[m,a,i,j]   # asym. permutes a <-> b
-         for e in virtual # 8-9th RHS terms
+         @inbounds for e in virtual # 8-9th RHS terms
             taeim, taejm = t2[a,e,i,m], t2[a,e,j,m]
             tbeim, tbejm = t2[b,e,i,m], t2[b,e,j,m]
             _t2[a,b,i,j] +=  taeim*Wmbej[m,b,e,j] - t1[e,i]*t1[a,m]*eri_smo[m,b,e,j] +
@@ -563,7 +562,7 @@ function updateT2(occupied,virtual,  # occ and virt spin-MO spaces
                             -tbeim*Wmbej[m,a,e,j] - t1[e,i]*t1[b,m]*eri_smo[m,a,e,j] + #          a <-> b
                              tbejm*Wmbej[m,a,e,i] - t1[e,j]*t1[b,m]*eri_smo[m,a,e,i]   # i <-> j, a <-> b
          end
-         for n in occupied # 6th RHS term
+         @inbounds for n in occupied # 6th RHS term
             _t2[a,b,i,j] += 0.5tau(t1,t2,a,b,m,n)*Wmnij[m,n,i,j]
          end
       end
@@ -580,9 +579,9 @@ function extant_E_CCSD(occupied, virtual, fs, t1, t2, eri_smo)
    # Calculate the extant CC correlation energy
    # E_CC = ∑ia fia t[a,i] + 1/4 ∑ijab ⟨ij||ab⟩t[a,b,i,j] + 1/2 ∑ijab ⟨ij||ab⟩ t[a,i] t[b,j]
    E_CCSD = 0.0
-   for a in virtual, i in occupied
+   @inbounds for a in virtual, i in occupied
       E_CCSD += fs[i,a] * t1[a,i]
-      for b in virtual, j in occupied
+      @inbounds for b in virtual, j in occupied
          E_CCSD += 0.25eri_smo[i,j,a,b] * t2[a,b,i,j] +
                     0.5eri_smo[i,j,a,b] * t1[a,i] * t1[b,j]
       end
