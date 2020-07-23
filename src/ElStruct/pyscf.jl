@@ -66,11 +66,8 @@ function scf_rhf(mol)
    ########################################################
    # NOTE: The AO basis is non-orthogonal
 
-   # Diagonalize the overlap matrix
-   s_diag, s_eigvec = eigen(s)
-   s_diag_minushalf = Diagonal(s_diag.^(-0.5))
-   # Build the symmetric orthogonalization matrix
-   s_minushalf = s_eigvec * s_diag_minushalf * s_eigvec'
+   # Symmetric orthogonalization matrix
+   s_minushalf = s^(-0.5) # Matrix power (via JordanNF)
 
    ########################################################
    #5: BUILD THE INITIAL (GUESS) DENSITY
@@ -248,14 +245,7 @@ In particular:
 * α = ½ => Löwdin
 """
 function population_analysis(D,S,α,mol)
-   s_diag, s_eigvec = eigen(S)
-   s_α = s_mα = similar(S)
-   if α ≈ 1            # Mulliken
-      s_α, s_mα = 1, S
-   else
-      s_α  = s_eigvec * Diagonal(s_diag.^α) * s_eigvec'
-      s_mα = s_eigvec * Diagonal(s_diag.^(1-α)) * s_eigvec'
-   end
+   s_α, s_mα = S^α, S^(1-α) # Matrix power (via JordanNF)
    @assert isapprox(mol.nelectron, tr(s_α*D*s_mα), atol=1e-8) # eq. (363) Janos
    PopAO = diag(s_α * D * s_mα)
    Q = zeros(mol.natm)
