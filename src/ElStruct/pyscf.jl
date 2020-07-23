@@ -209,12 +209,12 @@ end
 
 function ao2mo_noddy(nao,C,eri,mol)
    eri_mo = zeros(length(eri))
-   for q in 1:nao, p in q:nao
-      for r in 1:p
+   @inbounds for q in 1:nao, p in q:nao
+      @inbounds for r in 1:p
          lim = ifelse(p == r, q, r)
-         for s in 1:lim
+         @inbounds for s in 1:lim
             pqrs = get_4idx(p,q,r,s)
-            for i in 1:nao, j in 1:nao, k in 1:nao, l in 1:nao
+            @inbounds for i in 1:nao, j in 1:nao, k in 1:nao, l in 1:nao
                ijkl = get_4idx(i,j,k,l)
                eri_mo[pqrs] += C[i,p]*C[j,q]*eri[ijkl]*C[k,r]*C[l,s]
             end
@@ -231,9 +231,9 @@ function ao2mo_smart(nao,C,eri,mol)
    M      = nao*(nao+1)÷2
    X = zeros(nao, nao)
    tmp = zeros(M,M)
-   for j in 1:nao, i in j:nao
+   @inbounds for j in 1:nao, i in j:nao
       ij = index(i,j)
-      for l in 1:nao, k in l:nao
+      @inbounds for l in 1:nao, k in l:nao
          ijkl = get_4idx(i,j,k,l)
          X[k,l] = X[l,k] = eri[ijkl]
       end
@@ -242,7 +242,7 @@ function ao2mo_smart(nao,C,eri,mol)
       Y = C' * X
       X = zeros(nao, nao)
       X = Y * C
-      for l in 1:nao, k in l:nao
+      @inbounds for l in 1:nao, k in l:nao
          kl = index(k,l)
          tmp[kl,ij] = X[k,l]
       end
@@ -250,11 +250,11 @@ function ao2mo_smart(nao,C,eri,mol)
 
    eri_mo = zeros(M*(M+1)÷2)
 
-   for l in 1:nao, k in l:nao
+   @inbounds for l in 1:nao, k in l:nao
       kl = index(k,l)
       X = zeros(nao,nao)
       Y = zeros(nao,nao)
-      for j in 1:nao, i in j:nao
+      @inbounds for j in 1:nao, i in j:nao
          ij = index(i,j)
          X[i,j] = X[j,i] = tmp[kl,ij]
       end
@@ -262,7 +262,7 @@ function ao2mo_smart(nao,C,eri,mol)
       Y = C' *  X
       X = zeros(nao, nao)
       X = Y * C
-      for j in 1:nao, i in j:nao
+      @inbounds for j in 1:nao, i in j:nao
          klij = get_4idx(k,l,i,j)
          eri_mo[klij] = X[i,j]
       end
