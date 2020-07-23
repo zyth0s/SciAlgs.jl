@@ -198,6 +198,14 @@ function scf_rhf(mol)
    dipole = dipole_moment(2P,mol)
    printfmt("The dipole moment (Debye): {1:8.4f} {2:8.4f} {3:8.4f}\n",dipole...)
 
+   # In RHF, D = 2P, an occupied spatial orbital means 2 elec, α and β
+   # PS is a "correct" representation of the 1RDM in AO basis
+   Mulliken = 1; Lowdin = 0.5
+   println("Mulliken population analysis")
+   population_analysis(2P,s,Mulliken,mol)
+   println("Löwdin population analysis")
+   population_analysis(2P,s,Lowdin,mol)
+
    Etot,e,C
 end
 
@@ -223,6 +231,43 @@ function dipole_moment(D, mol)
    nucl_dip = np.einsum("i,ix->x", charges, coords)
    mol_dip  = nucl_dip - el_dip
    mol_dip *= pyscf.data.nist.AU2DEBYE
+end
+
+# Population Analysis/Atomic Charges
+@doc raw"""
+   `population_analysis(D,S,α,mol)`
+
+Generalized Mulliken, Lowdin, ... population analysis
+with `D` the AO density matrix, `S` the overlap matrix,
+`α` defines the analysis type, and mol is a PySCF molecule.
+
+Qa = Za - ∑μ∈a [S^α P S^(1-α)]μμ  with 0 < α < 1.
+
+In particular:
+* α = 1 => Mulliken
+* α = ½ => Löwdin
+"""
+function population_analysis(D,S,α,mol)
+   s_diag, s_eigvec = eigen(S)
+   s_α = s_mα = similar(S)
+   if α ≈ 1            # Mulliken
+      s_α, s_mα = 1, S
+   else
+      s_α  = s_eigvec * Diagonal(s_diag.^α) * s_eigvec'
+      s_mα = s_eigvec * Diagonal(s_diag.^(1-α)) * s_eigvec'
+   end
+   @assert isapprox(mol.nelectron, tr(s_α*D*s_mα), atol=1e-8) # eq. (363) Janos
+   PopAO = diag(s_α * D * s_mα)
+   Q = zeros(mol.natm)
+   for (μ,record) in enumerate(mol.ao_labels(fmt=nothing))
+      a = record[1] + 1 |> n -> convert(Int,n)
+      Q[a] -= PopAO[μ] # eqs. (362,364) Janos
+   end
+   Q += mol.atom_charges()
+   for a in eachindex(Q)
+      println(" Atom $a has charge $(Q[a])")
+   end
+   @assert isapprox(sum(Q), mol.charge, atol=1e-8)
 end
 
 #########################################################################
