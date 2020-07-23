@@ -112,7 +112,8 @@ Algorithms
   - [x] Simple Hartree-Fock (HF) with GTOs (H2,He) [J. Thijssen. Computational Physics](https://www.cambridge.org/core/books/computational-physics/BEE73B0139D4A9993193B57CDC62096E)
   - [x] Hartree-Fock (HF) with PySCF AO integrals
   - [x] Moller-Plesset order 2 (MP2) with PySCF AO integrals
-  - [x] Coupled Cluster Singles and Doubles (CCSD) with PySCF AO integrals
+  - [x] Coupled Cluster Singles and Doubles (CCSD) with PySCF AO integrals [J. Chem. Phys. 94, 4334](https://doi:10.1063/1.460620)
+  - [x] SCF with DIIS [Chem. Phys. Lett. 73, 393-398 (1980)](https://doi.org/10.1016/0009-2614(80)80396-4)
   - [x] Davidson diagonalization [J. Comput. Phys. 17, 87–94](https://doi.org/10.1016/0021-9991(75)90065-0)
 * Spectroscopy
   - [x] X-ray Photoelectron Spectrocopy (XPS) [J. Chem. Educ. 2019, 96, 7, 1502-1505](https://pubs.acs.org/doi/10.1021/acs.jchemed.9b00236)

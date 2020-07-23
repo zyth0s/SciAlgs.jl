@@ -1,6 +1,6 @@
 
 # Calculation of the electronic structure of a molecule
-# with the help of PySCF to calculate AO integrals
+# with the help of PySCF to calculate AO integrals and hold molecular data
 # * Restricted Hartree-Fock
 # * Møller-Plesset order 2
 # Calculates the energy of any molecule, however, it has no SCF speedup.
@@ -10,14 +10,12 @@
 
 using PyCall: pyimport
 using Formatting: printfmt
-using LinearAlgebra: Diagonal, Hermitian, eigen, norm
+using LinearAlgebra: Diagonal, Hermitian, eigen, norm, tr, diag, dot
 
 pyscf = pyimport("pyscf")
 mp = pyimport("pyscf.mp")   # Had to import mp alone ??!
 cc = pyimport("pyscf.cc") # Had to import mp alone ??!
 np = pyimport("numpy") # alternative: Einsum.jl
-
-#using PyPlot: imshow
 
 function pyscf_atom_from_xyz(fpath::String)
    join(split(read(open(fpath),String),"\n")[3:end],"\n")
@@ -66,6 +64,7 @@ function scf_rhf(mol)
    ########################################################
    #4: BUILD THE ORTHOGONALIZATION MATRIX
    ########################################################
+   # NOTE: The AO basis is non-orthogonal
 
    # Diagonalize the overlap matrix
    s_diag, s_eigvec = eigen(s)
@@ -77,7 +76,7 @@ function scf_rhf(mol)
    #5: BUILD THE INITIAL (GUESS) DENSITY
    ########################################################
 
-   D = zeros(nao,nao)
+   P = zeros(nao,nao) # D = 2P, P often called density matrix
 
    ########################################################
    #6: COMPUTE THE INITIAL SCF ENERGY
@@ -96,16 +95,20 @@ function scf_rhf(mol)
    iteri     = 0    # extant iteration
    itermax   = 100  # max number of iterations
    δE        = 1e-8 # energy threshold for convergence
-   δD        = 1e-8 # density matrix (D) threshold for convergence
+   δP        = 1e-8 # P-matrix threshold for convergence
    ΔE        = 1.0; @assert ΔE > δE # initial E difference
-   ΔD        = 1.0; @assert ΔD > δD # initial D difference
+   ΔP        = 1.0; @assert ΔP > δP # initial P difference
+   Eelec     = 0.0
+   oldEelec  = 0.0
    Etot      = 0.0  # total energy
    e         = zeros(nao)
    C         = zeros(nao,nao)
-   println(" Iter        E(elec)        E(tot)        ΔE(elec)         ΔD")
+   DIISstack = [] # for DIIS
+   Fstack    = [] # for DIIS
+   println(" Iter        E(elec)        E(tot)        ΔE(elec)         ΔP")
    println("-----   --------------  -------------  ------------  -------------")
 
-   while abs(ΔE) > δE && iteri < itermax && ΔD > δD
+   while abs(ΔE) > δE && iteri < itermax && ΔP > δP
 
       iteri += 1
 
@@ -113,7 +116,51 @@ function scf_rhf(mol)
       #7: COMPUTE THE NEW FOCK MATRIX
       ########################################################
 
-      F = buildFock(hcore,D,nao,eri)
+      F = buildFock(hcore,P,nao,eri)
+
+      #########################################################################
+      # Project #8: DIIS extrapolation for the SCF procedure.
+      # - P. Pulay, Chem. Phys. Lett. 73, 393-398 (1980).
+      # - P. Pulay, J. Comp. Chem. 3, 556-560 (1982).
+      # - T. P. Hamilton and P. Pulay, J. Chem. Phys. 84, 5728-5734 (1986).
+      # - C. David Sherrill. "Some comments on accellerating convergence of iterative
+      #      sequences using direct inversion of the iterative subspace (DIIS)".
+      #      Available at: vergil.chemistry.gatech.edu/notes/diis/diis.pdf. (1998)
+      #########################################################################
+      #push!(DIISstack, DIIS_residual' - DIIS_residual)
+      # orbital gradient in AO basis: F Di Si - S Di Fi
+      # better choice:     (S^-0.5)' (F Di Si - S Di Fi) S^-0.5
+      DIIS_residual = s * P * F
+      DIIS_residual = DIIS_residual' - DIIS_residual
+      DIIS_residual = s_minushalf * DIIS_residual * s_minushalf
+      if iteri > 1
+         push!(Fstack,F)
+         push!(DIISstack, DIIS_residual)
+      end
+      ΔDIIS = norm(DIIS_residual)
+
+      if iteri > 2
+         if iteri > 15 # Limit the storage of DIIS arrays
+            popfirst!(DIISstack)
+            popfirst!(Fstack)
+         end
+         dim_B = length(Fstack) + 1 # 1 dim for the Lagrange multiplier
+         B = zeros(dim_B,dim_B)
+         B[end,:]   .= -1
+         B[:,  end] .= -1
+         B[end,end]  =  0
+         for i in eachindex(Fstack), j in eachindex(Fstack)
+            B[i,j] = dot(DIISstack[i], DIISstack[j]) # Gramian matrix
+         end
+         # Solve Lagrange equation of Pulay
+         Pulay_rhs = zeros(dim_B)
+         Pulay_rhs[end] = -1
+         coef_Pulay = B \ Pulay_rhs
+         F = zeros(size(F))
+         for (i,c) in enumerate(coef_Pulay[1:end-1]) # skip Lagrange mult.
+            F += c * Fstack[i]
+         end
+      end
 
       ########################################################
       #8: BUILD THE NEW DENSITY MATRIX
@@ -125,33 +172,29 @@ function scf_rhf(mol)
       e, Cp = eigen(Hermitian(Fp))
       # New MO Coefficients as linear combination of AO basis functions
       C = s_minushalf * Cp
-      # Renew Density Matrix. 
-      D, oldD = zeros(nao,nao), copy(D)
+      # Renew P-matrix.
+      P, oldP = zeros(nao,nao), copy(P)
 
       mocc = C[:,1:nocc]
-      D  = mocc * mocc'
-      ΔD = norm(D - oldD) # Frobenius norm
+      P  = mocc * mocc'
+      ΔP = norm(P - oldP) # Frobenius norm
 
       ########################################################
       #9: COMPUTE THE NEW SCF ENERGY
       ########################################################
 
-      oldEelec = Eelec
-      Eelec = 0.0
-      for i in 1:nao, j in 1:nao
-         Eelec += D[i,j]*(hcore[i,j] + F[i,j])
-      end
+      Eelec, oldEelec = tr(P * (hcore + F)), Eelec # eq. (238) Janos
 
       ΔE   = Eelec - oldEelec
       Etot = Eelec + enuc
 
       printfmt(" {1:3d}  {2:14.8f}  {3:14.8f}  {4:14.8f} {5:14.8f}\n",
-                 iteri,   Eelec,       Etot,      ΔE   ,    ΔD)
+                 iteri,   Eelec,       Etot,      ΔE   ,    ΔP)
       ########################################################
       #10: TEST FOR CONVERGENCE: WHILE LOOP (go up)
       ########################################################
    end
-   @info ifelse(iteri < itermax, "CONVERGED!!", "NOT CONVERGED!!")
+   @assert iteri < itermax "NOT CONVERGED!!"
    Etot,e,C
 end
 
@@ -575,7 +618,7 @@ function ccsd(e, C, eri)
       ΔE_CCSD = abs(E_CCSD - oldE_CCSD)
       printfmt("{1:5d}   {2:13.10f}   {3:13.10f}\n",iteri,E_CCSD,ΔE_CCSD)
    end
-   @info ifelse(iteri < itermax, "CONVERGED!!", "NOT CONVERGED!!")
+   @assert iteri < itermax "NOT CONVERGED!!"
    E_CCSD, E_MP2
 end
 
