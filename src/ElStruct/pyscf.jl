@@ -3,9 +3,9 @@
 # with the help of PySCF to calculate AO integrals and hold molecular data
 # * Restricted Hartree-Fock
 # * Møller-Plesset order 2
-# Calculates the energy of any molecule, however, it has no SCF speedup.
-# Therefore, it may converge poorly.
-# Instructions at https://github.com/zyth0s/ProgrammingProjects/tree/master/Project%2303
+# * Coupled Cluster Singles and Doubles
+# Calculates the energy of any molecule.
+# Instructions at https://github.com/CrawfordGroup/ProgrammingProjects
 # may be of interest.
 
 using PyCall: pyimport
@@ -194,7 +194,35 @@ function scf_rhf(mol)
       ########################################################
    end
    @assert iteri < itermax "NOT CONVERGED!!"
+
+   dipole = dipole_moment(2P,mol)
+   printfmt("The dipole moment (Debye): {1:8.4f} {2:8.4f} {3:8.4f}\n",dipole...)
+
    Etot,e,C
+end
+
+#########################################################################
+# Additional Concepts
+# also see: "Hartree-Fock methods of Quantum Chemistry" by Janos Angyan
+#########################################################################
+# One-electron properties
+function dipole_moment(D, mol)
+   # eq. (365) Janos
+   # It does the same as PySCF does.
+   #ao_dip = @pywith mol.with_common_orig([0,0,0]) begin
+   #   mol.intor_symmetric("int1e_r", comp=3)
+   #end
+   common_orig_bak = mol._env[1:3]
+   mol = mol.set_common_orig([0,0,0])
+   ao_dip = mol.intor_symmetric("int1e_r", comp=3)
+   mol = mol.set_common_orig(common_orig_bak)
+
+   el_dip   = real.(np.einsum("xij,ji->x", ao_dip, D))
+   charges  = mol.atom_charges()
+   coords   = mol.atom_coords()
+   nucl_dip = np.einsum("i,ix->x", charges, coords)
+   mol_dip  = nucl_dip - el_dip
+   mol_dip *= pyscf.data.nist.AU2DEBYE
 end
 
 #########################################################################
@@ -639,6 +667,8 @@ mf = pyscf.scf.RHF(mol)
 e_rhf_me, e, C = scf_rhf(mol)
 e_rhf_pyscf    = mf.kernel()
 
+mf.analyze(verbose=3,ncol=10, digits=9)
+
 println( "           E(HF)     ")
 println( "        -------------")
 printfmt(" ME:    {1:13.8f}  \n", e_rhf_me)
@@ -671,5 +701,3 @@ printfmt(" ME:    {1:13.10f}    {2:13.10f}    {3:13.10f}    {4:13.10f}\n",
                  e_rhf_me,      e_mp2_me3,     e_rhf_me+e_mp2_me3,    e_ccsd_me)
 printfmt(" PySCF: {1:13.10f}    {2:13.10f}    {3:13.10f}    {4:13.10f}\n",
                   e_rhf_pyscf,  e_mp2_pyscf,e_rhf_pyscf+e_mp2_pyscf,e_ccsd_pyscf)
-
-#mf.analyze(verbose=5,ncol=10, digits=9)
