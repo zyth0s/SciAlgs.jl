@@ -21,13 +21,13 @@ function pyscf_atom_from_xyz(fpath::String)
    join(split(read(open(fpath),String),"\n")[3:end],"\n")
 end
 
-function index(i,j)
+function index(i::Int,j::Int)
    m,M = minmax(i-1,j-1)
    M*(M+1)÷2 + m + 1
 end
 
 # Compound indices ijkl
-function get_4idx(i,j,k,l)
+function get_4idx(i::Int,j::Int,k::Int,l::Int)
    ij = index(i,j)
    kl = index(k,l)
    index(ij,kl)
@@ -67,7 +67,7 @@ function scf_rhf(mol)
    # NOTE: The AO basis is non-orthogonal
 
    # Symmetric orthogonalization matrix
-   s_minushalf = s^(-0.5) # Matrix power (via JordanNF)
+   s_minushalf = s^(-0.5) # Matrix power (via squaring)
 
    ########################################################
    #5: BUILD THE INITIAL (GUESS) DENSITY
@@ -153,8 +153,8 @@ function scf_rhf(mol)
          Pulay_rhs[end] = -1
          coef_Pulay = B \ Pulay_rhs
          F = zeros(size(F))
-         for (i,c) in enumerate(coef_Pulay[1:end-1]) # skip Lagrange mult.
-            F += c * Fstack[i]
+         for (Fi,c) in zip(Fstack,coef_Pulay[1:end-1]) # skip Lagrange mult.
+            F += c * Fi
          end
       end
 
@@ -245,7 +245,7 @@ In particular:
 * α = ½ => Löwdin
 """
 function population_analysis(D,S,α,mol)
-   s_α, s_mα = S^α, S^(1-α) # Matrix power (via JordanNF)
+   s_α, s_mα = S^α, S^(1-α) # Matrix powers (via squaring)
    @assert isapprox(mol.nelectron, tr(s_α*D*s_mα), atol=1e-8) # eq. (363) Janos
    PopAO = diag(s_α * D * s_mα)
    Q = zeros(mol.natm)
@@ -271,18 +271,19 @@ end
 
 function ao2mo_noddy(nao,C,eri,mol)
    eri_mo = zeros(length(eri))
-   @inbounds for q in 1:nao, p in q:nao
-      @inbounds for r in 1:p
+   @inbounds (
+   for q in 1:nao, p in q:nao
+      for r in 1:p
          lim = ifelse(p == r, q, r)
-         @inbounds for s in 1:lim
+         for s in 1:lim
             pqrs = get_4idx(p,q,r,s)
-            @inbounds for i in 1:nao, j in 1:nao, k in 1:nao, l in 1:nao
+            for i in 1:nao, j in 1:nao, k in 1:nao, l in 1:nao
                ijkl = get_4idx(i,j,k,l)
                eri_mo[pqrs] += C[i,p]*C[j,q]*eri[ijkl]*C[k,r]*C[l,s]
             end
          end
       end
-   end
+   end )
    eri_mo
 end
 
@@ -293,9 +294,10 @@ function ao2mo_smart(nao,C,eri,mol)
    M      = nao*(nao+1)÷2
    X = zeros(nao, nao)
    tmp = zeros(M,M)
-   @inbounds for j in 1:nao, i in j:nao
+   @inbounds (
+   for j in 1:nao, i in j:nao
       ij = index(i,j)
-      @inbounds for l in 1:nao, k in l:nao
+      for l in 1:nao, k in l:nao
          ijkl = get_4idx(i,j,k,l)
          X[k,l] = X[l,k] = eri[ijkl]
       end
@@ -304,19 +306,20 @@ function ao2mo_smart(nao,C,eri,mol)
       Y = C' * X
       X = zeros(nao, nao)
       X = Y * C
-      @inbounds for l in 1:nao, k in l:nao
+      for l in 1:nao, k in l:nao
          kl = index(k,l)
          tmp[kl,ij] = X[k,l]
       end
-   end
+   end )
 
    eri_mo = zeros(M*(M+1)÷2)
 
-   @inbounds for l in 1:nao, k in l:nao
+   @inbounds (
+   for l in 1:nao, k in l:nao
       kl = index(k,l)
       X = zeros(nao,nao)
       Y = zeros(nao,nao)
-      @inbounds for j in 1:nao, i in j:nao
+      for j in 1:nao, i in j:nao
          ij = index(i,j)
          X[i,j] = X[j,i] = tmp[kl,ij]
       end
@@ -324,11 +327,11 @@ function ao2mo_smart(nao,C,eri,mol)
       Y = C' *  X
       X = zeros(nao, nao)
       X = Y * C
-      @inbounds for j in 1:nao, i in j:nao
+      for j in 1:nao, i in j:nao
          klij = get_4idx(k,l,i,j)
          eri_mo[klij] = X[i,j]
       end
-   end
+   end )
    eri_mo
 end
 #eri_mo   = pyscf.ao2mo(nao,C,eri,mol)
@@ -345,12 +348,13 @@ function short_mp2(e,C,eri,mol)
    occupied =      1:nocc
    virtual  = nocc+1:nao
    eri = pyscf.ao2mo.restore(1,eri,nao) # reshape
-   eri_mo = np.einsum("pa,qi,rb,sj,pqrs->aibj",C[:,1:nocc],C,C[:,1:nocc],C,eri)
-   @inbounds for i in occupied, a in virtual,
+   eri_mo = np.einsum("pa,qi,rb,sj,pqrs->aibj",C[:,1:nocc],C,C[:,1:nocc],C,eri,optimize=true)
+   @inbounds (
+   for i in occupied, a in virtual,
                  j in occupied, b in virtual
        eiajb, eibja = eri_mo[i,a,j,b],  eri_mo[i,b,j,a]
        emp2 += eiajb * (2.0eiajb-eibja) / (e[i]+e[j]-e[a]-e[b])
-    end
+    end )
    emp2
 end
 
@@ -363,12 +367,13 @@ function mymp2(e,C,eri,mol; alg::Symbol=:ao2mo_smart)
    occupied =      1:nocc
    virtual  = nocc+1:nao
    eri_mo   = ao2mo(nao,C,eri,mol)
-   @inbounds for i in occupied, a in virtual,
+   @inbounds (
+   for i in occupied, a in virtual,
                  j in occupied, b in virtual
       iajb = get_4idx(i,a,j,b)
       ibja = get_4idx(i,b,j,a)
       emp2 += eri_mo[iajb] * (2.0eri_mo[iajb]-eri_mo[ibja]) / (e[i]+e[j]-e[a]-e[b])
-   end
+   end )
 
    # In the basis of spin-molecular orbitals:
    #emp2 += 0.25eri_mo[ijab]*eri_mo[ijab]/(e[i]+e[j]-e[a]-e[b])
@@ -378,9 +383,7 @@ end
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #  Project #5: The Coupled Cluster Singles and Doubles (CCSD) Energy
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#    J.F. Stanton, J. Gauss, J.D. Watts,
-#    and R.J. Bartlett, J. Chem. Phys.
-#    volume 94, pp. 4334-4345 (1991).
+# J. Chem. Phys. 94, 4334, doi:10.1063/1.460620
 
 # We follow the convention that
 # i, j, k,... represent occupied orbitals, with
@@ -393,19 +396,22 @@ end
 #1: Preparing the Spin-Orbital Basis Integrals
 ###################################################
 # Translate integrals from spatial mo basis to spin-orbital basis
-function orb_to_spinorb(e,eri_mo)
+function orb_to_spinorb(e::Array{T,1},     # eigE of spatial-MO orbitals
+                        eri_mo::Array{T,1} # ERIs in spatial-MO basis
+                       ) where T <: AbstractFloat
    # 1  2  3  4  5  6  7  8
    # α, β, α, β, α, β, α, β, ...
    nao  = length(e)
    nsmo = 2nao
    eri_smo = zeros(nsmo,nsmo,nsmo,nsmo)
-   @inbounds for p in 1:nsmo, q in 1:nsmo, r in 1:nsmo, s in 1:nsmo
+   @inbounds (
+   for p in 1:nsmo, q in 1:nsmo, r in 1:nsmo, s in 1:nsmo
       prqs = get_4idx((p+1)÷2,(r+1)÷2,(q+1)÷2,(s+1)÷2)
       psqr = get_4idx((p+1)÷2,(s+1)÷2,(q+1)÷2,(r+1)÷2)
       value1 = eri_mo[prqs] * (mod(p,2) == mod(r,2)) * (mod(q,2) == mod(s,2))
       value2 = eri_mo[psqr] * (mod(p,2) == mod(s,2)) * (mod(q,2) == mod(r,2))
       eri_smo[p,q,r,s] = value1 - value2
-   end
+   end )
    # The fock matrix is diagonal in the spin-MO basis
    fs = zeros(nsmo)
    for i in 1:nsmo
@@ -419,7 +425,10 @@ end
 #2: Build the Initial-Guess Cluster Amplitudes
 ###################################################
 
-function initial_amplitudes(occupied,virtual,fs,eri_smo)
+function initial_amplitudes(occupied,virtual,
+                            fs::Diagonal{T,Array{T,1}}, # Fock matrix in spin-MO basis
+                            eri_smo::Array{T,4}         # ERIs        in spin-MO basis
+                            ) where T <: AbstractFloat
    nsmo = length(occupied) + length(virtual)
    t1 = zeros(nsmo,nsmo)
    t2 = zeros(nsmo,nsmo,nsmo,nsmo)
@@ -428,11 +437,12 @@ function initial_amplitudes(occupied,virtual,fs,eri_smo)
    # t[a,b,i,j] = ⟨ij||ab⟩/ (ϵi + ϵj - ϵa - ϵb)
    # E_mp2      = 1/4 * ∑ijab ⟨ij||ab⟩ t[a,b,i,j]
    emp2 = 0.0
-   @inbounds for i in occupied, a in virtual,
+   @inbounds (
+   for i in occupied, a in virtual,
                  j in occupied, b in virtual
       t2[a,b,i,j] += eri_smo[i,j,a,b] / (fs[i,i] + fs[j,j] - fs[a,a] - fs[b,b])
       emp2 += 0.5*0.5*t2[a,b,i,j]*eri_smo[i,j,a,b]
-   end
+   end )
    t1, t2, emp2
 end
 
@@ -441,93 +451,104 @@ end
 ###################################################
 
 # Effective doubles
-function tau_(t1,t2,a,b,i,j)
+function tau_(t1::Array{T,2},
+              t2::Array{T,4},a::Int,b::Int,i::Int,j::Int) where T <: AbstractFloat
    # Stanton1991 (9)
    t2[a,b,i,j] + 0.5(t1[a,i]*t1[b,j] - t1[b,i]*t1[a,j])
 end
-function tau(t1,t2,a,b,i,j)
+function tau(t1::Array{T,2},
+              t2::Array{T,4},a::Int,b::Int,i::Int,j::Int) where T <: AbstractFloat
    # Stanton1991 (10)
    t2[a,b,i,j] + t1[a,i]*t1[b,j] - t1[b,i]*t1[a,j]
 end
 
-function updateF_W(occupied,virtual, # occ and virt spin-MO spaces
-                     t1,t2,            # CC amplitudes
-                     fs,eri_smo)       # integrals in spin-MO basis
+function updateF_W!(Fae::Array{T,2},    # one-particle CC intermediates
+                    Fmi::Array{T,2},    # one-particle CC intermediates
+                    Fme::Array{T,2},    # one-particle CC intermediates
+                    Wmnij::Array{T,4},  # two-particle CC intermediates
+                    Wabef::Array{T,4},  # two-particle CC intermediates
+                    Wmbej::Array{T,4},  # two-particle CC intermediates
+                    occupied,virtual,   # occ and virt spin-MO spaces
+                    t1::Array{T,2},     # CC amplitudes
+                    t2::Array{T,4},     # CC amplitudes
+                    fs::Diagonal{T,Array{T,1}}, # Fock matrix in spin-MO basis
+                    eri_smo::Array{T,4}         # ERIs        in spin-MO basis
+                   ) where T <: AbstractFloat
    nsmo = length(occupied) + length(virtual)
    # Stanton1991 (3)
-   Fae = zeros(nsmo,nsmo)
-   @inbounds for a in virtual, e in virtual
+   @inbounds (
+   for a in virtual, e in virtual
       Fae[a,e] = (1 - (a == e))*fs[a,e]
-      @inbounds for m in occupied
+      for m in occupied
          Fae[a,e] += -0.5*fs[m,e]*t1[a,m]
-         @inbounds for f in virtual
+         for f in virtual
             Fae[a,e] += t1[f,m]*eri_smo[m,a,f,e]
-            @inbounds for n in occupied
+            for n in occupied
                Fae[a,e] += -0.5*tau_(t1,t2,a,f,m,n)*eri_smo[m,n,e,f]
             end
          end
       end
-   end
+   end )
    # Stanton1991 (4)
-   Fmi = zeros(nsmo,nsmo)
-   @inbounds for m in occupied, i in occupied
+   @inbounds (
+   for m in occupied, i in occupied
       Fmi[m,i] = (1 - (m == i))*fs[m,i]
-      @inbounds for e in virtual
+      for e in virtual
          Fmi[m,i] += 0.5t1[e,i]*fs[m,e]
-         @inbounds for n in occupied
+         for n in occupied
             Fmi[m,i] += t1[e,n]*eri_smo[m,n,i,e]
-            @inbounds for f in virtual
+            for f in virtual
                Fmi[m,i] += 0.5tau_(t1,t2,e,f,i,n)*eri_smo[m,n,e,f]
             end
          end
       end
-   end
+   end )
    # Stanton1991 (5)
-   Fme = zeros(nsmo,nsmo)
-   @inbounds for e in virtual, m in occupied
+   @inbounds (
+   for e in virtual, m in occupied
       Fme[m,e] = fs[m,e]
-      @inbounds for f in virtual, n in occupied
+      for f in virtual, n in occupied
          Fme[m,e] += t1[f,n]*eri_smo[m,n,e,f]
       end
-   end
+   end )
    # Stanton1991 (6)
-   Wmnij = zeros(nsmo,nsmo,nsmo,nsmo)
-   @inbounds for m in occupied, n in occupied, i in occupied, j in occupied
+   @inbounds (
+   for m in occupied, n in occupied, i in occupied, j in occupied
       Wmnij[m,n,i,j] = eri_smo[m,n,i,j]
-      @inbounds for e in virtual # P_(ij)
+      for e in virtual # P_(ij)
          Wmnij[m,n,i,j] += t1[e,j]*eri_smo[m,n,i,e] -
                            t1[e,i]*eri_smo[m,n,j,e]
-         @inbounds for f in virtual
+         for f in virtual
             Wmnij[m,n,i,j] += 0.25tau(t1,t2,e,f,i,j)*eri_smo[m,n,e,f]
          end
       end
-   end
+   end )
    # Stanton1991 (7)
-   Wabef = zeros(nsmo,nsmo,nsmo,nsmo)
-   @inbounds for a in virtual, b in virtual, e in virtual, f in virtual
+   @inbounds (
+   for a in virtual, b in virtual, e in virtual, f in virtual
       Wabef[a,b,e,f] = eri_smo[a,b,e,f]
-      @inbounds for m in occupied # P_(ab)
+      for m in occupied # P_(ab)
          Wabef[a,b,e,f] += -t1[b,m]*eri_smo[a,m,e,f] +
                             t1[a,m]*eri_smo[b,m,e,f]
-         @inbounds for n in occupied
+         for n in occupied
             Wabef[a,b,e,f] += 0.25tau(t1,t2,a,b,m,n)*eri_smo[m,n,e,f]
          end
       end
-   end
+   end )
    # Stanton1991 (8)
-   Wmbej = zeros(nsmo,nsmo,nsmo,nsmo)
-   @inbounds for b in virtual, m in occupied, e in virtual, j in occupied
+   @inbounds (
+   for b in virtual, m in occupied, e in virtual, j in occupied
       Wmbej[m,b,e,j] = eri_smo[m,b,e,j]
-      @inbounds for f in virtual
+      for f in virtual
          Wmbej[m,b,e,j] += t1[f,j]*eri_smo[m,b,e,f]
       end
-      @inbounds for n in occupied
+      for n in occupied
          Wmbej[m,b,e,j] += -t1[b,n]*eri_smo[m,n,e,j]
-         @inbounds for f in virtual
+         for f in virtual
             Wmbej[m,b,e,j] += -(0.5*t2[f,b,j,n] + t1[f,j]*t1[b,n])*eri_smo[m,n,e,f]
          end
       end
-   end
+   end )
    Fae, Fmi, Fme, Wmnij, Wabef, Wmbej
 end
 
@@ -536,102 +557,106 @@ end
 ###############################################
 
 # Stanton1991 (1)
-function updateT1(occupied,virtual, # occ and virt spin-MO spaces
-                  t1,t2,            # CC amplitudes
-                  fs,eri_smo,       # integrals in spin-MO basis
-                  Fae,Fmi,Fme)      # one-particle CC intermediates
+function updateT1(occupied,virtual,    # occ and virt spin-MO spaces
+                  t1::Array{T,2},      # CC amplitudes
+                  t2::Array{T,4},      # CC amplitudes
+                  fs::Diagonal{T,Array{T,1}}, # Fock matrix in spin-MO basis
+                  eri_smo::Array{T,4},        # ERIs        in spin-MO basis
+                  Fae::Array{T,2},     # one-particle CC intermediates
+                  Fmi::Array{T,2},     # one-particle CC intermediates
+                  Fme::Array{T,2}      # one-particle CC intermediates
+                 ) where T <: AbstractFloat
    nsmo = length(occupied) + length(virtual)
-   # Denominator energies
-   Dai = zeros(nsmo,nsmo)
-   @inbounds for a in virtual,i in occupied
-      # Stanton1991 (12)
-      Dai[a,i] = fs[i,i] - fs[a,a]
-   end
-   _t1 = zeros(nsmo,nsmo)
-   @inbounds for a in virtual, i in occupied
-      _t1[a,i] = fs[i,a] # 1st RHS term (leading term in the expansion)
-      @inbounds for e in virtual
-         _t1[a,i] += t1[e,i]*Fae[a,e] # 2nd RHS term
+   T1 = zeros(nsmo,nsmo)
+   @inbounds (
+   for a in virtual, i in occupied
+      T1[a,i] = fs[i,a] # 1st RHS term (leading term in the expansion)
+      for e in virtual
+         T1[a,i] += t1[e,i]*Fae[a,e] # 2nd RHS term
       end
-      @inbounds for m in occupied
-         _t1[a,i] += -t1[a,m]*Fmi[m,i] # 3rd RHS term
-         @inbounds for e in virtual
-            _t1[a,i] += t2[a,e,i,m]*Fme[m,e] # 4th RHS term
-            @inbounds for f in virtual
-               _t1[a,i] += -0.5t2[e,f,i,m]*eri_smo[m,a,e,f] # 6th RHS term
+      for m in occupied
+         T1[a,i] += -t1[a,m]*Fmi[m,i] # 3rd RHS term
+         for e in virtual
+            T1[a,i] += t2[a,e,i,m]*Fme[m,e] # 4th RHS term
+            for f in virtual
+               T1[a,i] += -0.5t2[e,f,i,m]*eri_smo[m,a,e,f] # 6th RHS term
             end
-            @inbounds for n in occupied
-               _t1[a,i] += -0.5t2[a,e,m,n]*eri_smo[n,m,e,i] # 7th RHS term
+            for n in occupied
+               T1[a,i] += -0.5t2[a,e,m,n]*eri_smo[n,m,e,i] # 7th RHS term
             end
          end
       end
-      @inbounds for f in virtual,n in occupied
-         _t1[a,i] += -t1[f,n]*eri_smo[n,a,i,f] # 5th RHS term
+      for f in virtual,n in occupied
+         T1[a,i] += -t1[f,n]*eri_smo[n,a,i,f] # 5th RHS term
       end
-      _t1[a,i] /= Dai[a,i] # LHS
-   end
-   _t1
+      # Denominator energies, Stanton1991 (12)
+      T1[a,i] /= fs[i,i] - fs[a,a] # LHS
+   end )
+   T1
 end
 
 # Stanton1991 (2)
-function updateT2(occupied,virtual,  # occ and virt spin-MO spaces
-                  t1,t2,             # CC amplitudes
-                  fs,eri_smo,        # integrals in spin-MO basis
-                  Fae,Fmi,Fme,       # one-particle CC intermediates
-                  Wmnij,Wabef,Wmbej) # two-particle CC intermediates
+function updateT2(occupied,virtual,    # occ and virt spin-MO spaces
+                  t1::Array{T,2},      # CC amplitudes
+                  t2::Array{T,4},      # CC amplitudes
+                  fs::Diagonal{T,Array{T,1}}, # Fock matrix in spin-MO basis
+                  eri_smo::Array{T,4},        # ERIs        in spin-MO basis
+                  Fae::Array{T,2},     # one-particle CC intermediates
+                  Fmi::Array{T,2},     # one-particle CC intermediates
+                  Fme::Array{T,2},     # one-particle CC intermediates
+                  Wmnij::Array{T,4},   # two-particle CC intermediates
+                  Wabef::Array{T,4},   # two-particle CC intermediates
+                  Wmbej::Array{T,4}    # two-particle CC intermediates
+                 ) where T <: AbstractFloat
    nsmo = length(occupied) + length(virtual)
-   # Denominator energies
-   Dabij = zeros(nsmo,nsmo,nsmo,nsmo)
-   @inbounds for a in virtual, i in occupied, b in virtual, j in occupied
-      # Stanton1991 (13)
-      Dabij[a,b,i,j] = fs[i,i] + fs[j,j] - fs[a,a] - fs[b,b]
-   end
-   _t2 = zeros(nsmo,nsmo,nsmo,nsmo)
-   @inbounds for a in virtual, i in occupied, b in virtual, j in occupied
-      _t2[a,b,i,j] = eri_smo[i,j,a,b] # 1st RHS (leading term in the expansion)
-      @inbounds for e in virtual # 2nd RHS term
+   T2 = zeros(nsmo,nsmo,nsmo,nsmo)
+   @inbounds (
+   for a in virtual, i in occupied, b in virtual, j in occupied
+      T2[a,b,i,j] = eri_smo[i,j,a,b] # 1st RHS (leading term in the expansion)
+      for e in virtual # 2nd RHS term
          taeij, tbeij = t2[a,e,i,j], t2[b,e,i,j]
-         _t2[a,b,i,j] += taeij*Fae[b,e] -
-                         tbeij*Fae[a,e]   # asym. permutes b <-> a
-         @inbounds for m in occupied # 3rd RHS term
-            _t2[a,b,i,j] += -0.5taeij*t1[b,m]*Fme[m,e] +
-                             0.5tbeij*t1[a,m]*Fme[m,e]   # asym. permutes b <-> a
+         T2[a,b,i,j] += taeij*Fae[b,e] -
+                        tbeij*Fae[a,e]   # asym. permutes b <-> a
+         for m in occupied # 3rd RHS term
+            T2[a,b,i,j] += -0.5taeij*t1[b,m]*Fme[m,e] +
+                            0.5tbeij*t1[a,m]*Fme[m,e]   # asym. permutes b <-> a
          end
       end
-      @inbounds for m in occupied # 4th RHS term
+      for m in occupied # 4th RHS term
          tabim, tabjm = t2[a,b,i,m], t2[a,b,j,m]
-         _t2[a,b,i,j] += -tabim*Fmi[m,j] +
-                          tabjm*Fmi[m,i]  # asym. permutes i <-> j
-         @inbounds for e in virtual # 5th RHS term
-            _t2[a,b,i,j] += -0.5tabim*t1[e,j]*Fme[m,e] +
-                             0.5tabjm*t1[e,i]*Fme[m,e]  # asym. permutes i <-> -j
+         T2[a,b,i,j] += -tabim*Fmi[m,j] +
+                         tabjm*Fmi[m,i]  # asym. permutes i <-> j
+         for e in virtual # 5th RHS term
+            T2[a,b,i,j] += -0.5tabim*t1[e,j]*Fme[m,e] +
+                            0.5tabjm*t1[e,i]*Fme[m,e]  # asym. permutes i <-> -j
          end
       end
-      @inbounds for e in virtual # 10th RHS term
-         _t2[a,b,i,j] += t1[e,i]*eri_smo[a,b,e,j] -
-                         t1[e,j]*eri_smo[a,b,e,i]  # asym. permutes i <-> j
-         @inbounds for f in virtual # 7th RHS term
-            _t2[a,b,i,j] += 0.5tau(t1,t2,e,f,i,j)*Wabef[a,b,e,f]
+      for e in virtual # 10th RHS term
+         T2[a,b,i,j] += t1[e,i]*eri_smo[a,b,e,j] -
+                        t1[e,j]*eri_smo[a,b,e,i]  # asym. permutes i <-> j
+         for f in virtual # 7th RHS term
+            T2[a,b,i,j] += 0.5tau(t1,t2,e,f,i,j)*Wabef[a,b,e,f]
          end
       end
-      @inbounds for m in occupied # 11th RHS term
-         _t2[a,b,i,j] += -t1[a,m]*eri_smo[m,b,i,j] +
-                          t1[b,m]*eri_smo[m,a,i,j]   # asym. permutes a <-> b
-         @inbounds for e in virtual # 8-9th RHS terms
+      for m in occupied # 11th RHS term
+         T2[a,b,i,j] += -t1[a,m]*eri_smo[m,b,i,j] +
+                         t1[b,m]*eri_smo[m,a,i,j]   # asym. permutes a <-> b
+         for e in virtual # 8-9th RHS terms
             taeim, taejm = t2[a,e,i,m], t2[a,e,j,m]
             tbeim, tbejm = t2[b,e,i,m], t2[b,e,j,m]
-            _t2[a,b,i,j] +=  taeim*Wmbej[m,b,e,j] - t1[e,i]*t1[a,m]*eri_smo[m,b,e,j] +
-                            -taejm*Wmbej[m,b,e,i] + t1[e,j]*t1[a,m]*eri_smo[m,b,e,i] + # i <-> j
-                            -tbeim*Wmbej[m,a,e,j] - t1[e,i]*t1[b,m]*eri_smo[m,a,e,j] + #          a <-> b
-                             tbejm*Wmbej[m,a,e,i] - t1[e,j]*t1[b,m]*eri_smo[m,a,e,i]   # i <-> j, a <-> b
+            T2[a,b,i,j] +=  taeim*Wmbej[m,b,e,j] - t1[e,i]*t1[a,m]*eri_smo[m,b,e,j] +
+                           -taejm*Wmbej[m,b,e,i] + t1[e,j]*t1[a,m]*eri_smo[m,b,e,i] + # i <-> j
+                           -tbeim*Wmbej[m,a,e,j] - t1[e,i]*t1[b,m]*eri_smo[m,a,e,j] + #          a <-> b
+                            tbejm*Wmbej[m,a,e,i] - t1[e,j]*t1[b,m]*eri_smo[m,a,e,i]   # i <-> j, a <-> b
          end
-         @inbounds for n in occupied # 6th RHS term
-            _t2[a,b,i,j] += 0.5tau(t1,t2,a,b,m,n)*Wmnij[m,n,i,j]
+         for n in occupied # 6th RHS term
+            T2[a,b,i,j] += 0.5tau(t1,t2,a,b,m,n)*Wmnij[m,n,i,j]
          end
       end
-      _t2[a,b,i,j] /= Dabij[a,b,i,j] # LHS
-   end
-   _t2
+      # Denominator energies, Stanton1991 (13)
+      T2[a,b,i,j] /=  fs[i,i] + fs[j,j] - fs[a,a] - fs[b,b] # LHS
+   end )
+   T2
 end
 
 ###########################################
@@ -642,13 +667,14 @@ function extant_E_CCSD(occupied, virtual, fs, t1, t2, eri_smo)
    # Calculate the extant CC correlation energy
    # E_CC = ∑ia fia t[a,i] + 1/4 ∑ijab ⟨ij||ab⟩t[a,b,i,j] + 1/2 ∑ijab ⟨ij||ab⟩ t[a,i] t[b,j]
    E_CCSD = 0.0
-   @inbounds for a in virtual, i in occupied
+   @inbounds (
+   for a in virtual, i in occupied
       E_CCSD += fs[i,a] * t1[a,i]
-      @inbounds for b in virtual, j in occupied
+      for b in virtual, j in occupied
          E_CCSD += 0.25eri_smo[i,j,a,b] * t2[a,b,i,j] +
-                    0.5eri_smo[i,j,a,b] * t1[a,i] * t1[b,j]
+                         0.5eri_smo[i,j,a,b] * t1[a,i] * t1[b,j]
       end
-   end
+   end )
    E_CCSD
 end
 
@@ -669,11 +695,17 @@ function ccsd(e, C, eri)
    ΔE_CCSD = 1.0
    iteri   = 0
    itermax = 60
+   Fae = zeros(nsmo,nsmo)
+   Fmi = zeros(nsmo,nsmo)
+   Fme = zeros(nsmo,nsmo)
+   Wmnij = zeros(nsmo,nsmo,nsmo,nsmo)
+   Wabef = zeros(nsmo,nsmo,nsmo,nsmo)
+   Wmbej = zeros(nsmo,nsmo,nsmo,nsmo)
    println(" Iter        E(CCSD)        ΔE(CCSD)")
    println("-----   --------------   --------------")
    while ΔE_CCSD > 1e-9 && iteri < itermax
       iteri += 1
-      Fae,Fmi,Fme,Wmnij,Wabef,Wmbej = updateF_W(occupied,virtual,t1,t2,fs,eri_smo)
+      Fae,Fmi,Fme,Wmnij,Wabef,Wmbej = updateF_W!(Fae,Fmi,Fme,Wmnij,Wabef,Wmbej,occupied,virtual,t1,t2,fs,eri_smo)
       t1 = updateT1(occupied,virtual,t1,t2,fs,eri_smo,Fae,Fmi,Fme)
       t2 = updateT2(occupied,virtual,t1,t2,fs,eri_smo,Fae,Fmi,Fme,Wmnij,Wabef,Wmbej)
       E_CCSD, oldE_CCSD = extant_E_CCSD(occupied,virtual,fs,t1,t2,eri_smo), E_CCSD
