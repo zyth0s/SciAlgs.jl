@@ -54,4 +54,4 @@ end
 # Save plot
 fig.tight_layout(pad=0.1)
 #pyplt.show()
-pyplt.savefig("pyplot_subplots.pdf")
+pyplt.savefig("../figures/pyplot_subplots.pdf")
