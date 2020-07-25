@@ -1,5 +1,34 @@
+# -*- coding: utf-8 -*-
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: jl:light,ipynb
+#     text_representation:
+#       extension: .jl
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.5.1
+#   kernelspec:
+#     display_name: Julia 1.4.2
+#     language: julia
+#     name: julia-1.4
+# ---
+
+# # Tight binding method
+
+# The tight binding method expands orbitals as a linear combination of atomic orbitals
+# (LCAO) - in the strict sense. AOs are not replaced by a fitted basis set.
+# The set of AOs is often minimal and the set of MOs/COs is reduced to a subset
+# around the chemical potential, e.g. only π orbitals in a polymer chain.
+# Frequently, only interactions with the first coordination shells are included.
+# Under some asumptions it is equivalent to Hückel's method.
+
+# We load linear algebra and plotting libraries first.
+
 using LinearAlgebra
-using Plots, Measures
+using Plots
+using Measures: mm
 using Parameters
 import PyPlot
 pyplt = PyPlot
@@ -8,41 +37,124 @@ pyplt.matplotlib.style.reload_library()
 pyplt.matplotlib.style.use("sci")
 mpl.use(backend="Qt5Agg")
 
+# To plot the density of states we need to broaden/smear the spectral lines.
+# The line shape observed is broadened by Doppler, ...
+
 include("dos_broadening.jl")
+
+# In this tutorial we will neglect all electron-electron interactions, focusing
+# only in kinetic electron energy and electron-external potential.
+# We talk about sites rather than atoms because we neglect spatial dimension.
+
+# -----------------------------------------------------------------------------------
+# ## Chain of 2 sites
+
+# A chain of 2 sites, one with reference energy 0, and the other Δ higher
+# has a simple tight binding hamiltonian
 
 function buildH2(Δ,t)
   # He⁺
   [ 0 t; t Δ]
 end
+
+# where t is the hopping parameter.
+
+# Two atomic orbitals at sites 1 and 2
+t = 0; Δ = 2
+println("A.1.  t = $t, Δ = $Δ")
+H = buildH2(Δ,t)
+es, vs = eigen(H)
+for i in 1:length(es)
+  println("Eigenstate with E = $(es[i]) and vector $(vs[i,:])")
+end
+
+# #### Example 1
+
+t = 2; Δ = 0
+println("A.2. t = $t, Δ = $Δ")
+H = buildH2(Δ,t)
+es, vs = eigen(H)
+for i in 1:length(es)
+  println("Eigenstate with E = $(es[i]) and vector $(vs[i,:])")
+end
+
+# #### Example 2
+
+t = 1; Δ = 10
+println("A.3.  t << Δ; t = $t, Δ = $Δ")
+H = buildH2(Δ,t)
+es, vs = eigen(H)
+for i in 1:length(es)
+  println("Eigenstate with E = $(es[i]) and vector $(vs[i,:])")
+end
+
+# -----------------------------------------------------------------------------------
+# ## Three sites
+
+# Three sites (with open boundary) and site energies 0, Δ1, Δ2,
+# hoping constants t
+
 function buildHchain3(Δ1,Δ2,t12,t23)
   [  0 t12   0;
    t12  Δ1 t23;
      0 t23  Δ2]
 end
+
+# -----------------------------------------------------------------------------------
+# ## 3 site ring
+
+# If the sites are forming a ring (periodic boundary conditions)
+# there are hoping matrix elements at the lower-left and upper-right
+# corners. The hamiltonian matrix is circulant rather than Toeplitz-like.
+
 function buildHring3(Δ1,Δ2,t12,t13,t23)
   [  0 t12 t13;
    t12  Δ1 t23;
    t13 t23  Δ2]
 end
-function buildHchain_tridiag(t,N=1001)
-  H = SymTridiagonal(zeros(N),t*ones(N-1))
+
+# #### Example: 3 centers 1 electron
+
+println("B.1. Δ₁ = 2, Δ₂ = 5, t₁₂ = 1, t₁₃ = 2, t₂₃ = 1")
+H = buildHring3(2,5,1,2,1)
+es, vs = eigen(H)
+for i in 1:length(es)
+  println("Eigenstate with E = $(es[i]) and vector $(vs[i,:])")
 end
-function buildHchain(t,N=1001,Δ=missing,impuritysite=missing)
-  # homoatomic chain 
-  if ismissing(Δ)
-     return buildHchain_tridiag(t,N)
-  end
-  H = SymTridiagonal(zeros(N),t*ones(N-1))
-  H = convert(Matrix,H)
-  H[impuritysite,impuritysite] = Δ
-  H
-end
+
+# -----------------------------------------------------------------------------------
+# ## Large homoatomic ring
+
+# A large homoatomic ring  (circulant matrix)
+
 function buildHring(t,N=1001)
   H = SymTridiagonal(zeros(N),t*ones(N-1))
   H = convert(Matrix,H)
   H[N,1] = H[1,N] = t
   H
 end
+
+# #### Example
+
+t = 2.5; N = 1001
+println("C.1. Ring with $N sites and t = $t")
+H = buildHring(t,N)
+es, vs = eigen(H)
+W = 2abs(t) # half-bandwith
+band = scatter(es, xlabel="Site", ylabel="Energy",ms=2,leg=false,
+               ylims=(-W-1,W+1))
+
+e_dos, dos = dos_broadening(es)
+dos = plot(dos,e_dos, ylabel="Energy", xlabel="DOS",leg=false,
+            ylims=(-W-1,W+1))
+l = @layout [ a b]
+plot(band,dos,layout=l)
+savefig("../figures/C.1_bandos_ring_t=$(t)_N=$(N)_E0=0.pdf")
+
+# -----------------------------------------------------------------------------------
+# ## Large ring with an impurity
+
+# If the ring has an impurity in the middle
 function buildHring_impurity(t,Δ,N=1001)
   H = SymTridiagonal(zeros(N),t*ones(N-1))
   H = convert(Matrix,H)
@@ -50,6 +162,34 @@ function buildHring_impurity(t,Δ,N=1001)
   H[N÷2,N÷2] = Δ
   H
 end
+
+t = 2.5; N = 1001; Δ = -2; impuritysite = N÷2
+println("C.2. Ring with $N sites with t = $t, impurity at $impuritysite Δ = $Δ")
+H = buildHring_impurity(t,Δ,N)
+es, vs = eigen(H)
+println("Impurity state with E = $(es[1])")
+W = 2abs(t) # half-bandwith
+band = scatter(es, xlabel="Site", ylabel="Energy",ms=2,leg=false,
+               ylims=(-W-1,W+1))
+e_dos, dos = dos_broadening(es)
+dos = plot(dos,e_dos, ylabel="Energy", xlabel="DOS",leg=false,
+     ylims=(-W-1,W+1))
+l = @layout [ a b]
+plot(band,dos,layout=l)
+savefig("../figures/C.2_bandos_ring_t=$(t)_N=$(N)_E0=0_middleimpurity=$Δ.pdf")
+
+plot(vs[:,1].*vs[:,1],xlims=(490,510), label="Bound state",
+     ylabel="Probability",xlabel="Site",
+     title="Contribution of site orbitals to impurity state")
+savefig("../figures/C.2_boundstate_ring_t=$(t)_N=$(N)_E0=0_middleimpurity=$Δ.pdf")
+
+
+# -----------------------------------------------------------------------------------
+# ## Generic tight binding procedure
+
+# Generic function to solve tight-binding
+# hamiltonian, and plot bands, DOS, and PDOS.
+
 function tight_binding(hamiltonianConstructor::Function,params,name)
    @unpack t, N, Δ, impuritysite = params
    if ismissing(Δ)
@@ -87,6 +227,70 @@ function tight_binding(hamiltonianConstructor::Function,params,name)
    end
 end
 
+# -----------------------------------------------------------------------------------
+# # Large chain with an impurity state
+
+# A long chain considering only nearest-neighbors
+# hopings, all equal, with the possibility of having
+# an impurity in the middle
+
+function buildHchain_tridiag(t,N=1001)
+  H = SymTridiagonal(zeros(N),t*ones(N-1))
+end
+function buildHchain(t,N=1001,Δ=missing,impuritysite=missing)
+  if ismissing(Δ)
+     # homoatomic chain
+     return buildHchain_tridiag(t,N)
+  end
+  H = SymTridiagonal(zeros(N),t*ones(N-1))
+  H = convert(Matrix,H)
+  H[impuritysite,impuritysite] = Δ
+  H
+end
+
+# We will explore Schokley/Tamm surface states
+
+# #### Example D.1: Chain without impurity
+
+name = "D.1. Chain"
+params = (t=2.5,N=1001,Δ=missing,impuritysite=missing)
+tight_binding(buildHchain,params,name)
+
+# #### Example D.2: Impurity in the middle
+
+name = "D.2. Chain"
+params = (t=2.5,N=1001,Δ=-2,impuritysite=500)
+tight_binding(buildHchain,params,name)
+
+# #### Example D.3: Impurity at the surface
+
+name = "D.3. Chain"
+params = (t=2.5,N=1001,Δ=-2,impuritysite=1)
+tight_binding(buildHchain,params,name)
+
+# #### Example D.4: Impurity at the surface, strong impurity
+
+name = "D.4. Chain"
+params = (t=2.5,N=1001,Δ=-4,impuritysite=1)
+tight_binding(buildHchain,params,name)
+
+# Finite effects are also interesting
+
+# #### Example E.1: Finite chain
+
+name = "E.1. Finite Chain"
+params = (t=2.5,N=9,Δ=-2,impuritysite=1)
+tight_binding(buildHchain,params,name)
+
+# #### Example E.2: Finite chain
+
+name = "E.2. Finite Chain"
+params = (t=2.5,N=9,Δ=-4,impuritysite=1)
+tight_binding(buildHchain,params,name)
+
+# -----------------------------------------------------------------------------------
+# ## 2 sites per cell with s orbitals
+
 function tight_binding_1D_2sites(a,Δ₁₂,t)
    # 1D chain/ring with 2 sites per unit cell, s orbitals
    b = 2a # unit cell with two sites
@@ -110,6 +314,13 @@ function tight_binding_1D_2sites(a,Δ₁₂,t)
        )
    savefig("../figures/1d_2sites.pdf")
 end
+
+# #### Example
+
+tight_binding_1D_2sites(1,2,2) # a, Δ₁₂, t
+
+# -----------------------------------------------------------------------------------
+# ## 2 sites per cell with s and p orbitals
 
 function tight_binding_1D_2sites_sp_orbs(a,Δ₁₂,t)
    # 1D chain/ring with 2 sites per unit cell, sp orbitals
@@ -135,6 +346,11 @@ function tight_binding_1D_2sites_sp_orbs(a,Δ₁₂,t)
        )
    savefig("../figures/1d_2sites_sp_orbs.pdf")
 end
+
+tight_binding_1D_2sites_sp_orbs(1,2,2) # a, Δ₁₂, t
+
+# -----------------------------------------------------------------------------------
+# ## 2D
 
 function tight_binding_2D(a,b,Δ₁₂,ta,tb)
    # 2D rectangular lattice with 1 site per unit cell, s orbitals
@@ -228,118 +444,6 @@ function tight_binding_2D(a,b,Δ₁₂,ta,tb)
    pyplt.savefig("../figures/2d_1sites_contour.pdf")
 end
 
-# -----------------------------------------------------------------------------------
-# Two atomic orbitals at sites 1 and 2
-t = 0; Δ = 2
-println("A.1.  t = $t, Δ = $Δ")
-H = buildH2(Δ,t)
-es, vs = eigen(H)
-for i in 1:length(es)
-  println("Eigenstate with E = $(es[i]) and vector $(vs[i,:])")
-end
 
-# -----------------------------------------------------------------------------------
-t = 2; Δ = 0
-println("A.2. t = $t, Δ = $Δ")
-H = buildH2(Δ,t)
-es, vs = eigen(H)
-for i in 1:length(es)
-  println("Eigenstate with E = $(es[i]) and vector $(vs[i,:])")
-end
-
-# -----------------------------------------------------------------------------------
-t = 1; Δ = 10
-println("A.3.  t << Δ; t = $t, Δ = $Δ")
-H = buildH2(Δ,t)
-es, vs = eigen(H)
-for i in 1:length(es)
-  println("Eigenstate with E = $(es[i]) and vector $(vs[i,:])")
-end
-
-# -----------------------------------------------------------------------------------
-# 3 centers 1 electron
-println("B.1. Δ₁ = 2, Δ₂ = 5, t₁₂ = 1, t₁₃ = 2, t₂₃ = 1")
-H = buildHring3(2,5,1,2,1)
-es, vs = eigen(H)
-for i in 1:length(es)
-  println("Eigenstate with E = $(es[i]) and vector $(vs[i,:])")
-end
-
-# -----------------------------------------------------------------------------------
-t = 2.5; N = 1001
-println("C.1. Ring with $N sites and t = $t")
-H = buildHring(t,N)
-es, vs = eigen(H)
-W = 2abs(t) # half-bandwith
-band = scatter(es, xlabel="Site", ylabel="Energy",ms=2,leg=false,
-               ylims=(-W-1,W+1))
-
-e_dos, dos = dos_broadening(es)
-dos = plot(dos,e_dos, ylabel="Energy", xlabel="DOS",leg=false,
-            ylims=(-W-1,W+1))
-l = @layout [ a b]
-plot(band,dos,layout=l)
-savefig("../figures/C.1_bandos_ring_t=$(t)_N=$(N)_E0=0.pdf")
-
-# -----------------------------------------------------------------------------------
-t = 2.5; N = 1001; Δ = -2; impuritysite = N÷2
-println("C.2. Ring with $N sites with t = $t, impurity at $impuritysite Δ = $Δ")
-H = buildHring_impurity(t,Δ,N)
-es, vs = eigen(H)
-println("Impurity state with E = $(es[1])")
-W = 2abs(t) # half-bandwith
-band = scatter(es, xlabel="Site", ylabel="Energy",ms=2,leg=false,
-               ylims=(-W-1,W+1))
-e_dos, dos = dos_broadening(es)
-dos = plot(dos,e_dos, ylabel="Energy", xlabel="DOS",leg=false,
-     ylims=(-W-1,W+1))
-l = @layout [ a b]
-plot(band,dos,layout=l)
-savefig("../figures/C.2_bandos_ring_t=$(t)_N=$(N)_E0=0_middleimpurity=$Δ.pdf")
-
-plot(vs[:,1].*vs[:,1],xlims=(490,510), label="Bound state",
-     ylabel="Probability",xlabel="Site",
-     title="Contribution of site orbitals to impurity state")
-savefig("../figures/C.2_boundstate_ring_t=$(t)_N=$(N)_E0=0_middleimpurity=$Δ.pdf")
-
-
-# Surface states: Schokley/Tamm states
-## -----------------------------------------------------------------------------------
-name = "D.1. Chain"
-params = (t=2.5,N=1001,Δ=missing,impuritysite=missing)
-tight_binding(buildHchain,params,name)
-
-## -----------------------------------------------------------------------------------
-name = "D.2. Chain"
-params = (t=2.5,N=1001,Δ=-2,impuritysite=500)
-tight_binding(buildHchain,params,name)
-
-## -----------------------------------------------------------------------------------
-name = "D.3. Chain"
-params = (t=2.5,N=1001,Δ=-2,impuritysite=1)
-tight_binding(buildHchain,params,name)
-
-## -----------------------------------------------------------------------------------
-name = "D.4. Chain"
-params = (t=2.5,N=1001,Δ=-4,impuritysite=1)
-tight_binding(buildHchain,params,name)
-
-## -----------------------------------------------------------------------------------
-name = "E.1. Finite Chain"
-params = (t=2.5,N=9,Δ=-2,impuritysite=1)
-tight_binding(buildHchain,params,name)
-
-## -----------------------------------------------------------------------------------
-name = "E.2. Finite Chain"
-params = (t=2.5,N=9,Δ=-4,impuritysite=1)
-tight_binding(buildHchain,params,name)
-
-## -----------------------------------------------------------------------------------
-tight_binding_1D_2sites(1,2,2) # a, Δ₁₂, t
-
-## -----------------------------------------------------------------------------------
-tight_binding_1D_2sites_sp_orbs(1,2,2) # a, Δ₁₂, t
-
-## -----------------------------------------------------------------------------------
 tight_binding_2D(1,1,0,1,1) # a, b, Δ₁₂, ta, tb
 #tight_binding_2D(10,5,2,0.5,1) # a, b, Δ₁₂, ta, tb

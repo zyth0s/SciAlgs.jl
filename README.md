@@ -47,6 +47,8 @@ Some of the topics that are going to be covered are:
 * Quantum Mechanics models
 * Numerical methods
 
+NOTE: Tutorials, `tutorial_<name>.jl`, can be translated with `jupytext --sync tutorial_<name>.jl`
+ to Jupyter notebooks `tutorial_<name>.ipynb`, and be executed in the browser.
 
 Algorithms
 ===========
