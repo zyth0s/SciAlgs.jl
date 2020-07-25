@@ -14,7 +14,7 @@ function dos_broadening(es,siteweight=missing;width=0.05)
    Ndos   = 10001 # Nshape ÷ 2 + 1
    ϵmin = -maximum(abs.(es)) - 1 # some margin for broadening at extrema.
    ϵmax =  maximum(abs.(es)) + 1 # symmetric around 0
-   shape = lorentz_like.(1:Nshape,Ndos,inv(Ndos) * (ϵmax - ϵmin),width)
+   shape = lorentz_like(1:Nshape,Ndos,inv(Ndos) * (ϵmax - ϵmin),width)
    # Normalize (number of particles must be conserved)
    shape /= sum(shape)
 
@@ -31,7 +31,7 @@ function dos_broadening(es,siteweight=missing;width=0.05)
       ishape = trunc(Int,scaling*(es[i]-ϵmin) + 1.5)
       # (f * g)(t) = ∫ f(τ) g(t-τ) dτ
       for j in 1:Ndos
-         dos[j] += weight[i]*shape[j+Ndos-ishape]
+         dos[j] += weight[i] * shape[j+Ndos-ishape]
       end
    end
 
@@ -46,6 +46,6 @@ function dos_broadening(es,siteweight=missing;width=0.05)
 end
 
 function lorentz_like(i,i₀,Δϵ,width)
-  dummy = Δϵ*(i-i₀)/(0.5width)
-  inv(1 + dummy^2)
+  dummy = @. Δϵ*(i-i₀)/(0.5width)
+  @. inv(1 + dummy^2)
 end
