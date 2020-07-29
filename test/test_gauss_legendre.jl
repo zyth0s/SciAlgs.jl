@@ -1,4 +1,6 @@
 
+import SciAlgs.NumQuad: gauss_legendre
+
 @testset "NumQuad: Gauss-Legendre" begin
   a = BigFloat(-1); b = BigFloat(1)
   for n in 1:6

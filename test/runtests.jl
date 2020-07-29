@@ -1,7 +1,7 @@
 using SciAlgs
 using Test
 
-import SciAlgs: my_f, gauss_legendre
+import SciAlgs: my_f
 
 my_f(2,1)
 
