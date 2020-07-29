@@ -12,6 +12,7 @@ The collection is not intended to be exhaustive but to offer clear and concise i
 ## Why Julia?
 
 A disgression of the reasons for choosing Julia follows.
+
 Translating formulas to code is a non trivial task. This process was first addressed
 by Fortran (that is, Formula translator) with great success, and thus Fortran has found widespread 
 application until nowadays. However, some of its characteristics (not interactive; low level string manipulation;
@@ -19,6 +20,7 @@ lack of standard library; attached to bad programming practices) make it less at
 and professional programmers. In particular, both the compilation/execution
 process and the verbosity of the language slow down the implementation and distract the programmer
 from scientific to technical questions.
+
 Interactive and modern languages allow a more agile development and a more concise
 implementation of the algorithms.
 Matlab has such functionality but it is not open source. On the other hand,
@@ -26,6 +28,7 @@ Octave offers similar capabilties but it is too focused on array handling like M
 attention to other general purpose programming tasks and the developement of new packages has stagnated.
 Python has been the alternative but numerical arrays are not first class objects in the language and
 optimization usually lends to rewriting code in other language.
+
 Julia offers an easy and natural array language like Fortran (no need of extra libraries to handle numerical
 arrays; same 1 index convention) whereas it also includes modern programming language capabilities.
 
@@ -37,7 +40,7 @@ is not fast enough, the kernel could be written in Fortran (0-indexation in C co
 Some of the aims would be:
 * Concise and pedagogical implementations
 * Make algorithms accessible to researchers without expertise in computer programming.
-* Rewrite legacy programs more clearly (e.g. no spaguetti code)
+* Rewrite legacy programs more clearly (e.g. no spaghetti code)
 * Provide useful functions to perform basic operations
 * Integrate modern development practices: tests, continuous integration, collaborative development, ...
 * Enrich Julia's package ecosystem with new functionalities
