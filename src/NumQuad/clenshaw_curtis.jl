@@ -45,44 +45,6 @@ function clenshaw_curtis(a::BigFloat,b::BigFloat,n)
   x, w
 end
 
-function test_clenshaw_curtis()
-  for i in [1,2,3,4,5,7]
-    for a in BigFloat[-4,-3,-2,-1, 0], b in BigFloat[1,2,3,4,5]
-      x, w = clenshaw_curtis(a,b,i)
-      @assert isapprox(sum(w),b-a) "$(sum(w)) ≠ $(b-a)"
-      if i == 1
-        @assert isapprox(w[1], b-a) "$(w[1]) ≠ $(b-a)"
-      elseif i == 2
-        @assert isapprox(w[1], (b-a)/2) "$(w[1]) ≠ $((b-a)/2)"
-        @assert isapprox(w[2], (b-a)/2) "$(w[1]) ≠ $((b-a)/2)"
-      elseif i == 3
-        @assert isapprox(w[1],   (b-a)/6) "$(w[1]) ≠ $(  (b-a)/6)"
-        @assert isapprox(w[2], 4*(b-a)/6) "$(w[1]) ≠ $(4*(b-a)/6)"
-        @assert isapprox(w[3],   (b-a)/6) "$(w[1]) ≠ $(  (b-a)/6)"
-      elseif i == 4
-        @assert isapprox(w[1],   (b-a)/18) "$(w[1]) ≠ $(   (b-a)/18)"
-        @assert isapprox(w[2], 8*(b-a)/18) "$(w[1]) ≠ $( 8*(b-a)/18)"
-        @assert isapprox(w[3], 8*(b-a)/18) "$(w[1]) ≠ $( 8*(b-a)/18)"
-        @assert isapprox(w[4],   (b-a)/18) "$(w[1]) ≠ $(   (b-a)/18)"
-      elseif i == 5                                                    
-        @assert isapprox(w[1],   (b-a)/30) "$(w[1]) ≠ $(   (b-a)/30)"
-        @assert isapprox(w[2], 8*(b-a)/30) "$(w[1]) ≠ $( 8*(b-a)/30)"
-        @assert isapprox(w[3],12*(b-a)/30) "$(w[1]) ≠ $(12*(b-a)/30)"
-        @assert isapprox(w[4], 8*(b-a)/30) "$(w[1]) ≠ $( 8*(b-a)/30)"
-        @assert isapprox(w[5],   (b-a)/30) "$(w[1]) ≠ $(   (b-a)/30)"
-      elseif i == 7
-        @assert isapprox(w[1],  9*(b-a)/630) "$(w[1]) ≠ $(  9*(b-a)/630)"
-        @assert isapprox(w[2], 80*(b-a)/630) "$(w[1]) ≠ $( 80*(b-a)/630)"
-        @assert isapprox(w[3],144*(b-a)/630) "$(w[1]) ≠ $(144*(b-a)/630)"
-        @assert isapprox(w[4],164*(b-a)/630) "$(w[1]) ≠ $(164*(b-a)/630)"
-        @assert isapprox(w[5],144*(b-a)/630) "$(w[1]) ≠ $(144*(b-a)/630)"
-        @assert isapprox(w[6], 80*(b-a)/630) "$(w[1]) ≠ $( 80*(b-a)/630)"
-        @assert isapprox(w[7],  9*(b-a)/630) "$(w[1]) ≠ $(  9*(b-a)/630)"
-      end
-    end
-  end
-end
-
 function get_log10(x,digits)
   l = log10(x)
   if isinf(l)

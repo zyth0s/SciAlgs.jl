@@ -10,3 +10,4 @@ my_f(2,1)
 end
 
 include("test_gauss_legendre.jl")
+include("test_clenshaw_curtis.jl")
