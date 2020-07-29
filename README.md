@@ -9,6 +9,8 @@
 SciAlgs is a compilation of fundamental scientific algorithms.
 The collection is not intended to be exhaustive but to offer clear and concise implementations.
 
+## Why Julia?
+
 A disgression of the reasons for choosing Julia follows.
 Translating formulas to code is a non trivial task. This process was first addressed
 by Fortran (that is, Formula translator) with great success, and thus Fortran has found widespread 
