@@ -32,6 +32,8 @@ arrays; same 1 index convention) whereas it also includes modern programming lan
 Ideally, the implementation would be in only one language (here Julia). In case that a routine
 is not fast enough, the kernel could be written in Fortran (0-indexation in C could be a source of trouble).
 
+## Purpose
+
 Some of the aims would be:
 * Concise and pedagogical implementations
 * Make algorithms accessible to researchers without expertise in computer programming.
