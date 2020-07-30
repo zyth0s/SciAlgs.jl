@@ -4,6 +4,7 @@
 *.jl.cov
 *.jl.*.cov
 *.jl.mem
+Manifest.toml
 
 *.so
 *.o
