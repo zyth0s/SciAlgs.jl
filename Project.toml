@@ -3,6 +3,9 @@ uuid = "a96222a4-04e9-11ea-3d18-e1c1364290fa"
 authors = ["Daniel Menendez Crespo <danielmail7@gmail.com>"]
 version = "0.1.0"
 
+[compat]
+julia = "1"
+
 [deps]
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 FastGaussQuadrature = "442a2c76-b920-505d-bb47-c5924d526838"
