@@ -4,8 +4,12 @@ os:
   - linux
   - osx
 julia:
-  - 1.2
+  - 1.4
   - nightly
+addons:
+  apt:
+    packages:
+      - python3-sympy
 matrix:
   allow_failures:
     - julia: nightly
