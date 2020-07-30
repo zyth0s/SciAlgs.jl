@@ -12,6 +12,8 @@
     fast_finish: true
   notifications:
     email: false
+  before_script:
+    - sudo apt-get -y install python-sympy
   after_success:
     - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
     - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
