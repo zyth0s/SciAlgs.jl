@@ -10,6 +10,4 @@ greet() = print("Hello World!daniel")
 
 #SciAlgs.Xtal.example1()
 
-include("extra_file.jl")
-
 end # module
