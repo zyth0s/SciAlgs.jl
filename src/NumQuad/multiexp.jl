@@ -6,7 +6,7 @@ using DelimitedFiles
 # Adapted from supplementary routines for the book
 # "Spectral methods in Chemistry and Physics"
 
-include("maxwell.jl")
+import SciAlgs.NumQuad: discrete_stieltjes, golub_welsch
 
 function multiexpαβ(N)
   f(r)  = log(r)^2
