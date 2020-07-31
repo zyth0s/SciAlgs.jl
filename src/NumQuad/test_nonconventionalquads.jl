@@ -5,8 +5,8 @@ using LinearAlgebra
 using SpecialFunctions
 #using QuadGK
 
-include("maxwell.jl")
-include("multiexp.jl")
+import SciAlgs.NumQuad: maxwellαβ, maxwellpts, discrete_stieltjes, golub_welsch, multidomain_quadrature, fejer2
+import SciAlgs.NumQuad: multiexp
 
 digits = trunc(Int,log10( 2.0^precision(Float64)))
 

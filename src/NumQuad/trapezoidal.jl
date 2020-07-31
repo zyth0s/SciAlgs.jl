@@ -3,6 +3,8 @@
 import Formatting: printfmt
 import SpecialFunctions: erf
 
+import SciAlgs.NumQuad: get_log10
+
 # Calculates the nodes and weights of the trapezoidal quadrature
 # x_i = 
 # w_i =
@@ -19,15 +21,6 @@ function trapezoidal(n)
     u += Δu
   end
   x, w
-end
-
-function get_log10(x,digits)
-  l = log10(x)
-  if isinf(l)
-    return -digits
-  else
-    return l
-  end
 end
 
 function test_trapezoidal()

@@ -2,6 +2,8 @@
 import Formatting: printfmt
 import SpecialFunctions: erf
 
+import SciAlgs.NumQuad: get_log10
+
 #using QuadGK
 
 # This routine computes the points and weights of the Gauss-Chebyshev
@@ -27,15 +29,6 @@ function perez_jorda(n)
   #  println(x[i], "  ",w[i])
   #end
   x, w
-end
-
-function get_log10(x,digits)
-  l = log10(x)
-  if isinf(l)
-    return -digits
-  else
-    return l
-  end
 end
 
 function test_perez_jorda()

@@ -2,6 +2,8 @@
 import Formatting: printfmt
 import SpecialFunctions: erf
 
+import SciAlgs.NumQuad: get_log10
+
 # Calculates the nodes and weights of the Gauss-Chebyshev 1st quadrature
 # xᵢ = -cos(θᵢ) where θᵢ = (2i-1)*π/2/n
 # wᵢ √(1-xᵢ²) = π/n √(1-xᵢ²) = π/n sin(θᵢ) 
@@ -57,15 +59,6 @@ function test_gauss_chebyshev1st()
       @assert isapprox(w[3], 0.7256132880348577535144) "$(w[1]) ≠ 0.7256132880348577535144"
       @assert isapprox(w[4], 0.3005588649421731353571) "$(w[1]) ≠ 0.3005588649421731353571"
     end
-  end
-end
-
-function get_log10(x,digits)
-  l = log10(x)
-  if isinf(l)
-    return -digits
-  else
-    return l
   end
 end
 

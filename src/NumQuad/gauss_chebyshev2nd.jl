@@ -2,6 +2,8 @@
 import Formatting: printfmt
 import SpecialFunctions: erf
 
+import SciAlgs.NumQuad: get_log10
+
 # Calculates the nodes and weights of the Gauss-Chebyshev 2nd quadrature
 # xᵢ = -cos(iθ) where θ = π/(n+1)
 # wᵢ 1/√(1-xᵢ²) = θ sin²(iθ) 1/√(1-xᵢ²) = θ sin²(iθ) csc(iθ) = θ sin(iθ) 
@@ -15,16 +17,6 @@ function gauss_chebyshev2nd(n)
   end
   x, w
 end
-
-function get_log10(x,digits)
-  l = log10(x)
-  if isinf(l)
-    return -digits
-  else
-    return l
-  end
-end
-
 
 function test_gauss_chebyshev2nd()
   a = BigFloat(-1); b = BigFloat(1)

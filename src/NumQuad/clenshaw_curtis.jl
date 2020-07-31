@@ -2,6 +2,8 @@
 import Formatting: printfmt
 import SpecialFunctions: erf
 
+import SciAlgs.NumQuad: get_log10
+
 # Adapted algorithm of Homer Reid to [a,b]
 # Learn more from "Fast Construction of the Fejer and Clenshaw-Curtis Quadrature"
 # by Joerg Waldvogel eqs. (2.4-2.5)
@@ -43,15 +45,6 @@ function clenshaw_curtis(a::BigFloat,b::BigFloat,n)
   #  println(x[i], "  ",w[i])
   #end
   x, w
-end
-
-function get_log10(x,digits)
-  l = log10(x)
-  if isinf(l)
-    return -digits
-  else
-    return l
-  end
 end
 
 function test_clenshaw_curtis2()

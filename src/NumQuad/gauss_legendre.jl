@@ -2,6 +2,7 @@
 import Formatting: printfmt
 import SpecialFunctions: erf
 
+import SciAlgs.NumQuad: get_log10
 
 function gauss_legendre(x1::BigFloat, x2::BigFloat, n)
   x = zeros(BigFloat,n)
@@ -35,15 +36,6 @@ function gauss_legendre(x1::BigFloat, x2::BigFloat, n)
   #  println(x[i], "  ",w[i])
   #end
   x, w
-end
-
-function get_log10(x,digits)
-  l = log10(x)
-  if isinf(l)
-    return -digits
-  else
-    return l
-  end
 end
 
 function test_gauss_legendre2()

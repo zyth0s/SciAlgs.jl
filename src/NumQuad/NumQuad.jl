@@ -1,6 +1,15 @@
 
 module NumQuad
    
+function get_log10(x,digits)
+  l = log10(x)
+  if isinf(l)
+    return -digits
+  else
+    return l
+  end
+end
+
 # Newton-Cotes family
 include("trapezoidal.jl")
 include("euler_mclaurin.jl")
