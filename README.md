@@ -1,9 +1,9 @@
 # SciAlgs
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://zyth0s.github.io/SciAlgs.jl/)
-[![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://zyth0s.github.io/SciAlgs.jl/latest)
 [![Build Status](https://travis-ci.com/zyth0s/SciAlgs.jl.svg?branch=master)](https://travis-ci.com/zyth0s/SciAlgs.jl)
-[![Coveralls](https://coveralls.io/repos/github/zyth0s/SciAlgs.jl/badge.svg?branch=master)](https://coveralls.io/github/zyth0s/SciAlgs.jl?branch=master)
+[![codecov](https://codecov.io/gh/zyth0s/SciAlgs.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/zyth0s/SciAlgs.jl)
+
 
 SciAlgs is a compilation of fundamental scientific algorithms.
 The collection is not intended to be exhaustive but to offer clear and concise implementations.
