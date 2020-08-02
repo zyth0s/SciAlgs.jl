@@ -114,6 +114,7 @@ Algorithms
   - [x] Ising chain (1D) model with direct diagonalization/exact diagonalization/fullCI
 * Electronic Structure [ElStruct]
   - [x] [Psi4Julia](https://github.com/zyth0s/psi4julia) Interact with [Psi4](https://psicode.org).
+  - [x] [PySCF.jl](https://github.com/zyth0s/PySCF.jl) Interact with [PySCF](https://pyscf.org).
   - [x] Slater-Koster Tight-binding of Sr2RuO4 [PRL 116, 197003 (2016)](https://link.aps.org/doi/10.1103/PhysRevLett.116.197003)
   - [x] McMurchie-Davidson molecular integrals evaluation scheme
   - [x] Simple plane-wave Density Functional Theory (DFT)
