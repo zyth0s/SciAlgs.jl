@@ -113,18 +113,27 @@ Algorithms
   - [x] Green's function method (surface-bulk recursive) for an semi-infinite chain [Revista Brasileira de Ensino de Fisica, vol. 39, no 1, e1303, 2017](http://www.scielo.br/scielo.php?script=sci_arttext&pid=S1806-11172017000100402&lng=en&tlng=en)
   - [x] Ising chain (1D) model with direct diagonalization/exact diagonalization/fullCI
 * Electronic Structure [ElStruct]
-  - [x] [Psi4Julia](https://github.com/zyth0s/psi4julia) Interact with [Psi4](https://psicode.org).
-  - [x] [PySCF.jl](https://github.com/zyth0s/PySCF.jl) Interact with [PySCF](https://pyscf.org).
+  - [x] [Psi4Julia](https://github.com/zyth0s/psi4julia) shows how to interact with [Psi4](https://psicode.org).
+    + [x] Hartree-Fock (HF)
+    + [x] SCF with DIIS [Chem. Phys. Lett. 73, 393-398 (1980)](https://doi.org/10.1016/0009-2614(80)80396-4)
+    + [x] Density Fitting/Resolution of Identity approximation
+    + [x] Density Functional Theory (DFT) wit LDA, GGA, and VV10 functionals
+    + [x] Moller-Plesset order 2 (MP2)
+    + [x] Coupled-Electron Pair Approximation (CEPA0) and Coupled-Cluster Doubles (CCD)
+    + [x] Configuration Interaction Singles (CIS)
+    + [x] Orbital-Optimized Moller-Plesset 2 (OMP2)
+    + [x] One-electron integrals over GTOs with Obara-Saika scheme.
+  - [x] [PySCF.jl](https://github.com/zyth0s/PySCF.jl) shows how to interact with [PySCF](https://pyscf.org).
+    + [x] Hartree-Fock (HF)
+    + [x] Moller-Plesset order 2 (MP2)
+    + [x] Coupled Cluster Singles and Doubles (CCSD) [J. Chem. Phys. 94, 4334](https://doi:10.1063/1.460620)
+    + [x] SCF with DIIS [Chem. Phys. Lett. 73, 393-398 (1980)](https://doi.org/10.1016/0009-2614(80)80396-4)
+    + [x] AO-based general population analysis (special cases: Mulliken and Löwdin analysis)
   - [x] Slater-Koster Tight-binding of Sr2RuO4 [PRL 116, 197003 (2016)](https://link.aps.org/doi/10.1103/PhysRevLett.116.197003)
   - [x] McMurchie-Davidson molecular integrals evaluation scheme
   - [x] Simple plane-wave Density Functional Theory (DFT)
   - [x] Simple Hartree-Fock (HF) with GTOs (H2,He) [Szabo-Ostlund. Modern Quantum Chemistry.](https://store.doverpublications.com/0486691861.html)
   - [x] Simple Hartree-Fock (HF) with GTOs (H2,He) [J. Thijssen. Computational Physics](https://www.cambridge.org/core/books/computational-physics/BEE73B0139D4A9993193B57CDC62096E)
-  - [x] Hartree-Fock (HF) with PySCF AO integrals
-  - [x] Moller-Plesset order 2 (MP2) with PySCF AO integrals
-  - [x] Coupled Cluster Singles and Doubles (CCSD) with PySCF AO integrals [J. Chem. Phys. 94, 4334](https://doi:10.1063/1.460620)
-  - [x] SCF with DIIS [Chem. Phys. Lett. 73, 393-398 (1980)](https://doi.org/10.1016/0009-2614(80)80396-4)
-  - [x] AO-based general population analysis (special cases: Mulliken and Löwdin analysis)
   - [x] Davidson diagonalization [J. Comput. Phys. 17, 87–94](https://doi.org/10.1016/0021-9991(75)90065-0)
 * Spectroscopy
   - [x] X-ray Photoelectron Spectrocopy (XPS) [J. Chem. Educ. 2019, 96, 7, 1502-1505](https://pubs.acs.org/doi/10.1021/acs.jchemed.9b00236)
