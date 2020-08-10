@@ -1,8 +1,4 @@
 
-
-import Formatting: printfmt
-import SpecialFunctions: erf
-
 import SciAlgs.NumQuad: get_log10
 
 # Calculates the nodes and weights of the trapezoidal quadrature
