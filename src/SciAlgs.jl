@@ -4,7 +4,7 @@ include("magic_run.jl")
 
 include("./Xtal/Xtal.jl")
 include("./NumQuad/NumQuad.jl")
-#using SciAlgs.NumQuad: gauss_legendre
+include("./Algorithms_from_THE_BOOK/TheBook.jl")
 
 greet() = print("Hello World!daniel")
 
