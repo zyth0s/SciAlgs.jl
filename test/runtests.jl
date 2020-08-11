@@ -10,3 +10,4 @@ include("test_trapezoidal.jl")
 
 # Algorithms from THE BOOK
 include("test_archimedes.jl")
+include("test_babylonian.jl")
