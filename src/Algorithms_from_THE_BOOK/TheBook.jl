@@ -4,7 +4,7 @@ module TheBook
 include("chapter1/archimedes.jl")
 include("chapter1/babylonian.jl")
 include("chapter1/eratosthenes.jl")
-#include("chapter1/euclid.jl")
+include("chapter1/euclid.jl")
 #include("chapter1/peasantproduct.jl")
 #include("chapter1/quadratic.jl")
 #include("chapter2/binarysearch.jl")
