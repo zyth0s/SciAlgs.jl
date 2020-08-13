@@ -297,7 +297,7 @@ function tight_binding_1D_2sites(a,Δ₁₂,t)
    ε1 = 0 # without loss of generality energy reference at 0
    ε2 = Δ₁₂
 
-   kpath = range(-π/b,stop=π/b,length=100)
+   kpath = range(-π/b,π/b,length=100)
    Enk = zeros(2,length(kpath))
 
    for (ik,k) in enumerate(kpath)
@@ -329,7 +329,7 @@ function tight_binding_1D_2sites_sp_orbs(a,Δ₁₂,t)
    εs = Δ₁₂
    εp = 0 # without loss of generality energy reference at 0
 
-   kpath = range(-π/b,stop=π/b,length=100)
+   kpath = range(-π/b,π/b,length=100)
    Enk = zeros(2,length(kpath))
 
    for (ik,k) in enumerate(kpath)
@@ -366,14 +366,14 @@ function tight_binding_2D(a,b,Δ₁₂,ta,tb)
    # Band plot
    nkpts = 100
    kpath = zeros(2,3nkpts)
-   kpath[1,  1:nkpts]  = range(0,stop=π/a,length=nkpts)
+   kpath[1,  1:nkpts]  = range(0,π/a,length=nkpts)
    kpath[2,  1:nkpts] .= 0
    #
    kpath[1,(nkpts+1):2nkpts] .= π/a
-   kpath[2,(nkpts+1):2nkpts]  = range(0,stop=π/b,length=nkpts)
+   kpath[2,(nkpts+1):2nkpts]  = range(0,π/b,length=nkpts)
    #
-   kpath[1,(2nkpts+1):3nkpts]  = range(π/a,stop=0,length=nkpts)
-   kpath[2,(2nkpts+1):3nkpts]  = range(π/b,stop=0,length=nkpts)
+   kpath[1,(2nkpts+1):3nkpts]  = range(π/a,0,length=nkpts)
+   kpath[2,(2nkpts+1):3nkpts]  = range(π/b,0,length=nkpts)
    Enk = zeros(2,3nkpts)
 
    for ik in 1:3nkpts
@@ -410,8 +410,8 @@ function tight_binding_2D(a,b,Δ₁₂,ta,tb)
    # BZ integration
    nmesh = 101
    Enk = zeros(2,nmesh,nmesh)
-   kxrange = range(-π/a,stop=π/a,length=nmesh)
-   kyrange = range(-π/b,stop=π/b,length=nmesh)
+   kxrange = range(-π/a,π/a,length=nmesh)
+   kyrange = range(-π/b,π/b,length=nmesh)
    for (ikx,kx) in enumerate(kxrange), 
        (iky,ky) in enumerate(kyrange)
       H_k = Hamiltonian(kx,ky)

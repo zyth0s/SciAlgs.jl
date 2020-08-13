@@ -27,7 +27,7 @@ c3 = 5600   # How many beds thare are (28000 * 20% free)
 oversample = 10 # how many iterations per simulated day
 parms = [1 / α, β, 1 / γ, c1, 1 / c2, N] 
 initial  = [N - S, S, 0, 0, 0]     # S, E, I, R, C
-times = range(0, stop=365, length=365 * oversample + 1)
+times = range(0, 365, length=365 * oversample + 1)
 tspan = (0.0, 365) 
 
 

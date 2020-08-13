@@ -335,16 +335,16 @@ function test_heh()
 end
 
 function heh_pes()
-    file = open("heh_pes.dat", "w")
+    file = open("../outputs/heh_pes.dat", "w")
     energy_he, energy_he = hartree_fock([0.0], [2])
     energy = []
-    for r in range(0.7, stop=3.5, length=25)
+    for r in range(0.7, 3.5, length=25)
         total_energy, electronic_energy = hartree_fock([0., r], [2, 1])
         write(file, "$r $(total_energy - energy_he)\n")
         append!(energy,total_energy)
     end
     close(file)
-    plot(range(0.7,stop=3.5,length=25),energy, xaxis="Distance [Bohr]",yaxis="Energy [Ha]")
+    plot(range(0.7,3.5,length=25),energy, xaxis="Distance [Bohr]",yaxis="Energy [Ha]")
 end
 
 function tests()

@@ -65,7 +65,7 @@ end
 #close(uout)
 
 # Evaulate the basis functions on a grid
-y = range(0,stop=1,length=101);
+y = range(0,1,length=101);
 Phi = zeros(MAXN,101);
 for i = 1:MAXN
   Phi[i,:] = phi(i,y);

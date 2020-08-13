@@ -11,7 +11,7 @@ using PyPlot                        # Matplotlib library
 η = 0.01                            # positive infinitesimal
 ωmin, ωmax = -2, 2                  # energy range
 Nω = 1000                           # number of energy points
-ω = range(ωmin,stop=ωmax,length=Nω) # vector of energies
+ω = range(ωmin,ωmax,length=Nω) # vector of energies
 g = @. 1 / (ω - ϵ₀ + η*im)          # undressed propagator, eq. (66)
 t = 1                               # symmetric real hopping
 

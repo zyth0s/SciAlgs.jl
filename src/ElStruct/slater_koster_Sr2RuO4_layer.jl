@@ -90,16 +90,16 @@ end
 # ----------------------------------------------------------------------------------------
 # Band: k-path
 kpath = zeros(2,342) # {(kx ky)ᵀ}
-kpath[1,1:101]    = range(0,stop=π,length=101)
+kpath[1,1:101]    = range(0,π,length=101)
 kpath[2,1:101]   .= 0
 
 kpath[1,102:201] .= π
-kpath[2,102:201]  = range(0,stop=π,length=100)
+kpath[2,102:201]  = range(0,π,length=100)
 
-kpath[1,202:342]  = range(π,stop=0,length=141)
-kpath[2,202:342]  = range(π,stop=0,length=141)
+kpath[1,202:342]  = range(π,0,length=141)
+kpath[2,202:342]  = range(π,0,length=141)
 
-nkpoints = size(kpath)[2]
+nkpoints = size(kpath,2)
 Enk = zeros(nbands,nkpoints)
 
 for k in 1:nkpoints

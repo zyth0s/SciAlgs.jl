@@ -11,7 +11,7 @@ function semi_inf_chain_surf_bulk_recursive(Ndec=16, # number of decimation iter
    ϵ₀ = 0                              # local site energy
    ωmin, ωmax = -2, 2                  # energy range
    Nω = 1000                           # number of energy points
-   ω = range(ωmin,stop=ωmax,length=Nω) # vector of energies
+   ω = range(ωmin,ωmax,length=Nω) # vector of energies
    g = @. 1 / (ω - ϵ₀ + η*im)          # undressed propagator, eq. (66)
    g10 = g20 = g30 = g                 # initialization of undressed retarded GF
    t = td = ones(Nω)                   # symmetric real hopping

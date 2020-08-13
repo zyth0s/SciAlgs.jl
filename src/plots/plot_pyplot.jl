@@ -10,7 +10,7 @@ fig = pyplt.figure()
 ax = fig.add_subplot(111)
 
 # Create some data
-x = range(0, stop=π, length=200)
+x = range(0, π, length=200)
 y1 = sin.(x)
 y2 = 1.5sin.(x)
 y3 = 2sin.(x)
@@ -37,8 +37,8 @@ function E_to_WL(E)
     return 1240 ./ E
  end
 # Add ticks manually to energy axis
-ax2.xaxis.set_major_locator(mpl.ticker.FixedLocator(E_to_WL(range(1.5, stop=3.0, length=4))))
-ax2.xaxis.set_minor_locator(mpl.ticker.FixedLocator(E_to_WL(range(1.4, stop=3.2, length=19))))
+ax2.xaxis.set_major_locator(mpl.ticker.FixedLocator(E_to_WL(range(1.5, 3.0, length=4))))
+ax2.xaxis.set_minor_locator(mpl.ticker.FixedLocator(E_to_WL(range(1.4, 3.2, length=19))))
 # Add tick labels manually to energy axis
 ax2.set_xticklabels(["1.5", "2.0", "2.5", "3.0"])
 # Add energy axis label

@@ -8,7 +8,7 @@ m = 1
 
 Nk = 100
 Nϵ = 100
-kmesh = range(-π,stop=π,length=Nk)
+kmesh = range(-π,π,length=Nk)
 η = 1e-1
 ϵ = 0.0
 
@@ -24,7 +24,7 @@ using PyPlot
 #plot(kmesh, ε.(kmesh))
 #grid("on")
 
-ϵmesh = range(-1,stop=maximum(ε.(kmesh)),length=Nϵ)
+ϵmesh = range(-1,maximum(ε.(kmesh)),length=Nϵ)
 
 
 # Colormap of Re{ G(k,ϵ) }

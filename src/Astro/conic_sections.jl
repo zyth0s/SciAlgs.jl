@@ -12,7 +12,7 @@ using Plots
 
 plt = plot(title="Conic sections",leg=false)
 #for e in [0.0,0.6,1,1.4]
-for e in range(0, stop=1.4, length=20)
+for e in range(0, 1.4, length=20)
    a = 1.0 # radius of the circle
    if e ≈ 0
       p = a*(1-e^2)
@@ -28,7 +28,7 @@ for e in range(0, stop=1.4, length=20)
    end
    Xarray = []
    Yarray = []
-   for θ in range(0,stop = 2π, length=100)
+   for θ in range(0, 2π, length=100)
       r = p/(1+e*cos(θ))
       push!(Xarray,r*cos(θ))
       push!(Yarray,r*sin(θ))

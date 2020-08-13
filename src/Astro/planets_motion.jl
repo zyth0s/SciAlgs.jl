@@ -132,7 +132,7 @@ end
 function orbit_xyz(planet,jdate,npts)
    a,e,I,ϖ,Ω,λ = planet_elements(planet,jdate)
    ω = mod(ϖ - Ω, 360)
-   f = range(0,stop=2π,length=npts)
+   f = range(0,2π,length=npts)
    cf = cos.(f)
    sf = sin.(f)
    sl = a*(1-e^2) # ellipse semi-latus

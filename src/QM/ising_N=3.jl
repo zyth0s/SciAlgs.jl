@@ -28,7 +28,7 @@ HZ  =  σᶻ ⊗ id ⊗ id  +  id ⊗ σᶻ ⊗ id  +  id ⊗ id ⊗ σᶻ
 
 H_max = 2 # maximum magnetic field
 nsteps = 20
-h = range(0,stop=H_max,length=nsteps)
+h = range(0,H_max,length=nsteps)
 
 Eg = zeros(nsteps)
 for i in 1:nsteps

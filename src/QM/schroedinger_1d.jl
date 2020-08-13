@@ -46,7 +46,7 @@ end
 
 function potential(p::InfPotentialParams)
    @unpack width,steps = p
-   xvec = range(-width/2,stop=width/2,length=steps)
+   xvec = range(-width/2,width/2,length=steps)
    U = zeros(steps)
    Δx = xvec[2]-xvec[1]
    xvec, U, Δx
@@ -67,7 +67,7 @@ end
 
 function potential(p::FinitePotentialParams)
    @unpack width, depth,steps = p
-   xvec = range(-width,stop=width,length=steps)
+   xvec = range(-width,width,length=steps)
    Δx = xvec[2]-xvec[1]
    U = @. -depth*rect(xvec,width)
    xvec, U, Δx
@@ -95,7 +95,7 @@ end
 function potential(p::DoubleSquarePotentialParams)
    @unpack width1,width2,depth1,depth2,potwidth,steps = p
    A = 2(width1+width2+potwidth)
-   xvec = range(-A,stop=A,length=steps)
+   xvec = range(-A,A,length=steps)
    potwidth /= 2
    Δx = xvec[2]-xvec[1]
    U = @. -depth1*rect(xvec+potwidth+(width1/2),width1) -
@@ -120,7 +120,7 @@ function potential(p::HarmonicPotentialParams)
    @unpack depth, ω, steps = p
    width = sqrt(abs(2depth)/ω^2)
    A = 2width
-   xvec = range(-A,stop=A,length=steps)
+   xvec = range(-A,A,length=steps)
    Δx = xvec[2]-xvec[1]
    U = @. 0.5ω^2 * xvec^2 - abs(depth)
    U[U .> 0] .= 0.0
@@ -153,7 +153,7 @@ function potential(p::MorsePotentialParams)
    while morse_function(a,depth,stop) < -0.1
       stop += 0.01
    end
-   xvec = range(2start,stop=2stop,length=steps)
+   xvec = range(2start,2stop,length=steps)
    Δx = xvec[2]-xvec[1]
    U = morse_function.(a,depth,xvec)
    U[U .> 0] .= 0.0
@@ -181,7 +181,7 @@ end
 function potential(p::KronigPenneyPotentialParams)
    @unpack depth,width,potwidth,nwells,steps = p
    x_size = width * (div(nwells,2) + 0.5) + potwidth * (div(nwells,2) + 0.5)
-   xvec = range(-x_size,stop=x_size,length=steps)
+   xvec = range(-x_size,x_size,length=steps)
    Δx = xvec[2]-xvec[1]
    #
    U = @. -rect(xvec,width)
@@ -235,8 +235,8 @@ function schroedinger(p; periodic=false,method=:centraldiff)
    ax2.yaxis.set_tick_params(which="major", size=10, width=2, direction="in",labelcolor=:blue)
    ax2.yaxis.set_tick_params(which="minor", size=7, width=2, direction="in",labelcolor=:blue)
    # Add ticks manually to wfn axis
-   ax2.yaxis.set_major_locator(mpl.ticker.FixedLocator(range(minimum(V[:,1:2]), stop=maximum(V[:,1:2]), length=5)))
-   ax2.yaxis.set_minor_locator(mpl.ticker.FixedLocator(range(minimum(V[:,1:2]), stop=maximum(V[:,1:2]), length=19)))
+   ax2.yaxis.set_major_locator(mpl.ticker.FixedLocator(range(minimum(V[:,1:2]), maximum(V[:,1:2]), length=5)))
+   ax2.yaxis.set_minor_locator(mpl.ticker.FixedLocator(range(minimum(V[:,1:2]), maximum(V[:,1:2]), length=19)))
    # Add tick labels manually to wfn axis
    #ax2.set_yticklabels(["-1.0", "-0.5","0.0", "0.5", "1.0"])
    # Add legend to plot

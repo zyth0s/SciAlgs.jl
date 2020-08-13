@@ -27,7 +27,7 @@ plt = plot(title="Refraction of Earth's atmosphere with altitude",
            ylabel="Refraction angle, R [arcmin]")
 for (P,T) in [(1050,-30),(950,30),(700,0)]
    Rarray = []
-   aarray = range(0,stop=10,length=100) # in °
+   aarray = range(0,10,length=100) # in °
    for a in aarray
       R = refraction_correction(a,P,T)
       R = deg2min(R)

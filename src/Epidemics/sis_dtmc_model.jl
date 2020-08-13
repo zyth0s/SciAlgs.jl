@@ -30,7 +30,7 @@ b = 0.25dtt
 N = 100 # Total population size
 en = 50 # plot every enth time interval
 T = zeros(N+1,N+1) # T is the transition matrix, defined below
-v = range(0,stop=N,length=N+1)
+v = range(0,N,length=N+1)
 p = zeros(Time+1,N+1)
 p[1,3] = 1 # Two individuals initially infected: Prob{I(0)=2} = 1; R₀ = 2
 bt = β*v .* (N .- v)/N
@@ -54,8 +54,8 @@ pm[1,:] = p[1,:]
 for t in 1:div(Time,en)
    pm[t+1,:] = p[en*t,:]
 end
-#ti = range(0,stop=Time,length=div(Time,en)+1)
-#st = range(0,stop=N,length=N+1)
+#ti = range(0,Time,length=div(Time,en)+1)
+#st = range(0,N,length=N+1)
 wireframe(pm,xlabel="Infectives",ylabel="Time steps",zlabel="Probability")
 
 

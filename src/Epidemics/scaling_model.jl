@@ -30,7 +30,7 @@ plot(sir_sol,xlabel="Time",ylabel="Number")
 
 # Threshold criterion for transmission rate
 m = [5,10,20,40]
-ws = 10 .^range(-3,stop=3,length=601)
+ws = 10 .^range(-3,3,length=601)
 βs = zeros(601,4)
 for i = 1:4
     βs[:,i] = 0.0247*m[i]*ws.^0.44

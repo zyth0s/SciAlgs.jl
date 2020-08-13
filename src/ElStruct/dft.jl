@@ -125,8 +125,8 @@ Nes = Ne*nk # number of electrons in the super-cell
 kF = π/4 # Fermi wave vector corresponding to the mean density of the system
 ρ0 = Ne/a # mean density
 ΔG = 2π/a # reciprocal lattice spacing
-x = range(0,stop=a-1e-7,step=a/nG) # real space grid
-kvec = range(-ΔG*(1/2-1/nk),stop=ΔG/2+0.000001,length=nk) # BZ1 discretization ∈ (-2π/a,2π/a)
+x = range(0,a-1e-7,step=a/nG) # real space grid
+kvec = range(-ΔG*(1/2-1/nk),ΔG/2+0.000001,length=nk) # BZ1 discretization ∈ (-2π/a,2π/a)
 Gtmp = 0:1:(nG-1)
 G = @. (mod(Gtmp + nG/2,nG)-nG/2)*ΔG
 

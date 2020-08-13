@@ -23,7 +23,7 @@ U = U_eV*e
 
 f(ζ) = (1-2*ζ)/(2*√(ζ*(ζ-1)))*sin(a*α₀*√(ζ)) *sin(b*α₀*√(ζ-1)) +cos(a*α₀*√(ζ))*cos(b*α₀*√(ζ-1))
 
-ζ = range(0.1, stop=10.0, length=100000)
+ζ = range(0.1, 10.0, length=100000)
 ζ = Array{Complex,1}(ζ)
 fζ = f.(ζ)
 fζ[isnan.(fζ)] .= 1

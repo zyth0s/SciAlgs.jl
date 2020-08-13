@@ -11,8 +11,8 @@ Nk = 100
 Nϵ = 100
 
 ϵmin, ϵmax = -2,2
-kmesh = range(-π,stop=π,length=Nk)
-ϵmesh = range(ϵmin,stop=ϵmax,length=Nϵ)
+kmesh = range(-π,π,length=Nk)
+ϵmesh = range(ϵmin,ϵmax,length=Nϵ)
 
 ε(k) = [k,-k] # crossing levels
 
@@ -54,7 +54,7 @@ plot(kmesh,ε.(kmesh),lw=0.1,color="k", label=[L"ϵ_1", L"ϵ_2"])
 
 subplot(122) # 1rows 2cols 2nd plot
 # N(ϵ) = 1/π ∫ A(k,ϵ) dk
-_kmesh = range(-π,stop=π,length=6Nk) # NOTE: fine grid needed
+_kmesh = range(-π,π,length=6Nk) # NOTE: fine grid needed
 pdos11 = (1/π)*sum([A(k,ϵ)[1,1] for ϵ in ϵmesh, k in _kmesh],dims=2)/Nk * 2
 #pdos22 = (1/π)*sum([A(k,ϵ)[2,2] for ϵ in ϵmesh, k in _kmesh],dims=2)/Nk * 2
 xlabel(L"N(ϵ)")

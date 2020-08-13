@@ -125,7 +125,7 @@ magnetization(groundstate,basis) ≈ 0.2748106008973601
 
 using PyPlot
 
-hs = 10 .^ range(-2., stop=2., length=10)
+hs = 10 .^ range(-2.0, 2.0, length=10)
 Ns = 2:10
 xlabel("h")
 ylabel("M(h)")
