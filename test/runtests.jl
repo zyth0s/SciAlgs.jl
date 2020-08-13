@@ -1,6 +1,10 @@
 using Test
 
 include("test_car2int.jl")
+
+# ElStruct
+include("test_mcmurchie_davidson.jl")
+
 # NumQuad
 include("test_gauss_legendre.jl")
 include("test_clenshaw_curtis.jl")
