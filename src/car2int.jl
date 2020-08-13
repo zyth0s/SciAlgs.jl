@@ -15,7 +15,14 @@ import LinearAlgebra: norm
 #*   on input xyz    = cartesian array of numat atoms                            
 #*                                                                               
 #***********************************************************************         
-function xyzint(xyz,numat,geo)
+function xyzint(xyz)
+
+   numat = size(xyz,2)
+   na = zeros(Int,size(xyz)[2])
+   nb = zeros(Int,size(xyz)[2])
+   nc = zeros(Int,size(xyz)[2])
+   geo = zeros(3,size(xyz)[2])
+
    #nai1 = 0
    #nai2 = 0
    k = 0
@@ -29,9 +36,9 @@ function xyzint(xyz,numat,geo)
       end
       sum = 100.0
       for j in 1:im1
-         R = (xyz[1,i] - xyz[1,j])^2
-           + (xyz[2,i] - xyz[2,j])^2
-           + (xyz[3,i] - xyz[3,j])^2
+         R = (xyz[1,i] - xyz[1,j])^2 +
+             (xyz[2,i] - xyz[2,j])^2 +
+             (xyz[3,i] - xyz[3,j])^2
          R = norm(xyz[:,i]-xyz[:,j])
          if R < sum && na[j] != j && nb[j] != j
             sum = R
@@ -116,6 +123,7 @@ end
 #*                                                                               
 #*********************************************************************           
 function bangle(xyz,i,j,k)
+
    d2ij = (xyz[1,i]-xyz[1,j])^2+
           (xyz[2,i]-xyz[2,j])^2+
           (xyz[3,i]-xyz[3,j])^2
@@ -147,17 +155,18 @@ end
 #*                                                                    
 #*********************************************************************
 function dihedral(xyz,i,j,k,l)
-      xi1=xyz[1,i]-xyz[1,k]                                                     
-      xj1=xyz[1,j]-xyz[1,k]                                                     
-      xl1=xyz[1,l]-xyz[1,k]                                                     
-      yi1=xyz[2,i]-xyz[2,k]                                                     
-      yj1=xyz[2,j]-xyz[2,k]                                                     
-      yl1=xyz[2,l]-xyz[2,k]                                                     
-      zi1=xyz[3,i]-xyz[3,k]                                                     
-      zj1=xyz[3,j]-xyz[3,k]                                                     
-      zl1=xyz[3,l]-xyz[3,k]                                                     
+
+      xi1 = xyz[1,i] - xyz[1,k]                                                     
+      xj1 = xyz[1,j] - xyz[1,k]                                                     
+      xl1 = xyz[1,l] - xyz[1,k]                                                     
+      yi1 = xyz[2,i] - xyz[2,k]                                                     
+      yj1 = xyz[2,j] - xyz[2,k]                                                     
+      yl1 = xyz[2,l] - xyz[2,k]                                                     
+      zi1 = xyz[3,i] - xyz[3,k]                                                     
+      zj1 = xyz[3,j] - xyz[3,k]                                                     
+      zl1 = xyz[3,l] - xyz[3,k]                                                     
       # rotate around z axis to put kj along y axis                              
-      dist= sqrt(xj1^2+yj1^2+zj1^2)                                          
+      dist= sqrt(xj1^2 + yj1^2 + zj1^2)                                          
       cosa=zj1/dist                                                             
       if cosa > 1.0
          cosa=1.0                                              
@@ -212,54 +221,52 @@ end
 #*          and (b1,b2).  the result is put in rcos.                             
 #*                                                                               
 #**********************************************************************          
-function dangle(a1,a2,b1,b2)
+function dangle(a1, a2, b1, b2)
+
    if abs(a1) < 1e-6 && abs(a2) < 1e-6
       return 0.0                        
    end
    if abs(b1) < 1e-6 && abs(b2) < 1e-6
       return 0.0                        
    end
-   anorm=1.0/ sqrt(a1^2+a2^2)                                            
-   bnorm=1.0/ sqrt(b1^2+b2^2)                                            
-   a1=a1*anorm                                                               
-   a2=a2*anorm                                                               
-   b1=b1*bnorm                                                               
-   b2=b2*bnorm                                                               
-   sinth=(a1*b2)-(a2*b1)                                                     
-   costh=a1*b1+a2*b2                                                         
+   anorm=1.0/ sqrt(a1^2 + a2^2)                                            
+   bnorm=1.0/ sqrt(b1^2 + b2^2)                                            
+   a1 = a1 * anorm
+   a2 = a2 * anorm
+   b1 = b1 * bnorm
+   b2 = b2 * bnorm
+   sinth = (a1*b2) - (a2*b1)                                                     
+   costh = a1*b1 + a2*b2                                                         
    if costh > 1.0
-      costh=1.0
+      costh = 1.0
    end
    if costh < -1.0
-      costh=-1.0
+      costh = -1.0
    end
    rcos= acos(costh)                                                         
    if  abs(rcos) < 4.0e-4
       return 0.0                                         
    end
    if sinth > 0.0
-      rcos=6.2831853-rcos                                   
+      rcos = 6.2831853 - rcos
    end
-   rcos=-rcos                                                                
+   rcos = -rcos
 end
 
 # Example
-xyz = zeros(3,8)
-xyz[:,1] = [ 0.77389  -0.01480 -0.00796]
-xyz[:,2] = [-0.77389   0.01480 -0.00796]
-xyz[:,3] = [-1.18197  -0.85433 -0.51417]
-xyz[:,4] = [-1.14844   0.89890 -0.51417]
-xyz[:,5] = [-1.16521   0.02228  1.00446]
-xyz[:,6] = [ 1.18197   0.85433 -0.51417]
-xyz[:,7] = [ 1.14844  -0.89890 -0.51417]
-xyz[:,8] = [ 1.16521  -0.02228  1.00446]
-elnames = ["C","C","H","H","H","H","H","H"]
-numat=size(xyz,2)
-na = zeros(Int,size(xyz)[2])
-nb = zeros(Int,size(xyz)[2])
-nc = zeros(Int,size(xyz)[2])
-geo = zeros(3,size(xyz)[2])
+if isinteractive()
+   xyz = zeros(3,8)
+   xyz[:,1] = [ 0.77389  -0.01480 -0.00796]
+   xyz[:,2] = [-0.77389   0.01480 -0.00796]
+   xyz[:,3] = [-1.18197  -0.85433 -0.51417]
+   xyz[:,4] = [-1.14844   0.89890 -0.51417]
+   xyz[:,5] = [-1.16521   0.02228  1.00446]
+   xyz[:,6] = [ 1.18197   0.85433 -0.51417]
+   xyz[:,7] = [ 1.14844  -0.89890 -0.51417]
+   xyz[:,8] = [ 1.16521  -0.02228  1.00446]
+   elnames = ["C","C","H","H","H","H","H","H"]
 
-geo, na, nb, nc = xyzint(xyz,numat,geo)
+   geo, na, nb, nc = xyzint(xyz)
 
-zmat = hcat(elnames,na,geo[1,:],nb,geo[2,:],nc,geo[3,:])
+   zmat = hcat(elnames,na,geo[1,:],nb,geo[2,:],nc,geo[3,:])
+end
