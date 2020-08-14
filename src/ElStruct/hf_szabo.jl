@@ -3,7 +3,7 @@
 # Modern Quantum Chemistry: Introduction to Advanced Electronic Structure Theory by Szabo-Ostlund
 # Appendix A and §3.5
 
-using Printf
+using Formatting: printfmt
 using SpecialFunctions
 using LinearAlgebra
 
@@ -63,7 +63,7 @@ function overlap_integral(g1::Gaussian1s, g2::Gaussian1s)
     Rb = g2.center
 
     #normalization constant
-    n = (2*α/π)^(3/4) * (2*β/π)^(3/4)
+    n = (2α/π)^(3/4) * (2β/π)^(3/4)
 
     S  = n * (π/(α+β))^(3/2) 
     S *= exp(-α*β/(α+β) * abs(Ra-Rb)^2)
@@ -85,8 +85,8 @@ function nuclear_attraction_integral(Zc::Int, Rc::Float64, g1::Gaussian1s, g2::G
     Rb = g2.center
     Rp = (α*Ra + β*Rb)/(α + β)
 
-    n = (2*α/π)^(3/4) * (2*β/π)^(3/4)
-    matrix_element  = n*-2*π/(α+β)*Zc
+    n = (2α/π)^(3/4) * (2β/π)^(3/4)
+    matrix_element  = n*-2π/(α+β)*Zc
     matrix_element *= exp(-α*β/(α+β)*abs(Ra-Rb)^2)
 
     t = (α+β)*abs(Rp-Rc)^2
@@ -94,7 +94,7 @@ function nuclear_attraction_integral(Zc::Int, Rc::Float64, g1::Gaussian1s, g2::G
         return matrix_element
     end
 
-    matrix_element *= 0.5 * sqrt(π/t) * erf(sqrt(t))
+    matrix_element *= 0.5sqrt(π/t) * erf(sqrt(t))
     return matrix_element
 end
 
@@ -108,10 +108,10 @@ function kinetic_energy_integral(g1::Gaussian1s, g2::Gaussian1s)
     Ra = g1.center
     Rb = g2.center
 
-    n = (2*α/π)^(3/4) * (2*β/π)^(3/4)
+    n = (2α/π)^(3/4) * (2β/π)^(3/4)
 
     matrix_element  = n * α*β/(α+β)
-    matrix_element *= (3-2*α*β/((α+β)/abs(Ra-Rb)^2 )) 
+    matrix_element *= (3-2α*β/((α+β)/abs(Ra-Rb)^2 )) 
     matrix_element *= (π/(α+β))^(3/2)
     matrix_element *= exp(-α*β/(α+β) * abs(Ra-Rb)^2)
 end
@@ -133,10 +133,10 @@ function two_electron_integral(g1::Gaussian1s, g2::Gaussian1s, g3::Gaussian1s,
     Rp = (α*Ra + β*Rb)/(α + β)
     Rq = (γ*Rc + δ*Rd)/(γ + δ)
 
-    n  = (2*α/π)^(3/4) * (2*β/π)^(3/4)
-    n *= (2*γ/π)^(3/4) * (2*δ/π)^(3/4)
+    n  = (2α/π)^(3/4) * (2β/π)^(3/4)
+    n *= (2γ/π)^(3/4) * (2δ/π)^(3/4)
 
-    matrix_element  = n*2*π^(5/2)
+    matrix_element  = 2n*π^(5/2)
     matrix_element /= ((α+β)*(γ+δ)*sqrt(α+β+γ+δ))
     matrix_element *= exp(-α*β/(α+β)*abs(Ra-Rb)^2 - γ*δ/(γ+δ)*abs(Rc-Rd)^2)
     t = (α+β)*(γ+δ)/(α+β+γ+δ)*abs(Rp-Rq)^2
@@ -144,7 +144,7 @@ function two_electron_integral(g1::Gaussian1s, g2::Gaussian1s, g3::Gaussian1s,
         return matrix_element
     end
 
-    matrix_element *= 0.5 * sqrt(π/t) * erf(sqrt(t))
+    matrix_element *= 0.5sqrt(π/t) * erf(sqrt(t))
     return matrix_element
 end
 
@@ -187,14 +187,12 @@ function hartree_fock(R, Z)
     #calculate the overlap matrix S
     #the matrix should be symmetric with diagonal entries equal to one
     #println("building overlap matrix")
-    #S = eye(length(ϕ))
-    S = Matrix{Float64}(I,length(ϕ),length(ϕ))
+    S = Matrix{Float64}(I(length(ϕ))) # eye
     for i = 1:length(ϕ)
         for j = (i+1):length(ϕ)
             S[i,j] = S[j,i] = overlap_integral(ϕ[i], ϕ[j])
         end
     end
-    #println("S: ", S)
 
     #calculate the kinetic energy matrix T
     #println("building kinetic energy matrix")
@@ -204,7 +202,6 @@ function hartree_fock(R, Z)
             T[i,j] = T[j,i] = kinetic_energy_integral(ϕ[i], ϕ[j])
         end
     end
-    #println("T: ", T)
 
     #calculate nuclear attraction matrices V_i
     #println("building nuclear attraction matrices")
@@ -220,22 +217,17 @@ function hartree_fock(R, Z)
             end
         end
     end
-    #println("V: ", V)
 
     #build core-Hamiltonian matrix
     #println("building core-Hamiltonian matrix")
     Hcore = T + V
 
-    #println("Hcore: ", Hcore)
-
     #diagonalize overlap matrix to get transformation matrix X
     #println("diagonalizing overlap matrix")
     s, U = eigen(S)
     #println("building transformation matrix")
-    #X = U*diagm(s.^(-1/2))*U'
-    X = U*diagm( 0 => s.^(-1/2))*U'
-    #println("X: ", X)
-
+    #X = U*diagm( 0 => s.^(-1/2))*U'
+    X = U * Diagonal(s.^(-1/2)) * U'
 
     #calculate all of the two-electron integrals
     K = length(ϕ)
@@ -244,9 +236,7 @@ function hartree_fock(R, Z)
     for μ in 1:K, ν in 1:K, λ in 1:K, σ in 1:K
         coulomb  = two_electron_integral(ϕ[μ], ϕ[ν], ϕ[σ], ϕ[λ])
         two_electron[μ,ν,σ,λ] = coulomb
-        #println("coulomb  ($μ $ν | $σ $λ): $coulomb")
         exchange = two_electron_integral(ϕ[μ], ϕ[λ], ϕ[σ], ϕ[ν])
-        #println("exchange ($μ $λ | $σ $ν): $exchange")
         two_electron[μ,λ,σ,ν] = exchange
     end
 
@@ -256,7 +246,7 @@ function hartree_fock(R, Z)
     old_energy = 0.0
     electronic_energy = 0.0
 
-    @printf("%4s %13s de\n", "iter", "total energy")
+    printfmt("{:4s} {:13s} ΔE\n", "iter", "total energy")
     for scf_iter = 1:100
         #calculate the two electron part of the Fock matrix
         G = zeros(size(Hcore))
@@ -265,10 +255,9 @@ function hartree_fock(R, Z)
         for μ = 1:K, ν = 1:K, λ = 1:K, σ = 1:K
             coulomb  = two_electron[μ,ν,σ,λ]
             exchange = two_electron[μ,λ,σ,ν]
-            G[μ,ν] += P[λ,σ]*(coulomb - 0.5*exchange)
+            G[μ,ν] += P[λ,σ]*(coulomb - 0.5exchange)
         end
 
-        #println("G: ", G)
         F = Hcore + G
 
         nuclear_energy = 0.0
@@ -277,61 +266,26 @@ function hartree_fock(R, Z)
                 nuclear_energy += Z[A]*Z[B]/abs(R[A]-R[B])
             end
         end
-        #println("E_nclr: $nuclear_energy")
 
-        electronic_energy = dot(P,Hcore+F) * 0.5
-        #electronic_energy = 0.0
-        #for μ = 1:length(ϕ)
-        #    for ν = 1:length(ϕ)
-        #        electronic_energy += P[ν,μ]*(Hcore[μ,ν]+F[μ,ν])
-        #    end
-        #end
-        #electronic_energy *= 0.5
-        #println("E_elec: $electronic_energy")
+        electronic_energy = 0.5dot(P,Hcore+F)
         total_energy = electronic_energy + nuclear_energy
-        @printf("%3i %12.8f %12.4e\n", scf_iter, total_energy, 
+        printfmt("{:3d} {:12.8f} {:12.4e}\n", scf_iter, total_energy, 
                total_energy - old_energy)
 
         if scf_iter > 2 && abs(old_energy - total_energy) < 1e-6
             break 
         end
 
-        #println("F: ", F)
         Fprime = X' * F * X
-        #println("F': $Fprime")
         epsilon, Cprime = eigen(Fprime)
-        #println("epsilon: ", epsilon)
-        #println("C': ", Cprime)
         C = real(X*Cprime)
-        #println("C: ", C)
 
-        #P = zeros(size(Hcore))
-        #for μ = 1:length(ϕ)
-        #    for ν = 1:length(ϕ)
-        #        P[μ,ν] = 2*C[μ,1]*C[ν,1]
-        #    end
-        #end
-        P = 2*C[:,1]*C[:,1]'
-        #println("P: ", P)
+        P = 2C[:,1] * C[:,1]' # projector over occupied space
 
         old_energy = total_energy
     end
 
     return total_energy, electronic_energy
-end
-
-function test_h2()
-    println("TESTING H2")
-    total_energy, electronic_energy = hartree_fock([0., 1.4], [1, 1])
-    szabo_energy = -1.8310
-    isapprox(electronic_energy,szabo_energy,atol=1e-4) || error("TEST FAILED")
-end
-
-function test_heh()
-    println("TESTING HEH+")
-    total_energy, electronic_energy = hartree_fock([0., 1.4632], [2, 1])
-    szabo_energy = -4.227529
-    isapprox(electronic_energy,szabo_energy,atol=1e-6) || error("TEST FAILED")
 end
 
 function heh_pes()
@@ -347,12 +301,8 @@ function heh_pes()
     plot(range(0.7,3.5,length=25),energy, xaxis="Distance [Bohr]",yaxis="Energy [Ha]")
 end
 
-function tests()
-    test_h2()
-    test_heh()
+if isinteractive()
+   using Plots
+   heh_pes()
 end
-
-using Plots
-tests()
-heh_pes()
 

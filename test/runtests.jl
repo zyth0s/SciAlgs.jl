@@ -4,6 +4,7 @@ include("test_car2int.jl")
 
 # ElStruct
 include("test_mcmurchie_davidson.jl")
+include("test_hf_szabo.jl")
 
 # NumQuad
 include("test_gauss_legendre.jl")

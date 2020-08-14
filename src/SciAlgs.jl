@@ -6,5 +6,6 @@ include("./Xtal/Xtal.jl")
 include("./NumQuad/NumQuad.jl")
 include("./Algorithms_from_THE_BOOK/TheBook.jl")
 include("./ElStruct/McMurchieDavidson.jl")
+include("./ElStruct/hf_szabo.jl")
 
 end # module
