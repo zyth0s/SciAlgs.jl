@@ -1,0 +1,20 @@
+
+[section_basis]
+type = "gto"
+scheme = "McMurchie-Davidson"
+
+[section_hf]
+etol = 1e-6
+dtol = 1e-8
+diis = "ediis"
+df = false
+symm = "C3v"
+
+[section_mp2]
+ao2mo_alg = "contracted"
+
+[section_bonding]
+e_decomp = true
+
+
+
