@@ -17,9 +17,3 @@ function binary_search(x::Vector, value)
   end     
   0
 end
-
-x = ['a', 'b', 'd', 'f', 'g']
-println(binary_search(x, 'f'))
-x = [1, 2, 4, 7, 9]
-println(binary_search(x, 3))
-
