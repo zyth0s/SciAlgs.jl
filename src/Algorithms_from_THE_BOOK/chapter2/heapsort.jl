@@ -1,7 +1,7 @@
 # Author: Kenneth Lange @ University of California, Los Angeles 
 
 """Sorts the input list x from least to greatest by heapsort."""
-function heapsort(x::Vector)
+function heapsort!(x::Vector)
   n = length(x)
   for parent = div(n, 2):-1:1 # form the heap
     siftdown(x, parent, n)
@@ -31,11 +31,3 @@ function siftdown(x::Vector, parent::Int, bottom::Int)
   x[div(child, 2)] = parent_value
   nothing
 end
-
-x = [5, 4, 3, 1, 2, 8, 7, 6, -1]
-heapsort(x)
-println(x)
-x = ['a', 'c', 'd', 'b', 'f', 'e', 'h', 'g', 'y']
-heapsort(x)
-println(x)
-
