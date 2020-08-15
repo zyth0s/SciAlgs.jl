@@ -2,7 +2,7 @@
 
 """Finds the kth order statistic of a list x by the quick select 
 method. The original x is destroyed in the process."""
-function quickselect(x::Vector, k::Int, left = 1, right = length(x))
+function quickselect!(x::Vector, k::Int, left = 1, right = length(x))
   i = rand(left:right) # select a random splitting value
   split = x[i]
   x[left], x[i] = split, x[left]
@@ -18,18 +18,9 @@ function quickselect(x::Vector, k::Int, left = 1, right = length(x))
   if k == j
     y = x[i]
   elseif k < j
-    y = quickselect(x, k, left, i - 1)
+    y = quickselect!(x, k, left, i - 1)
   else
-    y = quickselect(x, k - j, i + 1, right)
+    y = quickselect!(x, k - j, i + 1, right)
   end
   y
 end 
-
-k = 8
-x = [5, 4, 3, 1, 2, 8, 7, 6]
-xk = quickselect(x, k)
-k = 5
-x = ['a', 'c', 'd', 'b', 'f', 'e', 'h', 'g']
-xk = quickselect(x, k)
-
-
