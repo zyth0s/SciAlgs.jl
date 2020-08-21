@@ -9,7 +9,7 @@ SciAlgs is a compilation of fundamental scientific algorithms.  This collection
 does not intended to be exhaustive but to offer clear and concise
 implementations.
 
-## Why Julia? See the respective [Wiki entry](https://github.com/zyth0s/SciAlgs.jl/wiki/Why-Julia%3F)
+## [Why Julia?](https://github.com/zyth0s/SciAlgs.jl/wiki/Why-Julia%3F)
 
 ## Purpose
 
