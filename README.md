@@ -9,50 +9,7 @@ SciAlgs is a compilation of fundamental scientific algorithms.  This collection
 does not intended to be exhaustive but to offer clear and concise
 implementations.
 
-## Why Julia?
-
-A disgression of the reasons for choosing Julia follows.
-
-Translating formulas to code is a non trivial task. This process was first
-addressed by Fortran (that is, Formula translator) with great success, and thus
-Fortran has found widespread application until nowadays. However, some of its
-characteristics (i.e. being not interactive, its low-level string manipulation,
-the lack of a standard library, coexistence with legacy code) combined with
-often seen bad programming practices, make it less attractive to young
-scientists and professional programmers.
-
-The trend during the last decades has been to start new scientific projects in
-C++.  However, C++ poses serious challenges for researchers. The language lacks
-ready to use functionalities that are a basic requirement to any numerical
-project: a competent linear algebra standard library, for example. A
-computational scientist does, generally, not need to be exposed to the
-complexity that C++ exhibits.  C++ is good for highly trained programmer teams,
-but scientists are often involved in solo projects, and computer science is not
-their main expertise area. Undefined behaviour and unsafe memory operations are
-highly undesirable and conflict with the main goal: numerical correctness.
-Writing performant C++ code is not straightforward.  Generic algorithms are
-difficult to write, read and understand.  Adding external dependencies means
-trouble.  In particular - with Fortran too -,  both the compilation/execution
-process and the verbosity of the language slow down the implementation of
-algorithms and distract the programmer from scientific toward technical
-questions. Also, compilation times can take several minutes.
-
-Interactive and modern languages allow a more agile development and a more
-concise implementation of algorithms.  For instance, Matlab has such
-functionality but it is not open source. On the other hand, Octave offers
-similar capabilties but it is too focused on array handling like Matlab, with
-less attention to other general purpose programming tasks and the developement
-of new packages has stagnated.  Python has been the alternative but numerical
-arrays are not first class objects in the language and optimization usually
-lends to rewriting code in other language.
-
-Julia offers an easy and natural array language like Fortran (no need of extra
-libraries to handle numerical arrays; same 1 index convention) whereas it also
-includes modern programming language capabilities.
-
-Ideally, the implementation would be in only one language (here Julia). In case
-that a routine is not fast enough, the kernel could be written in Fortran
-(0-indexation in C could be a source of trouble).
+## Why Julia? See the respective [Wiki entry](https://github.com/zyth0s/SciAlgs.jl/wiki/Why-Julia%3F)
 
 ## Purpose
 
