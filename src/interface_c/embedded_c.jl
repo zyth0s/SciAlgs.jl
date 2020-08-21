@@ -1,6 +1,7 @@
 
 # Taken from https://nbviewer.jupyter.org/github/mfherbst/course_julia_day/blob/master/07_Other_Language_Features.ipynb
 
+# C code string
 code = """
 double sum_array(double* array, int n) {
     double accu = 0.0;
@@ -11,12 +12,29 @@ double sum_array(double* array, int n) {
 }
 """;
 
+# save it to a file
 open("sums.c", "w") do f
     write(f, code)
 end
+# compile it
 run(`cc -shared -o libsums.so sums.c`)
 rm("sums.c")
 
-v = [1.0, 2.0, 3.0]
-res = ccall((:sum_array, "libsums.so"), Cdouble,
-            (Ptr{Cdouble}, Cint), v, length(v))
+# Test
+
+@static if VERSION >= v"1.5.0"
+
+   v = [1.0, 2.0, 3.0]
+
+   const libsums = "libsums.so"
+   res = @ccall libsums.sum_array(v::Ptr{Cdouble}, length(v)::Cint)::Cdouble
+
+   @assert res ≈ 6
+else
+
+   v = [1.0, 2.0, 3.0]
+
+   res = ccall((:sum_array, "libsums.so"), Cdouble,
+               (Ptr{Cdouble}, Cint), v, length(v))
+   @assert res ≈ 6
+end
