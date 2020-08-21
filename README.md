@@ -88,6 +88,7 @@ Algorithms
     + [x] Multiexp quadrature
           [J. Comput. Chem. 24 (2003) 732-740](https://www.onlinelibrary.wiley.com/doi/abs/10.1002/jcc.10211)
     + [x] Maxwell quadrature
+    + [x] Lebedev-Laikov sphere quadrature.
 * Quantum Mechanics [QM]
   - [x] Finite difference solution of 1D single particle Schrödinger equation with
           (i) infinite potential well
