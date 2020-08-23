@@ -1,7 +1,8 @@
 # Author: Kenneth Lange @ University of California, Los Angeles 
 
-""" Computes the roots of the quadratic a*x^2+b*x+c when |a|>0."""
+""" Computes the roots of the quadratic ax² + bx + c = 0 when |a| > 0."""
 function quadratic(a::T, b::T, c::T) where T <: Real
+  @assert abs(a) > zero(a)
   d = b^2 - 4a * c # discriminant
   if d > zero(T) 
     if b >= zero(T)
@@ -16,6 +17,6 @@ function quadratic(a::T, b::T, c::T) where T <: Real
   end
 end
 
-a, b, c = (1.0, -2.0, 1.0)
+a, b, c = 1.0, -2.0, 1.0
 r1, r2 = quadratic(a, b, c)
 
