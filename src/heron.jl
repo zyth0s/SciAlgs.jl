@@ -1,14 +1,13 @@
-#!/usr/bin/env julia
-#
+#!/usr/bin/env julia -q
 
-# Analysis of Heron's algorithm to
-# compute √x. 
+
+# Analysis of Heron's algorithm to compute √x.
 # Theory: "Numerical Analysis" by Ridley Scott
 
 using Formatting: printfmt
 
 function heron(x,y)
-  x = .5*(x + y/x)
+  x = 0.5*(x + y/x)
 end
 
 function errheron(x,y)
@@ -22,7 +21,7 @@ function errheron(x,y)
   end
 end
 
-x = 1. # Starting point
-y = 2.
+x = 1.0 # Starting point
+y = 2.0
 
 errheron(x,y)
