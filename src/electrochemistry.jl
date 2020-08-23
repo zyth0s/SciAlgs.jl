@@ -34,11 +34,11 @@ function linear_sweep_voltammogram()
   # Discretize x
   total_x = 0.1 # Maximum x value to simulate [cm]
   Δx = total_x/npts_x # x interval
-  x = range(0,stop=total_x,length=npts_x)
+  x = range(0,total_x,length=npts_x)
   # Discretize t
   total_t = abs(E_end - E_start)/(ν/1000) # Maximum t value to simulate (1 LSV)
   Δt = total_t/npts_t # Time interval
-  t = range(0, stop = total_t,length=npts_t)
+  t = range(0, total_t,length=npts_t)
   # Set uniform concentration along discretized x
   cox_x     = fill(c_ox, npts_x,npts_t)
   cred_x    = fill(c_red, npts_x,npts_t)
@@ -255,9 +255,9 @@ function linear_sweep_voltammogram_lifelike()
   f = F/R/T/1000
   # f: an auxialiary quantity
   # definition of the array to be searched for the true kinetic overvoltage
-  etac = range(-910,stop=0,step=1) #[-910:1:0]
+  etac = range(-910,0,step=1) #[-910:1:0]
   # definition of the array of scanned potentiodynamic voltages
-  escan = range(-910,stop=-10,step=1)
+  escan = range(-910,-10,step=1)
 
   amark   = zeros(length(escan))
   ainmark = zeros(length(escan))
