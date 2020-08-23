@@ -7,7 +7,7 @@
 # r: correlation factor ∈ [-1,1]
 
 function lsq_fit(x,y)
-   @assert length(x) == length(y)
+   length(x) == length(y) || throw(ArgumentError("Different number of x and y values!"))
    N   = length(x) 
    ∑x  = sum(x)
    ∑y  = sum(y)
