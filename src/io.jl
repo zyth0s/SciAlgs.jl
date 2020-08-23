@@ -26,8 +26,6 @@ end
 
 function fetch_basis(basis_name,atlist)
    r = HTTP.request("GET","http://basissetexchange.org/api/basis/" * basis_name * "/format/json",query=Dict("elements" => atlist))
-   if r.status != 200
-     error("Could not obtain data from the BSE. Check the error information above")
-   end
+   r.status == 200 || error("Could not obtain data from the BSE. Check the error information above")
    JSON.parse(String(r.body))
 end
