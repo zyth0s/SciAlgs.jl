@@ -1,6 +1,7 @@
 module SciAlgs
 
 include("car2int.jl")
+include("io.jl")
 
 include("./Xtal/Xtal.jl")
 include("./NumQuad/NumQuad.jl")
