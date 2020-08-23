@@ -1,11 +1,14 @@
 
+import HTTP
+import JSON
+
 function read_xyz_file(filename;units="Å")
    # Read a molecule from a file with XYZ format.
    # Units are in Å.
    file = open(filename)
-   natoms = parse(Int64,readline(file))
-   readline(file) # Title
-   atlist = []
+   natoms = parse(Int64,readline(file)) # 1st line
+   readline(file)                       # 2nd line: Title
+   atlist = String[]
    xyz = zeros(natoms,3)
    for i in 1:natoms
       ln = split(readline(file)) 
@@ -19,4 +22,12 @@ function read_xyz_file(filename;units="Å")
       error("Wrong specified units")
    end
    atlist, xyz
+end
+
+function fetch_basis(basis_name,atlist)
+   r = HTTP.request("GET","http://basissetexchange.org/api/basis/" * basis_name * "/format/json",query=Dict("elements" => atlist))
+   if r.status != 200
+     error("Could not obtain data from the BSE. Check the error information above")
+   end
+   JSON.parse(String(r.body))
 end
