@@ -23,7 +23,7 @@ function dirichlet(X::Matrix{T}) where T <: Real
 end 
 
 n, p = 1000, 3
-lambda = 5 * rand(p)
+lambda = 5rand(p)
 X = rand(Dirichlet(lambda), n)
 lambda = fit_mle(Dirichlet, X)
 println("Package estimated parameters = ",lambda)

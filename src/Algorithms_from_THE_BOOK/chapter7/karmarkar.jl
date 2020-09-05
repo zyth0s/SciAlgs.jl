@@ -2,7 +2,7 @@
 
 using LinearAlgebra
 
-"""Implements Karmarker's method of linear programming with the Dinklebach
+"""Implements Karmarkar's method of linear programming with the Dinklebach
 maneuver.  The program should enter in standard form"""
 function karmarkar(A::Matrix{T}, b::Vector{T}, c::Vector{T}, 
   x::Vector{T}) where T <: Real
