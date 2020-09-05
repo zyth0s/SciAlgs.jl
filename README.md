@@ -175,4 +175,6 @@ Algorithms
   - [x] Examples of Fortran interfaces
   - [x] Examples of C interfaces
   - [x] Import Python modules
+* Util
+  - [x] Validate Spanish DNI digits.
 
