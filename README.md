@@ -177,4 +177,5 @@ Algorithms
   - [x] Import Python modules
 * Util
   - [x] Validate Spanish DNI digits.
+  - [x] Validate ISBN.
 

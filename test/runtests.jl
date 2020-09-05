@@ -3,6 +3,7 @@ using Test
 include("test_car2int.jl")
 include("test_io.jl")
 include("test_validate_dni.jl")
+include("test_validate_isbn.jl")
 
 # ElStruct
 include("test_mcmurchie_davidson.jl")
