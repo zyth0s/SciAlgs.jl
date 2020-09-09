@@ -60,9 +60,3 @@ function inverse(A::Matrix{T}) where T <: Real
   end
   C
 end
-
-n = 100
-A = randn(n, n)
-Asave = copy(A)
-C = inverse(A)
-norm(Asave * C - I, 2)
