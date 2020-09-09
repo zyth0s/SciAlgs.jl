@@ -1,6 +1,6 @@
 # Author: Kenneth Lange @ University of California, Los Angeles 
 
-using LinearAlgebra
+using LinearAlgebra: norm, dot
 
 """Finds the QR decomposition of X. X should have more rows 
 than columns."""
@@ -33,9 +33,3 @@ function least_squares(X::Matrix{T}, y::Vector{T}) where T <: Real
   end
   beta
 end
-
-n, p = 100, 20
-X = randn(n, p)
-y = randn(n)
-beta = least_squares(X, y)
-norm(beta - X \ y)
