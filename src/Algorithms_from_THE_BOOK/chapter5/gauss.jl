@@ -1,7 +1,5 @@
 # Author: Kenneth Lange @ University of California, Los Angeles 
 
-using LinearAlgebra
-
 """Overwrites the LU decomposition of A in A. Partial pivoting
 is performed to enhance numerical stability."""
 function LUdecomposition(A::Matrix{T}) where T <: Real
