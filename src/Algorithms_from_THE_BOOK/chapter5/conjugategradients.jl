@@ -1,13 +1,13 @@
 # Author: Kenneth Lange @ University of California, Los Angeles 
 
-using LinearAlgebra, SparseArrays
+using LinearAlgebra: norm, dot
 
 """ Solves the equation A*x = b by the conjugate gradient method. 
 The matrix A is assumed positive definite; tol is tolerance for 
 testing convergence."""
 function conjugategradients(A::AbstractMatrix{T}, b::Vector{T}, 
   tol::T) where T <: Real
-#
+
   n = size(A, 1)
   if n == 1
     return b / A[1, 1]
@@ -35,12 +35,3 @@ function conjugategradients(A::AbstractMatrix{T}, b::Vector{T},
     return x
   end
 end
-
-n, tol = 100, 1e-5
-A = sprandn(n, n, .01)
-rho = opnorm(A, 1)
-A = 0.5 * (A + A') + rho * I
-x = randn(n)
-b = A * x
-y = conjugategradients(A, b, tol)
-norm(x - y)
