@@ -18,3 +18,23 @@ using SciAlgs.McMurchieDavidson: BasisFunction, normalize_basis!,
    @test ERI(a,a,a,a)         ≈ 0.7746059439198977 #|| error("Wrong eri")
 end
 
+using SciAlgs.McMurchieDavidson: twoe_iterator, _twoe_iterator
+
+@testset "Two-electron symmetric 4-tensor indices iterator" begin
+
+   for nbasis in 1:5
+      # Allocation free
+      n = 0
+      for (i,j,k,l) in twoe_iterator(nbasis)
+         n += 1
+      end
+      @test n == length(twoe_iterator(nbasis))
+
+      # Allocation intensive
+      _n = 0
+      for (i,j,k,l) in _twoe_iterator(rand(nbasis))
+         _n += 1
+      end
+      @test n == _n
+   end
+end

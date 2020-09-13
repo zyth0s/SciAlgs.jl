@@ -11,7 +11,7 @@ include("basis-set.jl")
 import .BasisSet: BasisFunction, normalize_basis!
 
 import LinearAlgebra: norm
-#import Combinatorics: binomial
+import Combinatorics: binomial
 import HypergeometricFunctions: drummond1F1
 
 function E(i,j,t,Qx,a,b)
@@ -188,6 +188,53 @@ function ERI(a,b,c,d)
    eri
 end
 
-# Tests ---------------------------------------------------------
+"""
+Iterator over unique indices of symmetric 4-tensor (e.g. two-electron repulsion integrals)
+"""
+struct twoe_iterator
+   nbasis::Int
+end
+
+# https://physics.stackexchange.com/questions/87467/number-of-2-electron-integrals
+Base.length(iter::twoe_iterator) = 3binomial(iter.nbasis,4) + 6binomial(iter.nbasis,3) + 4binomial(iter.nbasis,2) + binomial(iter.nbasis,1)
+
+""" Filter non-equivalent indices by symmetry from cartesian product """
+function Base.iterate(iter::twoe_iterator, state=((0, 0), (1, 1), (1, 1), (1, 1)))
+
+   it = Iterators.product(1:iter.nbasis, 1:iter.nbasis, 1:iter.nbasis, 1:iter.nbasis)
+   next = iterate(it, state)
+   while next != nothing
+      (i,j,k,l), state = next
+      if j ≤ i && l ≤ k
+         ij = i*(i+1)÷2 + j
+         kl = k*(k+1)÷2 + l
+         if ij >= kl
+            return (i,j,k,l), state
+         end
+      end
+      next = iterate(it, state)
+   end
+   nothing
+end
+
+function _twoe_iterator(bfs)
+   # https://physics.stackexchange.com/questions/87467/number-of-2-electron-integrals
+   nbasis = length(bfs)
+   nelem = 3binomial(nbasis,4) + 6binomial(nbasis,3) + 4binomial(nbasis,2) + binomial(nbasis,1)
+   list = Array{NTuple{4,Int64},1}(undef,nelem)
+   ind = 1
+   for i in eachindex(bfs), j in 1:i
+      ij = (i*(i+1)÷2 + j)
+      for k in eachindex(bfs), l in 1:k
+         kl = (k*(k+1)÷2 + l)
+         if ij >= kl
+            list[ind] = (i,j,k,l)
+            ind += 1
+         end
+      end
+   end
+   Iterators.Stateful(list)
+end
+
 
 end # module
