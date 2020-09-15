@@ -16,6 +16,7 @@ include("test_gauss_chebyshev1st.jl")
 include("test_gauss_chebyshev2nd.jl")
 include("test_euler_mclaurin.jl")
 include("test_trapezoidal.jl")
+include("test_lebedev_laikov.jl")
 
 # Algorithms from THE BOOK
 include("test_archimedes.jl")

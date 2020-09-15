@@ -1,6 +1,7 @@
 module SciAlgs
 
 include("car2int.jl")
+include("geometry.jl")
 include("io.jl")
 include("validate_dni.jl")
 include("validate_isbn.jl")

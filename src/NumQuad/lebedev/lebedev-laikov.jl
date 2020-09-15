@@ -1,18 +1,18 @@
 
 #using Libdl
-#push!(Libdl.DL_LOAD_PATH,pwd())
+#push!(Libdl.DL_LOAD_PATH, @__DIR__)
 
-# TODO: test it against: https://people.sc.fsu.edu/~jburkardt/datasets/sphere_lebedev_rule/sphere_lebedev_rule.html
+const LIBLEBEDEV    = joinpath(@__DIR__, "lebedev-laikov.so")
+LEBEDEVSOURCE = joinpath(@__DIR__, "lebedev-laikov.c")
+LEBEDEVHEADER = joinpath(@__DIR__, "lebedev-laikov.h")
 
 # Compile Lebedev-Laikov routine as a shared library
-if !isfile("lebedev-laikov.so") ||
-   mtime("lebedev-laikov.c") > mtime("lebedev-laikov.so") ||
-   mtime("lebedev-laikov.h") > mtime("lebedev-laikov.so")
+if !isfile(LIBLEBEDEV) ||
+   mtime(LEBEDEVSOURCE) > mtime(LIBLEBEDEV) ||
+   mtime(LEBEDEVHEADER) > mtime(LIBLEBEDEV)
 
-   run(`cc -shared -o lebedev-laikov.so lebedev-laikov.c`)
+   run(`cc -shared -o $LIBLEBEDEV $LEBEDEVSOURCE`)
 end
-
-const LIBLEBEDEV = "lebedev-laikov.so"
 
 function lebedev_laikov_wrapper(nang_pts::Int)
 
@@ -25,7 +25,6 @@ function lebedev_laikov_wrapper(nang_pts::Int)
    if valid_nang_pts != nang_pts 
       @debug "Number of angular grid points changed: $nang_pts -> $valid_nang_pts"
    end
-   check_nang_pts = 0
 
    @assert valid_nang_pts ∈ valid_orders
 
@@ -36,31 +35,30 @@ function lebedev_laikov_wrapper(nang_pts::Int)
 
    @static if VERSION >= v"1.5.0"
 
-      check_nang_pts =
-               @ccall LIBLEBEDEV.leb_order_routing(
-                  valid_nang_pts :: Int,
-                  x              :: Ref{Float64},
-                  y              :: Ref{Float64},
-                  z              :: Ref{Float64},
-                  weights        :: Ref{Float64}
-               )::Int
+      @ccall LIBLEBEDEV.ld_by_order(
+         valid_nang_pts :: Int,
+         x              :: Ref{Float64},
+         y              :: Ref{Float64},
+         z              :: Ref{Float64},
+         weights        :: Ref{Float64}
+      )::Cint
    else
 
-      check_nang_pts =
-         ccall((:leb_order_routing,"lebedev-laikov.so"),
-            Int,
-            (Int, Ref{Float64}, Ref{Float64}, Ref{Float64}, Ref{Float64}),
-            valid_nang_pts, x, y, z, weights)
+      ccall((:ld_by_order,"lebedev-laikov.so"),
+         Int,
+         (Int, Ref{Float64}, Ref{Float64}, Ref{Float64}, Ref{Float64}),
+         valid_nang_pts, x, y, z, weights)
    end
-   @assert check_nang_pts == valid_nang_pts
 
    @assert sum(weights) ≈ 1 # as a test?
 
-   x, y, z, weights
+   [x y z], weights
 end
 
-# Test
-n = 11 # not a valid order -> 6th order
-x,y,z,w = lebedev_laikov_wrapper(n)
-@info "$(length(w)) Lebedev-Laikov grid points" x' y' z' w'
-println()
+using SciAlgs: cart2spherical
+
+function lebedev_laikov_spherical(n)
+   points, weights = lebedev_laikov_wrapper(n)
+   θ, ϕ = cart2spherical(points)
+   θ, ϕ, weights
+end

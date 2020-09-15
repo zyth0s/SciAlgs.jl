@@ -27,4 +27,5 @@ include("multiexp.jl")
 # Other
 include("perez_jorda.jl")
 
+include("lebedev/lebedev-laikov.jl")
 end
