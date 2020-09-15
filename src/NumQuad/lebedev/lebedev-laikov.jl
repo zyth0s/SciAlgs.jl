@@ -44,7 +44,7 @@ function lebedev_laikov_wrapper(nang_pts::Int)
       )::Cint
    else
 
-      ccall((:ld_by_order,"lebedev-laikov.so"),
+      ccall((:ld_by_order, LIBLEBEDEV),
          Int,
          (Int, Ref{Float64}, Ref{Float64}, Ref{Float64}, Ref{Float64}),
          valid_nang_pts, x, y, z, weights)
