@@ -11,7 +11,7 @@ if !isfile(LIBLEBEDEV) ||
    mtime(LEBEDEVSOURCE) > mtime(LIBLEBEDEV) ||
    mtime(LEBEDEVHEADER) > mtime(LIBLEBEDEV)
 
-   run(`cc -shared -o $LIBLEBEDEV $LEBEDEVSOURCE`)
+   run(`gcc -shared -o $LIBLEBEDEV $LEBEDEVSOURCE`)
 end
 
 function lebedev_laikov_wrapper(nang_pts::Int)
