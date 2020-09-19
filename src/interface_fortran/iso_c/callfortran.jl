@@ -1,12 +1,15 @@
 
 # https://docs.julialang.org/en/v1/manual/calling-c-and-fortran-code/#Passing-Pointers-for-Modifying-Inputs-1
 
+# Must be out of if VERSION, otherwise => strange error
+const FORTLIB    = joinpath(@__DIR__, "fortranlib.so")
+const FORTSOURCE = joinpath(@__DIR__, "fortran_iso_c.f90")
+
+run(`gfortran -Wall -shared -O2 -fPIC -o $FORTLIB $FORTSOURCE`)
+
 # Fortran passes all the arguments by reference, so we have to
 # use references of the appropriate type.
 v = Ref{Clonglong}(2)
-
-# Must be out of if VERSION, otherwise => strange error
-const FORTLIB = joinpath(@__DIR__, "fortranlib.so")
 
 # We are calling a subroutine, so return type is
 # Void (for Fortran)  → Cvoid (via iso_c_binding) → Nothing (via Base.cconvert)

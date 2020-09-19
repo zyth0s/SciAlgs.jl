@@ -1,6 +1,9 @@
 
 # Must be out of if VERSION, otherwise => strange error
-const FORTLIB = joinpath(@__DIR__, "fortranlib.so")
+const FORTLIB    = joinpath(@__DIR__, "fortranlib.so")
+const FORTSOURCE = joinpath(@__DIR__, "fortrancode.f90")
+
+run(`gfortran -Wall -shared -O2 -fPIC -o $FORTLIB $FORTSOURCE`)
 
 @static if VERSION >= v"1.5.0" # nicer syntax
 
