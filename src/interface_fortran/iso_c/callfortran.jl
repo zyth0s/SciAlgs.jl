@@ -5,18 +5,20 @@
 # use references of the appropriate type.
 v = Ref{Clonglong}(2)
 
+# Must be out of if VERSION, otherwise => strange error
+const FORTLIB = "fortranlib.so"
+
 # We are calling a subroutine, so return type is
-# Void (for Fortran)  → Cvoid (via iso_c_binding) → nothing (via Base.cconvert)
+# Void (for Fortran)  → Cvoid (via iso_c_binding) → Nothing (via Base.cconvert)
 @static if VERSION >= v"1.5.0"  # clearer syntax
 
-   const FORTLIB = "fortranlib.so"
    @ccall FORTLIB.mypow(v::Ref{Clonglong})::Cvoid
 else # works anyway
 
    # Argument types are specified with a tuple,
    # (Any,) isa Tuple => true
    # (Any)  isa Tuple => false
-   ccall( (:mypow, "fortranlib.so"), Cvoid, (Ref{Clonglong},), v )
+   ccall( (:mypow, FORTLIB), Cvoid, (Ref{Clonglong},), v )
 end
 
 # The content reference is accessed with []
