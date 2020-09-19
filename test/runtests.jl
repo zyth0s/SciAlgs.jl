@@ -78,3 +78,6 @@ include("test_gram_schmidt.jl")
 #include("test_matrixmultiply.jl")
 #include("test_mcmc_coal.jl")
 #include("test_mcmc_hardcore.jl")
+
+# Mixed language
+include("test_callfortran.jl")

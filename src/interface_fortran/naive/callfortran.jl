@@ -1,6 +1,6 @@
 
 # Must be out of if VERSION, otherwise => strange error
-const FORTLIB = "fortranlib.so"
+const FORTLIB = joinpath(@__DIR__, "fortranlib.so")
 
 @static if VERSION >= v"1.5.0" # nicer syntax
 
