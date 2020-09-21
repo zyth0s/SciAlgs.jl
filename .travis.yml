@@ -10,6 +10,7 @@ addons:
   apt:
     packages:
       - python3-sympy
+      - gfortran
 matrix:
   allow_failures:
     - julia: nightly
