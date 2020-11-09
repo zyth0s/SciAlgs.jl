@@ -174,6 +174,7 @@ Algorithms
 * Mixed language
   - [x] Examples of Fortran interfaces
   - [x] Examples of C interfaces
+  - [x] Examples of C++ interfaces with CxxWrap.jl
   - [x] Import Python modules
 * Util
   - [x] Validate Spanish DNI digits.

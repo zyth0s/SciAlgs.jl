@@ -1,0 +1,7 @@
+/Users/daniel/.julia/dev/SciAlgs/src/interface_cxx/1_greet/build/CMakeFiles/install/local.dir
+/Users/daniel/.julia/dev/SciAlgs/src/interface_cxx/1_greet/build/CMakeFiles/rebuild_cache.dir
+/Users/daniel/.julia/dev/SciAlgs/src/interface_cxx/1_greet/build/CMakeFiles/testlib.dir
+/Users/daniel/.julia/dev/SciAlgs/src/interface_cxx/1_greet/build/CMakeFiles/edit_cache.dir
+/Users/daniel/.julia/dev/SciAlgs/src/interface_cxx/1_greet/build/CMakeFiles/install/strip.dir
+/Users/daniel/.julia/dev/SciAlgs/src/interface_cxx/1_greet/build/CMakeFiles/install.dir
+/Users/daniel/.julia/dev/SciAlgs/src/interface_cxx/1_greet/build/CMakeFiles/list_install_components.dir
