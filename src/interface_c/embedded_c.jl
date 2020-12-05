@@ -22,11 +22,12 @@ rm("sums.c")
 
 # Test
 
+const libsums = "libsums.so"
+
 @static if VERSION >= v"1.5.0"
 
    v = [1.0, 2.0, 3.0]
 
-   const libsums = "libsums.so"
    res = @ccall libsums.sum_array(v::Ptr{Cdouble}, length(v)::Cint)::Cdouble
 
    @assert res ≈ 6
@@ -34,7 +35,7 @@ else
 
    v = [1.0, 2.0, 3.0]
 
-   res = ccall((:sum_array, "libsums.so"), Cdouble,
+   res = ccall((:sum_array, libsums), Cdouble,
                (Ptr{Cdouble}, Cint), v, length(v))
    @assert res ≈ 6
 end
