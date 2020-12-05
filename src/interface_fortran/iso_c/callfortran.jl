@@ -13,7 +13,7 @@ v = Ref{Clonglong}(2)
 
 # We are calling a subroutine, so return type is
 # Void (for Fortran)  → Cvoid (via iso_c_binding) → Nothing (via Base.cconvert)
-@static if VERSION >= v"1.5.0"  # clearer syntax
+@static if VERSION < v"1.5.0"  # clearer syntax
 
    @ccall FORTLIB.mypow(v::Ref{Clonglong})::Cvoid
 else # works anyway
@@ -21,9 +21,18 @@ else # works anyway
    # Argument types are specified with a tuple,
    # (Any,) isa Tuple => true
    # (Any)  isa Tuple => false
-   ccall( (:mypow, FORTLIB), Cvoid, (Ref{Clonglong},), v )
+   @time ccall( (:mypow, FORTLIB), Cvoid, (Ref{Clonglong},), v )
 end
 
 # The content reference is accessed with []
-#@assert v[] == 4
-#println("Four = ",v[])
+@assert v[] == 4
+println("Four = ",v[])
+
+
+# TODO give examples of all combinations possible:
+#      * subroutine call passing integer by reference (inout)
+#      * subroutine call passing array   by reference (inout)
+#      * subroutine call passing integer by reference (in)
+#      * subroutine call passing array   by reference (in)
+#      * function call that returns integer
+#      * function call that returns array
