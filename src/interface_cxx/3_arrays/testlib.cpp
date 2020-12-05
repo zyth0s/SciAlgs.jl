@@ -53,9 +53,14 @@ const double* const_matrix()
 //  return &d[0][0];
 //}
 
+void eval_rho(double& rho) {
+    rho = 4.0;
+}
+
 
 JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 {
+  mod.method("eval_rho", &eval_rho );
   mod.method("test_array_set", &test_array_set);
   mod.method("test_matrix_set", &test_matrix_set);
   mod.method("return_array", []() {
