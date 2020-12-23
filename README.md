@@ -90,6 +90,7 @@ Algorithms
   - [x] Green's function method for an infinite chain [Revista Brasileira de Ensino de Fisica, vol. 39, no 1, e1303, 2017](http://www.scielo.br/scielo.php?script=sci_arttext&pid=S1806-11172017000100402&lng=en&tlng=en)
   - [x] Green's function method (surface-bulk recursive) for an semi-infinite chain [Revista Brasileira de Ensino de Fisica, vol. 39, no 1, e1303, 2017](http://www.scielo.br/scielo.php?script=sci_arttext&pid=S1806-11172017000100402&lng=en&tlng=en)
   - [x] Ising chain (1D) model with direct diagonalization/exact diagonalization/fullCI
+  - [x] Quantum teleportation shown with a quantum circuit
 * Electronic Structure [ElStruct]
   - [x] [Psi4Julia](https://github.com/zyth0s/psi4julia) shows how to interact with [Psi4](https://psicode.org).
     + [x] Hartree-Fock (HF)
