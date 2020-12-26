@@ -1,6 +1,7 @@
 # Quantum computing for the very curious
 
 using LinearAlgebra: I, adjoint, det, tr, kron, normalize!
+const ⊗ = kron
 @info "* Computational quantum basis"
 @info "  |0⟩ = [1 0]ᵀ is the classical bit 0"
 @info "  |1⟩ = [0 1]ᵀ is the classical bit 1"
@@ -96,10 +97,10 @@ R = [cos(θ) -sin(θ); sin(θ) cos(θ)]
 @info "* Multi-qubit states"
 @info "  ψ₁ ⊗ ψ₂ ⊗ ⋯"
 
-𝟎𝟎 = kron(𝟎,𝟎)
-𝟎𝟏 = kron(𝟎,𝟏)
-𝟏𝟎 = kron(𝟏,𝟎)
-𝟏𝟏 = kron(𝟏,𝟏)
+𝟎𝟎 = 𝟎 ⊗ 𝟎
+𝟎𝟏 = 𝟎 ⊗ 𝟏
+𝟏𝟎 = 𝟏 ⊗ 𝟎
+𝟏𝟏 = 𝟏 ⊗ 𝟏
 
 γ = 0.8
 δ = 0.6
@@ -108,7 +109,7 @@ R = [cos(θ) -sin(θ); sin(θ) cos(θ)]
 # More generally, if we have single-qubit states ψ and ϕ, then the combined
 # state when the two qubits are put together is just:
 
-ξ = kron(ψ,ϕ)
+ξ = ψ ⊗ ϕ
 @assert ξ ≈ [ψ[1]*ϕ[1], ψ[1]*ϕ[2], ψ[2]*ϕ[1], ψ[2]*ϕ[2]]
 
 @info "* Multi-qubit gates"
@@ -125,7 +126,10 @@ CNOT = [1 0 0 0;
         0 1 0 0;
         0 0 0 1;
         0 0 1 0]
-#CNOT = cat(I(2), [0 1; 1 0], dims=(1,2)) |> Matrix
+# Also
+@assert CNOT ≈ cat(I(2), X, dims=(1,2)) #|> Matrix
+@assert CNOT ≈ 𝟎*𝟎' ⊗ I(2) + 𝟏*𝟏' ⊗ X
+
 
 @assert CNOT*𝟎𝟎 ≈ 𝟎𝟎
 @assert CNOT*𝟎𝟏 ≈ 𝟎𝟏
@@ -134,19 +138,18 @@ CNOT = [1 0 0 0;
 
 
 # Apply H to first qubit in a 2d space
-#H₁ = cat(H, I(2), dims=(1,2)) # H₁ ⊕ I
-H₁ = kron(H, I(2)) # H ⊗ I
+H₁ = H ⊗ I(2)
 # Apply H to second qubit in a 2d space
-H₂ = kron(I(2), H) # I ⊗ H
+H₂ = I(2) ⊗ H
 
 CNOT*H₁*𝟎𝟎
 
 
 @info "    CNOT can change the control qubit!"
 # |+-⟩
-pm = kron(H*𝟎,H*𝟏)
+pm = H*𝟎 ⊗ H*𝟏
 # |--⟩
-mm = kron(H*𝟏,H*𝟏)
+mm = H*𝟏 ⊗ H*𝟏
 
 # |0⟩ ---[ H ]--- |+⟩---⋅--- |-⟩
 #                       |
@@ -158,7 +161,7 @@ mm = kron(H*𝟏,H*𝟏)
 
 # Global phase factor
 
-θ = rand()
+θ = rand() # any real number
 
 G(θ) = ℯ^(im*θ) * I(2) # global phase factor ℯ^(iθ)
 
@@ -204,28 +207,29 @@ ebit = CNOT*H₁*𝟎𝟎 # entangled bit -> shared
 # Any state ψ we want to teleport
 α = rand(Complex{Float64})
 β = sqrt(1 - α*conj(α)) # |α|² + |β|² = 1
-@assert α*conj(α) + β*conj(β) ≈ 1
-ψ = α*𝟎 + β*𝟏 # ∈ ℂ² ≝ ℂ ⊗ ℂ
+@assert α*conj(α) + β*conj(β) ≈ 1 "State not properly normalized. Try with other (α,β)"
+ψ = α*𝟎 + β*𝟏 # ∈ ℂ² ≝ ℂ ⊗ ℂ ; ρψ = ψ*ψ' ∈ ℂ ⊗ ℂ
 _ψ = ψ # we can do this only in a classic circuit (debugging purposes)
 
-s = kron(ψ,ebit)
+s = ψ ⊗ ebit
 
-gate1 = kron(CNOT,I(2))
-gate2 = kron(H,I(4))
+gate1 = CNOT ⊗ I(2)
+gate2 = H ⊗ I(4)
 
 ψ = gate2*gate1*s
 
 # Alice measures first two bits, posibilities: 00, 01, 10, and 11
 
-P𝟎𝟎 = kron(𝟎𝟎*𝟎𝟎' , I(2)) # projectors
-P𝟎𝟏 = kron(𝟎𝟏*𝟎𝟏' , I(2))
-P𝟏𝟎 = kron(𝟏𝟎*𝟏𝟎' , I(2))
-P𝟏𝟏 = kron(𝟏𝟏*𝟏𝟏' , I(2))
+P𝟎𝟎 = 𝟎𝟎*𝟎𝟎' ⊗ I(2) # projections
+P𝟎𝟏 = 𝟎𝟏*𝟎𝟏' ⊗ I(2)
+P𝟏𝟎 = 𝟏𝟎*𝟏𝟎' ⊗ I(2)
+P𝟏𝟏 = 𝟏𝟏*𝟏𝟏' ⊗ I(2)
 
-p𝟎𝟎 = tr(ψ*ψ' * P𝟎𝟎) |> real # probabilities
-p𝟎𝟏 = tr(ψ*ψ' * P𝟎𝟏) |> real
-p𝟏𝟎 = tr(ψ*ψ' * P𝟏𝟎) |> real
-p𝟏𝟏 = tr(ψ*ψ' * P𝟏𝟏) |> real
+ρψ = ψ*ψ' # density operator
+p𝟎𝟎 = tr(ρψ * P𝟎𝟎) |> real # probabilities
+p𝟎𝟏 = tr(ρψ * P𝟎𝟏) |> real
+p𝟏𝟎 = tr(ρψ * P𝟏𝟎) |> real
+p𝟏𝟏 = tr(ρψ * P𝟏𝟏) |> real
 
 @info "  The probability of |𝟎𝟎⟩ is $p𝟎𝟎"
 @info "  The probability of |𝟎𝟏⟩ is $p𝟎𝟏"
@@ -234,26 +238,21 @@ p𝟏𝟏 = tr(ψ*ψ' * P𝟏𝟏) |> real
 
 icollapsed = argmax([p𝟎𝟎, p𝟎𝟏, p𝟏𝟎, p𝟏𝟏])
 icollapsed = rand(1:4) # to avoid taking always the first
+Pcollapsed = [P𝟎𝟎, P𝟎𝟏, P𝟏𝟎, P𝟏𝟏][icollapsed]
 
 x = (icollapsed == 2 || icollapsed == 4) |> Int
 z = (icollapsed == 3 || icollapsed == 4) |> Int
-@info "  Measured x = $x and z = $z"
+@info "  Alice measured x = $x and z = $z"
+@info "  Alice qubits collapsed to $(["|𝟎𝟎⟩", "|𝟎𝟏⟩", "|𝟏𝟎⟩", "|𝟏𝟏⟩"][icollapsed])"
 
-if icollapsed == 1
-   ψ = normalize!(P𝟎𝟎*ψ)[1:2] # state after measurement of 𝟎𝟎
-   ψ = Z^z * X^x * ψ # Bob does nothing
-   @assert _ψ ≈ ψ
-elseif icollapsed == 2
-   ψ = normalize!(P𝟎𝟏*ψ)[3:4] # state after measurement of 𝟎𝟏
-   ψ = Z^z * X^x * ψ # Bob applies X
-   @assert _ψ ≈ ψ
-elseif icollapsed == 3
-   ψ = normalize!(P𝟏𝟎*ψ)[5:6] # state after measurement of 𝟏𝟎
-   ψ = Z^z * X^x * ψ # Bob applies Z
-   @assert _ψ ≈ ψ
-elseif icollapsed == 4
-   ψ = normalize!(P𝟏𝟏*ψ)[7:8] # state after measurement of 𝟏𝟏
-   ψ = Z^z * X^x * ψ # Bob applies Z * X
-   @assert _ψ ≈ ψ
-end
+range = 2icollapsed-1:2icollapsed
+ψ = normalize!(Pcollapsed*ψ)[range] # state after measurement of 𝟎𝟎
+ψ = Z^z * X^x * ψ # Bob uses Alice classical bits x and z
+@assert _ψ ≈ ψ "Teleported state has been corrupted"
 @info "  Teleported |ψ⟩ = ($(ψ[1])) |𝟎⟩ + ($(ψ[2])) |𝟏⟩ !!"
+
+
+@info "Toffoli gate CCNOT"
+
+#CCNOT = cat(I(6), [0 1; 1 0], dims=(1,2)) |> Matrix
+CCNOT = cat(I(2), CNOT, dims=(1,2)) |> Matrix
