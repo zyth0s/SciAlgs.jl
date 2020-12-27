@@ -47,48 +47,55 @@ const ⊗ = kron
 # ## Computational quantum basis
 #
 # Our digital computers are able to reduce all information to zeros and ones,
-# that is, a bit may be one of the set $\{0,1\}$. Measurements can be described by
-# a probability distribution on the space of possible bits $p: \{0,1\} \to [0,1]$. However, quantum bits belong to a
-# two-dimensional complex vector space $\mathbb{C}^2$. Measurements give also a
-# probability but draw from a larger space $\rho_p: \mathbb{C}^2 \to [0,1]$.
+# that is, a bit may be one of the set $\{0,1\}$. Measurements can be described
+# by a probability distribution on the space of possible bits $p: \{0,1\} \to
+# [0,1]$. However, quantum bits belong to a two-dimensional complex vector
+# space $\mathbb{C}^2$. Measurements give also a probability but draw from a
+# larger space $\rho_p: \mathbb{C}^2 \to [0,1]$.
 #
-# Now you might ask how do we move data stored in bits to qubits. It turns out that you can map every classical probability distribution to a quantum probability distribution. This distribution is called a density operator, $\rho_p$. If we think of each element of the bitset $\{0,1\}$ as a $2\times 1$ basis vector, both form an orthonormal basis that spans $\mathbb{C}^2$.
+# Now you might ask how do we move data stored in bits to qubits. It turns out
+# that you can map every classical probability distribution to a quantum
+# probability distribution. This distribution is called a density operator,
+# $\rho_p$. If we think of each element of the bitset $\{𝟎,𝟏\}$ as a $2\times
+# 1$ basis vector, both form an orthonormal basis that spans $\mathbb{C}^2$.
 #
 # * $|0\rangle$ = [1 0]ᵀ is the classical bit 0
 # * $|1\rangle$ = [0 1]ᵀ is the classical bit 1
 
-𝟎 = [1, 0] # typeset with \bfzero
-𝟏 = [0, 1] # \bfone
+𝟎 = [1, 0] # ≡ $|0\rangle$; typeset with \bfzero
+𝟏 = [0, 1] # ≡ $|1\rangle$; typeset with \bfone
 
-# The density operator is the $2 \times 2$ matrix with the classical probabilities arranged along its diagonal, the rest zeros. If we have a classical bit 0 (probability $p=1$ to have 𝟎 and $p=0$ to have 𝟏), then the density operator is
+# The density operator is the $2 \times 2$ matrix with the classical
+# probabilities arranged along its diagonal, the rest zeros. If we have a
+# classical bit 0 (probability $p=1$ to have 𝟎 and $p=0$ to have 𝟏), then the
+# density operator is
 
-[1 0;
- 0 0]
+ρ𝟎 = [1 0;
+      0 0]
 
 # Other way to map classical to quantum probabilities is using the outer product
 
-1*𝟎*𝟎' + 0*𝟏*𝟏' # 𝟎 has p=1, and 𝟏 has p=0 probability
+@assert ρ𝟎 ≈ 1𝟎*𝟎' + 0𝟏*𝟏' # 𝟎 has p=1, and 𝟏 has p=0 probability
 
+# The same probability distribution can be arranged as a vector if we had
+# chosen the tensor product instead of the outer product. Instead of a $2
+# \times 2$ matrix we have a $4 \times 1$ vector. Technically, a vector space
+# like $\mathbb{C}^2$ is isomorphic to $\mathbb{C} \otimes \mathbb{C}$.
+
+@assert vec(ρ𝟎) ≈ 1𝟎 ⊗ 𝟎 + 0𝟏 ⊗ 𝟏
+
+# ### A general qubit
 #
-# ### A qubit
-#
-# A general qubit $|\psi\rangle = α |𝟎\rangle + β |𝟏\rangle \in
+# A general qubit $|\psi\rangle = \alpha |𝟎\rangle + \beta |𝟏\rangle \in
 # \mathbb{C}^2$ is described as a linear combination of the basis vectors and
-# it must satisfy the normalization condition $|α|² + |β|² = 1$.
+# it must satisfy the normalization condition $|\alpha|^2 + |\beta|^2 = 1$.
 
 α = 0.6
 β = 0.8
-@info "  Normalization constraint: |α|² + |β|² = 1"
 @assert α^2 + β^2 ≈ 1 # normalization contraint (here for α, β ∈ ℝ)
 ψ = α*𝟎 + β*𝟏
 @assert ψ ≈ [α, β]
-
-# $|\psi\rangle$ represents a probability distribution that can be written
-# as a matrix with the outer product
-
-ρψ = ψ*ψ'
-
-# This is called a density operator. It is worth remarking that a vector space like $\mathbb{C}^2$ is isomorphic to $\mathbb{C} \otimes \mathbb{C}$.
+@assert ψ'*ψ # ⟨ψ|ψ⟩ = 1 (normalization again)
 
 # ## Quantum gates
 #
@@ -96,7 +103,7 @@ const ⊗ = kron
 # to achieve our goal. Those operations are realized with gates that are
 # analogous to classical circuit gates.
 #
-# ### NOT gate `X == σₓ == ---[ X ]---`
+# ### Pauli σₓ gate: `X == NOT == ---[ X ]---`
 
 X = [0 1; 1 0]
 
@@ -110,9 +117,9 @@ X = [0 1; 1 0]
 
 X*ψ
 
-# ### Hadamard gate  `H == ---[ H ]---`
+# ### Hadamard gate:  `H == ---[ H ]---`
 #
-# A Hadamard gate converts a classical bit into a non-trivial qubit.
+# A Hadamard gate converts a classical bit into a general qubit.
 
 H = [1 1; 1 -1]./√2
 
@@ -135,10 +142,12 @@ J = [1 1; 1 1]./√2
 
 # H X ψ == ---[ X ]---[ H ]---
 #
-# ### Measurement `---| m )===`
+# ### Measurement: `---| m )===`
 #
 # Measurements can be performed by "casting the shadow" of the qubit state at a
-# place where we can look, that is, our computational quantum basis.
+# place where we can look, that is, our computational quantum basis. Measuring
+# the probability of having the a $|0\rangle$ is the like taking a marginal
+# probability from the joint probability.
 
 measure(ψ, verbose=false) = begin
    #println("m = 0 with probability $(ψ[1]^2)")
@@ -162,19 +171,16 @@ H*_ψ2 |> measure
 #     if m = 0 => input was (|0⟩ + |1⟩)/√2
 #     if m = 1 => input was (|0⟩ - |1⟩)/√2
 #
-# ###  Pauli σy gate  `Y == ---[ Y ]---`
+# ###  Pauli σy gate:  `Y == ---[ Y ]---`
 
 
 Y = [0 -im; im 0]
 @assert Y*adjoint(Y) ≈ I(2)
 
-# ### Z  gate or Pauli σz `---[ Z ]---`
-
-# +
+# ### Pauli σz gate: `Z == ---[ Z ]---`
 
 Z = [1 0; 0 -1]
 @assert Z*adjoint(Z) ≈ I(2)
-# -
 
 # ### General rotation gate
 
@@ -186,7 +192,16 @@ R = [cos(θ) -sin(θ); sin(θ) cos(θ)]
 
 # ## Multi-qubit states
 #
-# Whereas classical state spaces are combined with the cartesian product, such as $\{0,1\} \times \{0,1\}$, quantum state spaces are combined with the tensor product, $\mathcal{H}_1 ⊗ \mathcal{H}_2 ⊗ \cdots$.
+# Here again, we can find an analogy with the classical world if we think that
+# we are passing from sets to vector spaces. Whereas classical state spaces are
+# combined with the cartesian product, such as $\{0,1\} \times \{0,1\}$,
+# quantum state spaces are combined with the tensor product, $\mathbb{C}^2 ⊗
+# \mathbb{C}^2$. The classical probability $p: \{0,1\} \times \{0,1\} \to
+# [0,1]$ on the combined set will be a joint probability (the probability of
+# both having 0 in the first and 0 in the second bit, for example). The
+# corresponding density operator will be also a joint probability in their
+# tensor product space $\rho_p: \mathbb{C}^2 \otimes \mathbb{C}^2 \cong
+# \mathbb{C}^4 \to [0,1]$.
 
 𝟎𝟎 = 𝟎 ⊗ 𝟎
 𝟎𝟏 = 𝟎 ⊗ 𝟏
@@ -310,7 +325,7 @@ ebit = CNOT*H₁*𝟎𝟎 # entangled bit -> shared
 ψ = α*𝟎 + β*𝟏 # ∈ ℂ² ≝ ℂ ⊗ ℂ ; ρψ = ψ*ψ' ∈ ℂ ⊗ ℂ
 _ψ = ψ # we can do this only in a classic circuit (debugging purposes)
 
-# She applies a conditional not to the entangled qubit based on the state to be
+# She applies a conditional-NOT to the entangled qubit based on the state to be
 # teleported, and applies a Hadamard matrix to the state to be teleported.
 
 s = ψ ⊗ ebit
