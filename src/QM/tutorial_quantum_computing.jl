@@ -24,16 +24,17 @@
 # opened a quantum information book at a university public library and I was
 # scared enough to not look further. On the other hand, popular explanations of
 # the concept always fail to give a satisfactory description because they omit
-# the only tool that helps us understand quantum mechanics: math. But my
-# perspective changed completely when I encountered Nielsen and Matuschak's
+# the only tool that helps us understand quantum mechanics: math. 
+#
+# My perspective changed completely when I encountered Nielsen and Matuschak's
 # fantastic essays [Quantum Computing for the very
 # curious](https://quantum.country/qcvc). Therefore I recommend you to read
-# these before continuing.
-#
-# In this tutorial we will cover the same material but with a more
-# computational approach. All code below is written in Julia. It turns out that
+# these before continuing. It turns out that
 # most of the calculations can be reduced to simple low dimensional matrix
-# operations.  The linear algebra objects that we need are: the identity matrix
+# operations. Furthermore, the whole protocol can be condensed into a single diagram.
+#
+# In this tutorial we will cover some of the same concepts with the help of a
+# computer. All code below is written in Julia.   The linear algebra objects that we need are: the identity matrix
 # $I_m$, the adjoint operation $A^\dagger$, the determinant, trace, kroenecker
 # (or tensor) product, and a normalization function. The rest is already loaded
 # by Julia.
@@ -46,16 +47,12 @@ const ⊗ = kron
 # ## Computational quantum basis
 #
 # Our digital computers are able to reduce all information to zeros and ones,
-# that is, a bit may be one of the set $\{0,1\}$. Measurements can be described
-# as the mapping ($m: \{0,1\} \to [0,1]$) from the space of possible bits to a
-# probability between zero and one. However, quantum bits belong to a
+# that is, a bit may be one of the set $\{0,1\}$. Measurements can be described by
+# a probability distribution on the space of possible bits $p: \{0,1\} \to [0,1]$. However, quantum bits belong to a
 # two-dimensional complex vector space $\mathbb{C}^2$. Measurements give also a
-# probability but draw from a larger space ($m: \mathbb{C}^2 \to [0,1]$). As
-# you can see, we loose a lot of information when we measure. So, to operate
-# with quantum bits we have to find out how to represent our data with them.
+# probability but draw from a larger space $\rho_p: \mathbb{C}^2 \to [0,1]$.
 #
-# First, we have to choose in which basis we want to work. It will be the
-# standard computational quantum basis.
+# Now you might ask how do we move data stored in bits to qubits. It turns out that you can map every classical probability distribution to a quantum probability distribution. This distribution is called a density operator, $\rho_p$. If we think of each element of the bitset $\{0,1\}$ as a $2\times 1$ basis vector, both form an orthonormal basis that spans $\mathbb{C}^2$.
 #
 # * $|0\rangle$ = [1 0]ᵀ is the classical bit 0
 # * $|1\rangle$ = [0 1]ᵀ is the classical bit 1
@@ -63,10 +60,19 @@ const ⊗ = kron
 𝟎 = [1, 0] # typeset with \bfzero
 𝟏 = [0, 1] # \bfone
 
+# The density operator is the $2 \times 2$ matrix with the classical probabilities arranged along its diagonal, the rest zeros. If we have a classical bit 0 (probability $p=1$ to have 𝟎 and $p=0$ to have 𝟏), then the density operator is
+
+[1 0;
+ 0 0]
+
+# Other way to map classical to quantum probabilities is using the outer product
+
+1*𝟎*𝟎' + 0*𝟏*𝟏' # 𝟎 has p=1, and 𝟏 has p=0 probability
+
 #
 # ### A qubit
 #
-# A more general qubit $|\psi\rangle = α |𝟎\rangle + β |𝟏\rangle \in
+# A general qubit $|\psi\rangle = α |𝟎\rangle + β |𝟏\rangle \in
 # \mathbb{C}^2$ is described as a linear combination of the basis vectors and
 # it must satisfy the normalization condition $|α|² + |β|² = 1$.
 
@@ -77,13 +83,20 @@ const ⊗ = kron
 ψ = α*𝟎 + β*𝟏
 @assert ψ ≈ [α, β]
 
+# $|\psi\rangle$ represents a probability distribution that can be written
+# as a matrix with the outer product
+
+ρψ = ψ*ψ'
+
+# This is called a density operator. It is worth remarking that a vector space like $\mathbb{C}^2$ is isomorphic to $\mathbb{C} \otimes \mathbb{C}$.
+
 # ## Quantum gates
 #
 # Once we have transformed our information to qubits we need to manipulate them
-# to do calculations. Those operations are realized with gates that are
+# to achieve our goal. Those operations are realized with gates that are
 # analogous to classical circuit gates.
 #
-# ### NOT gate == X == σₓ == ---[ X ]---
+# ### NOT gate `X == σₓ == ---[ X ]---`
 
 X = [0 1; 1 0]
 
@@ -97,7 +110,7 @@ X = [0 1; 1 0]
 
 X*ψ
 
-# ### Hadamard gate == H == ---[ H ]---
+# ### Hadamard gate  `H == ---[ H ]---`
 #
 # A Hadamard gate converts a classical bit into a non-trivial qubit.
 
@@ -122,7 +135,7 @@ J = [1 1; 1 1]./√2
 
 # H X ψ == ---[ X ]---[ H ]---
 #
-# ### Measurement == ---| m )===
+# ### Measurement `---| m )===`
 #
 # Measurements can be performed by "casting the shadow" of the qubit state at a
 # place where we can look, that is, our computational quantum basis.
@@ -149,13 +162,13 @@ H*_ψ2 |> measure
 #     if m = 0 => input was (|0⟩ + |1⟩)/√2
 #     if m = 1 => input was (|0⟩ - |1⟩)/√2
 #
-# ### Y gate == σy == ---[ Y ]---
+# ###  Pauli σy gate  `Y == ---[ Y ]---`
 
 
 Y = [0 -im; im 0]
 @assert Y*adjoint(Y) ≈ I(2)
 
-# ### Z  gate == σz == ---[ Z ]---
+# ### Z  gate or Pauli σz `---[ Z ]---`
 
 # +
 
@@ -173,7 +186,7 @@ R = [cos(θ) -sin(θ); sin(θ) cos(θ)]
 
 # ## Multi-qubit states
 #
-# Take the form $\psi_1 ⊗ \psi_2 ⊗ \cdots$
+# Whereas classical state spaces are combined with the cartesian product, such as $\{0,1\} \times \{0,1\}$, quantum state spaces are combined with the tensor product, $\mathcal{H}_1 ⊗ \mathcal{H}_2 ⊗ \cdots$.
 
 𝟎𝟎 = 𝟎 ⊗ 𝟎
 𝟎𝟏 = 𝟎 ⊗ 𝟏
@@ -193,7 +206,7 @@ R = [cos(θ) -sin(θ); sin(θ) cos(θ)]
 # ## Multi-qubit gates
 # Take the form  G₁ ⊗ G₂ ⊗ ⋯
 #
-# ### Controlled-NOT gate == CNOT
+# ### Controlled-NOT gate (CNOT)
 #       x ---⋅---
 #            |
 #       y ---⊕---
