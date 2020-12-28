@@ -13,7 +13,7 @@ v = Ref{Clonglong}(2)
 
 # We are calling a subroutine, so return type is
 # Void (for Fortran)  → Cvoid (via iso_c_binding) → Nothing (via Base.cconvert)
-@static if VERSION < v"1.5.0"  # clearer syntax
+@static if VERSION >= v"1.5.0"  # clearer syntax
 
    @ccall FORTLIB.mypow(v::Ref{Clonglong})::Cvoid
 else # works anyway
