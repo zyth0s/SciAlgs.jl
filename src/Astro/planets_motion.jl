@@ -17,7 +17,7 @@ include("time.jl")
 include("units.jl")
 
 import Roots
-using Plots
+#using Plots
 import PyPlot
 pyplt = PyPlot
 mpl = PyPlot.matplotlib
@@ -175,7 +175,7 @@ function diagram_solar_system(Y::Int, m::Int, d::Int, ut)
    # Plot planets projected onto the ecliptic of J2000.0
    # at any datetime
    jd = julian_date_Montenbruck1989(Y,m,d,ut)
-   default(markerstrokewidth=0,background_color=:black)
+   #default(markerstrokewidth=0,background_color=:black)
    planet_colors = Dict("Mercury" => :grey,"Venus" => :goldenrod, "Earth" => :mediumblue,"Mars" => :red,
                         "Jupiter" => :crimson,"Saturn" => :darkkhaki,"Uranus" => :mediumturquoise,"Neptune" => :royalblue,
                         "Pluto" => :darksalmon
@@ -202,56 +202,56 @@ function diagram_solar_system(Y::Int, m::Int, d::Int, ut)
    #   axes[1].spines[spine].set_visible(false)
    #   axes[2].spines[spine].set_visible(false)
    #end
-   inner = scatter([0],[0],color=:yellow, label="Sun",
-               markersize=5,
-               xlabel="Distance from Sun [AU]",
-               ylabel="Distance from Sun [AU]",
-               leg = false,
-               xlims = (-1.7,1.7), ylims=(-1.7,1.7),
-               title="Inner planets")
+   #inner = scatter([0],[0],color=:yellow, label="Sun",
+   #            markersize=5,
+   #            xlabel="Distance from Sun [AU]",
+   #            ylabel="Distance from Sun [AU]",
+   #            leg = false,
+   #            xlims = (-1.7,1.7), ylims=(-1.7,1.7),
+   #            title="Inner planets")
    for planet in inner_planets
       a,e,I,ϖ,Ω,λ =planet_elements(planet,jd)
       xy = orbit_xyz(planet,jd,100)[1:2,:]
-      plot!(inner,xy[1,:],xy[2,:],color=planet_colors[planet],label=nothing,
-            line = (:solid,2))
+      #plot!(inner,xy[1,:],xy[2,:],color=planet_colors[planet],label=nothing,
+      #      line = (:solid,2))
       x,y,_ = orbit_position(planet,jd)
-      scatter!(inner,[x],[y],label=nothing,color=planet_colors[planet],
-               markersize=7)
-      annotate!(inner,x+0.05,y, Plots.text(planet[1],planet_colors[planet],:left,15))
+      #scatter!(inner,[x],[y],label=nothing,color=planet_colors[planet],
+      #         markersize=7)
+      #annotate!(inner,x+0.05,y, Plots.text(planet[1],planet_colors[planet],:left,15))
       axes[1].plot(xy[1,:],xy[2,:],color=planet_colors[planet],label=nothing,
                    linestyle=:solid,linewidth=2)
       axes[1].scatter(x,y,label=nothing,color=planet_colors[planet], s = 7)
       axes[1].annotate(string(planet[1]),xy=(x+0.05,y),color=planet_colors[planet])
    end
 
-   outer = scatter([0],[0],color=:yellow, label="Sun",
-               markersize = 5,
-               xlabel = "Distance from Sun [AU]",
-               #ylabel="Distance from Sun [AU]",
-               leg = false,
-               xlims = (-46,46), ylims=(-46,46),
-               title = "Outer planets")
+   #outer = scatter([0],[0],color=:yellow, label="Sun",
+   #            markersize = 5,
+   #            xlabel = "Distance from Sun [AU]",
+   #            #ylabel="Distance from Sun [AU]",
+   #            leg = false,
+   #            xlims = (-46,46), ylims=(-46,46),
+   #            title = "Outer planets")
    for planet in outer_planets
       a,e,I,ϖ,Ω,λ =planet_elements(planet,jd)
       xy = orbit_xyz(planet,jd,100)[1:2,:]
 
-      plot!(outer,xy[1,:],xy[2,:],color=planet_colors[planet],label=nothing,
-            line = (:solid,2))
+      #plot!(outer,xy[1,:],xy[2,:],color=planet_colors[planet],label=nothing,
+      #      line = (:solid,2))
       x,y,_ = orbit_position(planet,jd)
-      scatter!(outer,[x],[y],label=nothing,color=planet_colors[planet],
-               markersize=7)
-      annotate!(outer,x+1.5,y, Plots.text(planet[1],planet_colors[planet],:left,15))
+      #scatter!(outer,[x],[y],label=nothing,color=planet_colors[planet],
+      #         markersize=7)
+      #annotate!(outer,x+1.5,y, Plots.text(planet[1],planet_colors[planet],:left,15))
 
       axes[2].plot(xy[1,:],xy[2,:],color=planet_colors[planet],label=nothing,
                    linestyle=:solid,linewidth=2)
       axes[2].scatter(x,y,label=nothing,color=planet_colors[planet], s = 7)
       axes[2].annotate(string(planet[1]),xy=(x+1.5,y),color=planet_colors[planet])
    end
-   l = @layout [a b]
-   plot(inner,outer,layout = l,size=(1200,650))
-   savefig("solar_system_$Y-$m-$d-$ut.pdf")
+   #l = @layout [a b]
+   #plot(inner,outer,layout = l,size=(1200,650))
+   #savefig("solar_system_$Y-$m-$d-$ut.pdf")
    fig.tight_layout(pad=0.1) # top_margin conflicts with savefig
-   pyplt.savefig("../figures/solar_system_$Y-$m-$d-$ut.pdf")
+   pyplt.savefig("../figures/solar_system_$Y-$m-$d-$ut.png")
    pyplt.close("all")
 end
 # -----------------------------------------------------------
