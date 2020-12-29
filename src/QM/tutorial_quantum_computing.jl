@@ -154,8 +154,8 @@ measure(ψ, verbose=false) = begin
    #println("m = 1 with probability $(ψ[2]^2)")
    #p𝟎 = ψ[1]*conj(ψ[1])
    #p𝟏 = ψ[2]*conj(ψ[2])
-   p𝟎 = tr(ψ*ψ' * 𝟎*𝟎')
-   p𝟏 = tr(ψ*ψ' * 𝟏*𝟏')
+   p𝟎 = tr(ψ*ψ' * 𝟎*𝟎') # ≡ ⟨ψ|0⟩⟨0|ψ⟩ resol. ident
+   p𝟏 = tr(ψ*ψ' * 𝟏*𝟏') # ≡ ⟨ψ|1⟩⟨1|ψ⟩ resol. ident
    if verbose
       println("m = 0 with probability $p𝟎")
       println("m = 1 with probability $p𝟏")
@@ -381,3 +381,8 @@ range = 2icollapsed-1:2icollapsed
 
 #CCNOT = cat(I(6), [0 1; 1 0], dims=(1,2)) |> Matrix
 CCNOT = cat(I(2), CNOT, dims=(1,2)) |> Matrix
+
+Rx(θ) = cos(θ/2)*I(2) - im sin(θ/2)*X
+Ry(θ) = cos(θ/2)*I(2) - im sin(θ/2)*Y
+Rz(θ) = cos(θ/2)*I(2) - im sin(θ/2)*Z
+
