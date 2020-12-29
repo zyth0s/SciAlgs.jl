@@ -10,9 +10,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.5.1
 #   kernelspec:
-#     display_name: Julia 1.4.2
+#     display_name: Julia 1.5.3
 #     language: julia
-#     name: julia-1.4
+#     name: julia-1.5
 # ---
 
 # # Hands-on quantum computing for the very curious
@@ -95,7 +95,7 @@ const ⊗ = kron
 @assert α^2 + β^2 ≈ 1 # normalization contraint (here for α, β ∈ ℝ)
 ψ = α*𝟎 + β*𝟏
 @assert ψ ≈ [α, β]
-@assert ψ'*ψ # ⟨ψ|ψ⟩ = 1 (normalization again)
+@assert ψ'*ψ ≈ 1 # ⟨ψ|ψ⟩ = 1 (normalization again)
 
 # ## Quantum gates
 #
@@ -150,10 +150,6 @@ J = [1 1; 1 1]./√2
 # probability from the joint probability.
 
 measure(ψ, verbose=false) = begin
-   #println("m = 0 with probability $(ψ[1]^2)")
-   #println("m = 1 with probability $(ψ[2]^2)")
-   #p𝟎 = ψ[1]*conj(ψ[1])
-   #p𝟏 = ψ[2]*conj(ψ[2])
    p𝟎 = tr(ψ*ψ' * 𝟎*𝟎') # ≡ ⟨ψ|0⟩⟨0|ψ⟩ resol. ident
    p𝟏 = tr(ψ*ψ' * 𝟏*𝟏') # ≡ ⟨ψ|1⟩⟨1|ψ⟩ resol. ident
    if verbose
@@ -328,25 +324,25 @@ _ψ = ψ # we can do this only in a classic circuit (debugging purposes)
 # She applies a conditional-NOT to the entangled qubit based on the state to be
 # teleported, and applies a Hadamard matrix to the state to be teleported.
 
-s = ψ ⊗ ebit
+s = ψ ⊗ ebit;
 
 gate1 = CNOT ⊗ I(2)
-gate2 = H ⊗ I(4)
+gate2 = H ⊗ I(4);
 
-ψ = gate2*gate1*s
+ψ = gate2*gate1*s;
 
 # Alice measures first two bits, posibilities are 00, 01, 10, and 11
 
 P𝟎𝟎 = 𝟎𝟎*𝟎𝟎' ⊗ I(2) # projections
 P𝟎𝟏 = 𝟎𝟏*𝟎𝟏' ⊗ I(2)
 P𝟏𝟎 = 𝟏𝟎*𝟏𝟎' ⊗ I(2)
-P𝟏𝟏 = 𝟏𝟏*𝟏𝟏' ⊗ I(2)
+P𝟏𝟏 = 𝟏𝟏*𝟏𝟏' ⊗ I(2);
 
 ρψ = ψ*ψ' # density operator
 p𝟎𝟎 = tr(ρψ * P𝟎𝟎) |> real # probabilities
 p𝟎𝟏 = tr(ρψ * P𝟎𝟏) |> real
 p𝟏𝟎 = tr(ρψ * P𝟏𝟎) |> real
-p𝟏𝟏 = tr(ρψ * P𝟏𝟏) |> real
+p𝟏𝟏 = tr(ρψ * P𝟏𝟏) |> real;
 
 @info "  The probability of |𝟎𝟎⟩ is $p𝟎𝟎"
 @info "  The probability of |𝟎𝟏⟩ is $p𝟎𝟏"
@@ -357,7 +353,7 @@ p𝟏𝟏 = tr(ρψ * P𝟏𝟏) |> real
 
 icollapsed = argmax([p𝟎𝟎, p𝟎𝟏, p𝟏𝟎, p𝟏𝟏])
 icollapsed = rand(1:4) # to avoid taking always the first
-Pcollapsed = [P𝟎𝟎, P𝟎𝟏, P𝟏𝟎, P𝟏𝟏][icollapsed]
+Pcollapsed = [P𝟎𝟎, P𝟎𝟏, P𝟏𝟎, P𝟏𝟏][icollapsed];
 
 x = (icollapsed == 2 || icollapsed == 4) |> Int
 z = (icollapsed == 3 || icollapsed == 4) |> Int
@@ -380,9 +376,9 @@ range = 2icollapsed-1:2icollapsed
 # ## Toffoli gate CCNOT
 
 #CCNOT = cat(I(6), [0 1; 1 0], dims=(1,2)) |> Matrix
-CCNOT = cat(I(2), CNOT, dims=(1,2)) |> Matrix
+CCNOT = cat(I(4), CNOT, dims=(1,2)) |> Matrix
 
-Rx(θ) = cos(θ/2)*I(2) - im sin(θ/2)*X
-Ry(θ) = cos(θ/2)*I(2) - im sin(θ/2)*Y
-Rz(θ) = cos(θ/2)*I(2) - im sin(θ/2)*Z
+Rx(θ) = cos(θ/2)*I(2) - im * sin(θ/2)*X
+Ry(θ) = cos(θ/2)*I(2) - im * sin(θ/2)*Y
+Rz(θ) = cos(θ/2)*I(2) - im * sin(θ/2)*Z
 

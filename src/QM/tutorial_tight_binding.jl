@@ -10,9 +10,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.5.1
 #   kernelspec:
-#     display_name: Julia 1.4.2
+#     display_name: Julia 1.5.3
 #     language: julia
-#     name: julia-1.4
+#     name: julia-1.5
 # ---
 
 # # Tight binding method
@@ -25,6 +25,9 @@
 # Under some asumptions it is equivalent to Hückel's method.
 
 # We load linear algebra and plotting libraries first.
+
+using Pkg; Pkg.add("Measures")
+Pkg.add("Parameters")
 
 using LinearAlgebra
 using Plots
@@ -176,12 +179,12 @@ dos = plot(dos,e_dos, ylabel="Energy", xlabel="DOS",leg=false,
      ylims=(-W-1,W+1))
 l = @layout [ a b]
 plot(band,dos,layout=l)
-savefig("../figures/C.2_bandos_ring_t=$(t)_N=$(N)_E0=0_middleimpurity=$Δ.pdf")
+#savefig("../figures/C.2_bandos_ring_t=$(t)_N=$(N)_E0=0_middleimpurity=$Δ.pdf")
 
 plot(vs[:,1].*vs[:,1],xlims=(490,510), label="Bound state",
      ylabel="Probability",xlabel="Site",
      title="Contribution of site orbitals to impurity state")
-savefig("../figures/C.2_boundstate_ring_t=$(t)_N=$(N)_E0=0_middleimpurity=$Δ.pdf")
+#savefig("../figures/C.2_boundstate_ring_t=$(t)_N=$(N)_E0=0_middleimpurity=$Δ.pdf")
 
 
 # -----------------------------------------------------------------------------------
@@ -220,11 +223,11 @@ function tight_binding(hamiltonianConstructor::Function,params,name)
    plot(band,dos,pdos, layout=l, size=(1200,400),
         left_margin=5mm,bottom_margin=5mm,
         right_margin=0mm,top_margin=0mm)
-   if ismissing(impuritysite)
-      savefig("../figures/$(name)_t=$(t)_N=$(N)_E0=0.pdf")
-   else
-      savefig("../figures/$(name)_t=$(t)_N=$(N)_E0=0_@$(impuritysite)=$Δ.pdf")
-   end
+   #if ismissing(impuritysite)
+   #   savefig("../figures/$(name)_t=$(t)_N=$(N)_E0=0.pdf")
+   #else
+   #   savefig("../figures/$(name)_t=$(t)_N=$(N)_E0=0_@$(impuritysite)=$Δ.pdf")
+   #end
 end
 
 # -----------------------------------------------------------------------------------
@@ -312,7 +315,7 @@ function tight_binding_1D_2sites(a,Δ₁₂,t)
         xlabel="k pi/a", ylabel="Energy",
         leg = :inside,
        )
-   savefig("../figures/1d_2sites.pdf")
+   #savefig("../figures/1d_2sites.pdf")
 end
 
 # #### Example
@@ -344,7 +347,7 @@ function tight_binding_1D_2sites_sp_orbs(a,Δ₁₂,t)
         xlabel="k pi/a", ylabel="Energy",
         leg = :right,
        )
-   savefig("../figures/1d_2sites_sp_orbs.pdf")
+   #savefig("../figures/1d_2sites_sp_orbs.pdf")
 end
 
 tight_binding_1D_2sites_sp_orbs(1,2,2) # a, Δ₁₂, t
