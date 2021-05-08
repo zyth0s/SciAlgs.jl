@@ -168,6 +168,7 @@ Algorithms
   - [x] Kepler's equation for the eccentric anomaly
   - [x] Solar system simulation from orbital elements. [Murray-Dermott. Solar System Dynamics](http://ssdbook.maths.qmul.ac.uk/)
   - [x] Arenstorf orbits to reach the Moon
+  - [x] Magnitude of radiated energy when two black holes merge
 * Chaos
   - [x] Bifurcation diagram of the logistic map
 * Plots [plots]
