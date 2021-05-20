@@ -180,6 +180,7 @@ Algorithms
   - [x] Examples of C interfaces
   - [x] Examples of Rust interfaces
   - [x] Examples of C++ interfaces with CxxWrap.jl
+  - [x] Examples of calling LLVM intrinsics
   - [x] Import Python modules
 * Util
   - [x] Validate Spanish DNI digits.
