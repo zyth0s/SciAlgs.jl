@@ -109,6 +109,7 @@ Algorithms
     + [x] SCF with DIIS [Chem. Phys. Lett. 73, 393-398 (1980)](https://doi.org/10.1016/0009-2614(80)80396-4)
     + [x] AO-based general population analysis (special cases: Mulliken and Löwdin analysis)
   - [x] Slater-Koster Tight-binding of Sr2RuO4 [PRL 116, 197003 (2016)](https://link.aps.org/doi/10.1103/PhysRevLett.116.197003)
+  - [x] Chadi-Cohen Tight-binding of Si [Phys. Stat. Sol. (b) 68, 405 (1975)](https://onlinelibrary.wiley.com/doi/abs/10.1002/pssb.2220680140)
   - [x] McMurchie-Davidson molecular integrals evaluation scheme
   - [x] Simple plane-wave Density Functional Theory (DFT)
   - [x] Simple Hartree-Fock (HF) with GTOs (H2,He) [Szabo-Ostlund. Modern Quantum Chemistry.](https://store.doverpublications.com/0486691861.html)
