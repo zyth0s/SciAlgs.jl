@@ -116,7 +116,9 @@ Algorithms
   - [x] Simple Hartree-Fock (HF) with GTOs (H2,He) [J. Thijssen. Computational Physics](https://www.cambridge.org/core/books/computational-physics/BEE73B0139D4A9993193B57CDC62096E)
   - [x] Simple Hartree-Fock (HF) with two functions (He) [Am. J. Phys. 89 (4)](https://aapt.scitation.org/doi/10.1119/10.0002644)
   - [x] Davidson diagonalization [J. Comput. Phys. 17, 87–94](https://doi.org/10.1016/0021-9991(75)90065-0)
-  - [x] Electrostatic sum of an extended distribution of point charges [Phys. Rev. Materials 2, 013806](https://link.aps.org/doi/10.1103/PhysRevMaterials.2.013806)
+  - [x] Madelung sum with Pickard's algorithm [Phys. Rev. Materials 2, 013806](https://link.aps.org/doi/10.1103/PhysRevMaterials.2.013806)
+  - [x] Madelung sum with Tavernier's algorithm [J. Phys. Chem. Lett.](https://pubs.acs.org/doi/10.1021/acs.jpclett.0c01684)
+  - [x] Madelung sum with Ewald summation
 * Spectroscopy
   - [x] X-ray Photoelectron Spectrocopy (XPS) [J. Chem. Educ. 2019, 96, 7, 1502-1505](https://pubs.acs.org/doi/10.1021/acs.jchemed.9b00236)
 * Electrochemistry
