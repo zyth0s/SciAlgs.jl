@@ -119,6 +119,7 @@ Algorithms
   - [x] Madelung sum with Pickard's algorithm [Phys. Rev. Materials 2, 013806](https://link.aps.org/doi/10.1103/PhysRevMaterials.2.013806)
   - [x] Madelung sum with Tavernier's algorithm [J. Phys. Chem. Lett.](https://pubs.acs.org/doi/10.1021/acs.jpclett.0c01684)
   - [x] Madelung sum with Ewald summation
+  - [x] Integrate DOS in an energy range
 * Spectroscopy
   - [x] X-ray Photoelectron Spectrocopy (XPS) [J. Chem. Educ. 2019, 96, 7, 1502-1505](https://pubs.acs.org/doi/10.1021/acs.jchemed.9b00236)
 * Electrochemistry
