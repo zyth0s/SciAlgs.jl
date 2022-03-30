@@ -8,6 +8,7 @@ include("test_validate_isbn.jl")
 # ElStruct
 include("test_mcmurchie_davidson.jl")
 include("test_hf_szabo.jl")
+include("test_lattice_electrostatic_sum.jl")
 
 # NumQuad
 include("test_gauss_legendre.jl")

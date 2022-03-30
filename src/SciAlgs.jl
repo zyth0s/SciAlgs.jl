@@ -11,5 +11,6 @@ include("./NumQuad/NumQuad.jl")
 include("./Algorithms_from_THE_BOOK/TheBook.jl")
 include("./ElStruct/McMurchieDavidson.jl")
 include("./ElStruct/hf_szabo.jl")
+include("./ElStruct/lattice_electrostatic_sum.jl")
 
 end # module
