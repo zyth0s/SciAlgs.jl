@@ -5,6 +5,8 @@
 # [2] Clifford boundary conditions for periodic systems: the Madelung constant of cubic crystals in 1, 2 and 3 dimensions
 #     Nicolas Tavernier, Gian Luigi Bendazzoli, Véronique Brumas, Stefano Evangelisti & J. Arjan Berger*
 # * ENVIRON (testing)
+#
+# TODO: simplify non-orthogonal axes
 
 using Test
 using Printf
@@ -26,8 +28,10 @@ function madelung_clifford(L, positions, Q, Rmax=[120,120,120])
    @assert size(L) == (3,3)       "Lattice-vectors matrix has wrong size"
    @assert size(positions,1) == 3 "Ion coordinates have to be stacked as columns"
    @assert size(positions,2) == length(Q) "Few/many charges or positions given"
-   @assert isdiag(L'L) "Unit cell should have orthogonal axes"
-   #@assert L[1,:] ⋅ L[2,:] ≈ L[2,:] ⋅ L[3,:] ≈ L[1,:] ⋅ L[3,:] ≈ 0 "Cell has no orthogonal axes"
+   @assert abs(sum(Q)) < 1e-4 "Not electroneutral" # Not sure if this is needed, in practice yes
+   # Cell has no orthogonal axes
+   #non_orthogonal =  !(L[1,:] ⋅ L[2,:] ≈ L[2,:] ⋅ L[3,:] ≈ L[1,:] ⋅ L[3,:] ≈ 0)
+   non_orthogonal = !isdiag(L*L') # lattice vectors as rows of L
 
    #G = L*L' # metric tensor
    #Ω = sqrt(det(G))
@@ -36,7 +40,7 @@ function madelung_clifford(L, positions, Q, Rmax=[120,120,120])
    # Madelung constants
    M = zeros(Nat)
 
-   # Sum over Clifford Super Cell (CSC), Equation (11)[1] or Equation (25)[2]
+   # Sum over Clifford Super Cell (CSC), Equation (11)[1] or Equation (25)[2] + generalization
    for A in 1:Nat
       for B in 1:Nat
 
@@ -51,23 +55,53 @@ function madelung_clifford(L, positions, Q, Rmax=[120,120,120])
 
             # Squared distance between A and B
             Rᴬᴮ² = 0.0
-            for d in 1:3
+            for j in 1:3
 
-               Δx = positions[d,B] - positions[d,A] + R[d]
+               vⱼ = L[j,:]
+               Δxⱼ = (positions[j,B] + R[j]) - positions[j,A]
+               θⱼ = 2π * Δxⱼ / Rmax[j]
 
                # Squared equation (6)[1]
-               Rᴬᴮ² += Rmax[d]^2 / (2π^2) * (1 - cos(2π/Rmax[d]*(Δx))) * norm(L[d,:])^2
+               Rᴬᴮ² += Rmax[j]^2 / (2π^2) * (1 - cos(θⱼ)) * norm(vⱼ)^2
                # Equation (2)[2]
-               #Rᴬᴮ² += (Rmax[d] / π * sin(π*Δx/Rmax[d]))^2
+               #Rᴬᴮ² += (Rmax[j] / π * sin(π*Δxⱼ/Rmax[j]))^2
+               # Non simplified - check
+               #xⱼᴬ = positions[j,A]
+               #xⱼᴮ = positions[j,B] + R[j]
+               #θⱼᴬ = 2π * xⱼᴬ / Rmax[j]
+               #θⱼᴮ = 2π * xⱼᴮ / Rmax[j]
+               #Rᴬᴮ² += Rmax[j]^2 / (4π^2) * ((exp(-im*θⱼᴮ)-exp(-im*θⱼᴬ)) * (exp(im*θⱼᴮ)-exp(im*θⱼᴬ))) * norm(vⱼ)^2
+            end
+            if non_orthogonal # Took eq 15 in [2] and extended it for 3D
+               v₁ = L[1,:]
+               v₂ = L[2,:]
+               v₃ = L[3,:]
+               xᴬ = positions[:,A]
+               xᴮ = positions[:,B] + R[:]
+               θ₁ᴬ = 2π * xᴬ[1] / Rmax[1]
+               θ₂ᴬ = 2π * xᴬ[2] / Rmax[2]
+               θ₃ᴬ = 2π * xᴬ[3] / Rmax[3]
+               θ₁ᴮ = 2π * xᴮ[1] / Rmax[1]
+               θ₂ᴮ = 2π * xᴮ[2] / Rmax[2]
+               θ₃ᴮ = 2π * xᴮ[3] / Rmax[3]
+               # 1 2 & 2 1
+               Rᴬᴮ² += Rmax[1]*Rmax[2] / (4π^2) * ((exp(-im*θ₁ᴮ)-exp(-im*θ₁ᴬ)) * (exp(im*θ₂ᴮ)-exp(im*θ₂ᴬ))) * (v₁⋅v₂)
+               Rᴬᴮ² += Rmax[1]*Rmax[2] / (4π^2) * ((exp(-im*θ₂ᴮ)-exp(-im*θ₂ᴬ)) * (exp(im*θ₁ᴮ)-exp(im*θ₁ᴬ))) * (v₂⋅v₁)
+               # 1 3 & 3 1
+               Rᴬᴮ² += Rmax[1]*Rmax[3] / (4π^2) * ((exp(-im*θ₁ᴮ)-exp(-im*θ₁ᴬ)) * (exp(im*θ₃ᴮ)-exp(im*θ₃ᴬ))) * (v₁⋅v₃)
+               Rᴬᴮ² += Rmax[1]*Rmax[3] / (4π^2) * ((exp(-im*θ₃ᴮ)-exp(-im*θ₃ᴬ)) * (exp(im*θ₁ᴮ)-exp(im*θ₁ᴬ))) * (v₃⋅v₁)
+               # 2 3 & 3 2
+               Rᴬᴮ² += Rmax[2]*Rmax[3] / (4π^2) * ((exp(-im*θ₂ᴮ)-exp(-im*θ₂ᴬ)) * (exp(im*θ₃ᴮ)-exp(im*θ₃ᴬ))) * (v₂⋅v₃)
+               Rᴬᴮ² += Rmax[2]*Rmax[3] / (4π^2) * ((exp(-im*θ₃ᴮ)-exp(-im*θ₃ᴬ)) * (exp(im*θ₂ᴮ)-exp(im*θ₂ᴬ))) * (v₃⋅v₂)
             end
             M[A] += Q[B]/sqrt(Rᴬᴮ²)
          end
       end
    end
 
-   # Equation (12)
+   # Equation (12); typo: missing 1/2 in [1] but not in [2]
    E = 0.5sum(Q .* M)
-   #E /= cbrt(Ω) # if the sin formula for RAB is used
+   #E /= cbrt(Ω) # if the sin formula for RAB is used !?
    @printf("E = %.15f\n",E)
 
    E
@@ -97,6 +131,7 @@ end
 # Test against https://github.com/lukeolson/pyewald/blob/master/pyewald/tests/test_ewaldsum.py
 
 angs2bohr(angs) = inv(5.291_772_109_03e-1)*angs
+
 
 @testset "Madelung Clifford: NaCl Madelung constant" begin
 
@@ -152,11 +187,11 @@ end
    Q = [1, -1]
 
    # FIXME
-   E = madelung_clifford(L,positions,Q)
+   E = madelung_clifford(L,positions,Q,[40,40,40])
    @test_broken 0.25E * sqrt(3) ≈ −1.638_066_314_9 # Table 3 K=40
 
    # FIXME
-   E = madelung_clifford(L,positions,Q)
+   E = madelung_clifford(L,positions,Q,[60,60,60])
    @test_broken 0.25E * sqrt(3) ≈ −1.638_060_088_4 # Table 3 K=60
 
    #@debug "ZnS: Eelec = $E [Ha]"
@@ -242,88 +277,91 @@ end
    @test E ≈ -10.3486490 atol=1e-4 # Calculated with ENVIRON
 end
 
-#@testset "Ewald: BN (hex.) energy vs ENVIRON" begin
-#
-#   acell = 4.7325
-#   ccell = 12.5834
-#   abc = [acell, acell, ccell]
-#   αβγ = [90, 90, 120] .|> deg2rad
-#
-#   positions = [0.33333 0.66667 0.25;  # B; fractional coordinates
-#                0.66667 0.33333 0.75;  # B
-#                0.33333 0.66667 0.75;  # N
-#                0.66667 0.33333 0.25]' # N
-#   # QTAIM charges
-#   Q = [1.0, 1.0, -1.0, -1.0] .* 2.214
-#   ϵ = 1e-15
-#
-#   E = ewald(abc,αβγ,positions,Q,ϵ)
-#
-#	@debug "BN (hex.): Eelec = $E [Ha]"
-#   @test E ≈ -5.53593310 atol=1e-6 # Calculated with ENVIRON
-#end
-#
-#@testset "Ewald: MgB₂ energy vs ENVIRON" begin
-#
-#   acell = 5.8262
-#   ccell = 6.6395
-#   abc = [acell, acell, ccell]
-#   αβγ = [90.0, 90.0, 120.0] .|> deg2rad
-#   positions = [0       0       0;        # Mg
-#                0.33333 0.66667 0.50000;  # B
-#                0.66667 0.33333 0.50000]' # B
-#   # QTAIM charges
-#   Q = [2, -1, -1] * 0.81
-#   ϵ = 1e-15
-#
-#   E = ewald(abc,αβγ,positions,Q,ϵ)
-#
-#	@debug "MgB₂: Eelec = $E [Ha]"
-#   @test E ≈ -0.623919745 atol=1e-6 # Calculated with ENVIRON
-#end
-#
+@testset "Madelung Clifford: BN (hex.) energy vs ENVIRON" begin
+
+	a₁ = [1.0, -sqrt(3), 0.0] * 4.7325/2
+	a₂ = [1.0,  sqrt(3), 0.0] * 4.7325/2
+   a₃ = [0.0,  0.0,     1.0] * 12.5834
+   L = vcat(a₁', a₂', a₃') # vectors as rows
+
+   positions = [0.33333 0.66667 0.25;  # B; fractional coordinates
+                0.66667 0.33333 0.75;  # B
+                0.33333 0.66667 0.75;  # N
+                0.66667 0.33333 0.25]' # N
+   # QTAIM charges
+   Q = [1.0, 1.0, -1.0, -1.0] .* 2.214
+
+   E = madelung_clifford(L,positions,Q,[100,100,100])
+
+	@debug "BN (hex.): Eelec = $E [Ha]"
+   @test E ≈ -5.53593310 atol=1e-3 # Calculated with ENVIRON
+end
+
+@testset "Madelung Clifford: MgB₂ energy vs ENVIRON" begin
+
+	a₁ = [1.0, -sqrt(3), 0.0] * 5.8262/2
+	a₂ = [1.0,  sqrt(3), 0.0] * 5.8262/2
+   a₃ = [0.0,  0.0,     1.0] * 6.6395
+   L = vcat(a₁', a₂', a₃')
+
+   positions = [0       0       0;        # Mg
+                0.33333 0.66667 0.50000;  # B
+                0.66667 0.33333 0.50000]' # B
+   # QTAIM charges
+   Q = [2, -1, -1] * 0.81
+
+   E = madelung_clifford(L,positions,Q,[40,40,40])
+
+	@debug "MgB₂: Eelec = $E [Ha]"
+   @test E ≈ -0.623919745 atol=1e-3 # Calculated with ENVIRON
+end
+
 #
 ## Tested against values from the original paper
 ## doi:10.1103/PhysRevMaterials.2.013806
 #
-#@testset "Ewald: Al fcc vs CASTEP" begin
-#
-#   # Al; ICSD:43423
-#   abc = [2.8636, 2.8636, 2.8636] .|> angs2bohr
-#   αβγ = [60.0, 60.0, 60.0] .|> deg2rad
-#
-#   positions = zeros(3)
-#   # Valence charge
-#   Q = [3.0]
-#   ϵ = 1e-15
-#
-#   E = ewald(abc,αβγ,positions,Q,ϵ)
-#   @test E ≈ -2.695954572 # from Table I
-#end
-#
-#@testset "Ewald: Si vs CASTEP" begin
+@testset "Madelung Clifford: Al fcc vs CASTEP" begin
+
+   # Al; ICSD:43423
+   a₁ = [5.41141973394663 , 0.0              , 0.0]
+   a₂ = [2.70570986697332 , 4.68642696013821 , 0.0]
+   a₃ = [2.70570986697332 , 1.56214232004608 , 4.41840571073226]
+   L = vcat(a₁', a₂', a₃')
+
+   positions = zeros(3)
+   # Valence charge
+   Q = [3.0]
+
+   @test_broken E = madelung_clifford(L,positions,Q,[80,80,80])
+   #@test E ≈ -2.695954572 # from Table I
+end
+
+#@testset "Madelung Clifford: Si vs CASTEP" begin
 #
 #   # Si; ICSD:51688
-#   abc = [3.8400, 3.8400, 3.8400] .|> angs2bohr
-#   αβγ = [60.0, 60.0, 60.0] .|> deg2rad
+#   a₁ = [7.25654832321381, 0.00000000000000, 0.00000000000000]
+#   a₂ = [3.62827416160690, 6.28435519169252, 0.00000000000000]
+#   a₃ = [3.62827416160690, 2.09478506389751, 5.92494689524090]
+#   L = vcat(a₁', a₂', a₃')
 #
 #   positions = [0.00 0.00 0.00;  # Si
 #                0.25 0.25 0.25]' # Si
 #   # Valence charge
 #   Q = [4.0, 4.0]
-#   ϵ = 1e-15
 #
-#   E = ewald(abc,αβγ,positions,Q,ϵ)
+#   E = madelung_clifford(L,positions,Q,[40,40,40])
 #
 #   @debug "Si: Eelec = $E [Ha]"
-#   @test E ≈ -8.398574646 # from Table I
+#   @test_broken E ≈ -8.398574646 # from Table I
 #end
 #
-#@testset "Ewald: SiO₂ vs CASTEP" begin
+#@testset "Madelung Clifford: SiO₂ vs CASTEP" begin
 #
 #   # SiO₂; ICSD:29122
-#   abc = [4.9130, 4.9130, 5.4050] .|> angs2bohr
-#   αβγ = [90.0, 90.0, 120.0] .|> deg2rad
+#   a₁ = [ 9.28422445623683, 0.00000000000000, 0.00000000000000]
+#   a₂ = [-4.64211222811842, 8.04037423353787, 0.00000000000000]
+#   a₃ = [ 0.00000000000000, 0.00000000000000, 10.2139697101486]
+#   L = vcat(a₁', a₂', a₃')
 #
 #   positions = [0.41500  0.27200  0.21300; # O ; fractional coords
 #                0.72800  0.14300  0.54633; # O
@@ -336,14 +374,13 @@ end
 #                0.53500  0.53500  0.00000]'# Si
 #   # Valence charges
 #   Q = vcat(repeat([6.0], 6), repeat([4.0], 3))
-#   ϵ = 1e-15
 #
-#   E = ewald(abc,αβγ,positions,Q,ϵ)
+#   E = madelung_clifford(L,positions,Q,[40,40,40])
 #
 #   @debug "SiO₂: Eelec = $E [Ha]"
-#   @test E ≈ -69.488098659 # from Table I
+#   @test_broken E ≈ -69.488098659 # from Table I
 #end
-#
+
 #@testset "Electrostatic sum: Al₂SiO₅" begin
 #
 #   # Al₂SiO₅; ICSD:24275
